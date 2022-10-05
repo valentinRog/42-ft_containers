@@ -177,8 +177,8 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
 
         reference       operator*() { return *_p; }
         const_reference operator*() const { return *_p; }
-        reference       operator[]( difference_type i ) { return *( _p - i ); }
-        const_reference operator[]( difference_type i ) const { return *( _p - i ); }
+        reference       operator[]( difference_type i ) { return _p[-i]; }
+        const_reference operator[]( difference_type i ) const { return _p[-i]; }
         pointer         operator->() const { return ( _p ); };
     };
 
@@ -238,7 +238,7 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
         bool operator<=( const ConstReverseIterator &other ) const { return ( _p <= other._p ); };
 
         const_reference operator*() const { return *_p; }
-        const_reference operator[]( difference_type i ) const { return *( _p - i ); }
+        const_reference operator[]( difference_type i ) const { return _p[-i]; }
         pointer         operator->() const { return ( _p ); };
     };
 
@@ -282,7 +282,7 @@ public:
     vector( const vector &x );
     virtual ~vector() {}
 
-    vector &operator=( const vector &x );
+    vector &operator=( const vector &other );
 
     /* -------------------------------- Capacity -------------------------------- */
 
@@ -311,10 +311,10 @@ public:
 
     /* ----------------------------- Element access ----------------------------- */
 
-    reference         operator[]( size_type n );
-    const_reference   operator[]( size_type n ) const;
-    reference         at( size_type n );
-    const_reference   at( size_type n ) const;
+    reference         operator[]( size_type i );
+    const_reference   operator[]( size_type i ) const;
+    reference         at( size_type i );
+    const_reference   at( size_type i ) const;
     reference         front();
     const_reference   front() const;
     reference         back();
@@ -338,8 +338,8 @@ public:
 
     /* -------------------------------- Allocator ------------------------------- */
 
-    allocator_type get_allocator() const;
+    allocator_type get_allocator() const { return _allocator; }
 
     /* -------------------------------------------------------------------------- */
 };
-}        // namespace ft
+}
