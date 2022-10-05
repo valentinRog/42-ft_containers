@@ -40,6 +40,8 @@ BreakBeforeBinaryOperators: All
 
 BreakBeforeTernaryOperators: true
 
+ColumnLimit: 120
+
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 
 FixNamespaceComments: false

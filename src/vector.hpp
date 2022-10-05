@@ -23,7 +23,48 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
         pointer _p;
 
     public:
-        Iterator( pointer p );
+        Iterator( pointer p ) : _p( p ) {}
+        Iterator( Iterator &other ) : _p( other._p ) {}
+
+        Iterator operator+( difference_type n ) const { return Iterator( _p + n ); }
+        Iterator operator-( difference_type n ) const { return Iterator( _p - n ); }
+        Iterator operator+( const Iterator &other ) const { return Iterator( _p + other._p ); }
+        Iterator operator-( const Iterator &other ) const { return Iterator( _p - other._p ); }
+
+        Iterator operator++() {
+            _p++;
+            return *this;
+        }
+        Iterator operator--() {
+            _p++;
+            return *this;
+        }
+        Iterator operator++( int ) {
+            Iterator copy( *this );
+            _p++;
+            return copy;
+        }
+        Iterator operator--( int ) {
+            Iterator copy( *this );
+            _p--;
+            return copy;
+        }
+
+        void operator+=( difference_type n ) { _p += n; };
+        void operator-=( difference_type n ) { _p -= n; };
+
+        bool operator==( const Iterator &other ) const { return ( _p == other._p ); };
+        bool operator!=( const Iterator &other ) const { return ( _p != other._p ); };
+        bool operator>( const Iterator &other ) const { return ( _p > other._p ); };
+        bool operator<( const Iterator &other ) const { return ( _p < other._p ); };
+        bool operator>=( const Iterator &other ) const { return ( _p >= other._p ); };
+        bool operator<=( const Iterator &other ) const { return ( _p <= other._p ); };
+
+        reference       operator*() { return *_p; }
+        const_reference operator*() const { return *_p; }
+        reference       operator[]( difference_type i ) { return _p[i]; }
+        const_reference operator[]( difference_type i ) const { return _p[i]; }
+        pointer         operator->() const { return ( _p ); };
     };
 
     /* -------------------------------------------------------------------------- */
@@ -31,7 +72,6 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
     class ConstIterator {
     public:
         typedef const T                         value_type;
-        typedef value_type &                    reference;
         typedef const value_type &              const_reference;
         typedef value_type *                    pointer;
         typedef typename std::ptrdiff_t         difference_type;
@@ -41,7 +81,46 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
         pointer _p;
 
     public:
-        ConstIterator( pointer p );
+        ConstIterator( pointer p ) : _p( p ) {}
+        ConstIterator( ConstIterator &other ) : _p( other._p ) {}
+
+        ConstIterator operator+( difference_type n ) const { return ConstIterator( _p + n ); }
+        ConstIterator operator-( difference_type n ) const { return ConstIterator( _p - n ); }
+        ConstIterator operator+( const ConstIterator &other ) const { return ConstIterator( _p + other._p ); }
+        ConstIterator operator-( const ConstIterator &other ) const { return ConstIterator( _p - other._p ); }
+
+        ConstIterator operator++() {
+            _p++;
+            return *this;
+        }
+        ConstIterator operator--() {
+            _p++;
+            return *this;
+        }
+        ConstIterator operator++( int ) {
+            ConstIterator copy( *this );
+            _p++;
+            return copy;
+        }
+        ConstIterator operator--( int ) {
+            ConstIterator copy( *this );
+            _p--;
+            return copy;
+        }
+
+        void operator+=( difference_type n ) { _p += n; };
+        void operator-=( difference_type n ) { _p -= n; };
+
+        bool operator==( const ConstIterator &other ) const { return ( _p == other._p ); };
+        bool operator!=( const ConstIterator &other ) const { return ( _p != other._p ); };
+        bool operator>( const ConstIterator &other ) const { return ( _p > other._p ); };
+        bool operator<( const ConstIterator &other ) const { return ( _p < other._p ); };
+        bool operator>=( const ConstIterator &other ) const { return ( _p >= other._p ); };
+        bool operator<=( const ConstIterator &other ) const { return ( _p <= other._p ); };
+
+        const_reference operator*() const { return *_p; }
+        const_reference operator[]( difference_type i ) const { return _p[i]; }
+        pointer         operator->() const { return ( _p ); };
     };
 
     /* -------------------------------------------------------------------------- */
@@ -67,7 +146,6 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
     class ConstReverseIterator {
     public:
         typedef const T                         value_type;
-        typedef value_type &                    reference;
         typedef const value_type &              const_reference;
         typedef value_type *                    pointer;
         typedef typename std::ptrdiff_t         difference_type;
@@ -80,7 +158,7 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
         void yo();
     };
 
-    /* -------------------------------------------------------------------------- */
+    /* ------------------------------ Member types ------------------------------ */
 
 public:
     typedef T                                        value_type;
@@ -106,16 +184,20 @@ protected:
     /* ------------------------------ Construction ------------------------------ */
 
 public:
-    explicit vector( const allocator_type &alloc = allocator_type() );
+    explicit vector( const allocator_type &alloc = allocator_type() )
+        : _allocator( alloc ),
+          _data( 0 ),
+          _capacity( 0 ),
+          _size( 0 ) {}
+
     explicit vector( size_type             n,
                      const value_type &    val   = value_type(),
                      const allocator_type &alloc = allocator_type() );
     template <class InputIterator>
-    vector( InputIterator         first,
-            InputIterator         last,
-            const allocator_type &alloc = allocator_type() );
+    vector( InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type() );
     vector( const vector &x );
-    virtual ~vector();
+    virtual ~vector() {}
+
     vector &operator=( const vector &x );
 
     /* -------------------------------- Capacity -------------------------------- */
@@ -158,19 +240,17 @@ public:
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    template <class InputIterator>
-    void     assign( InputIterator first, InputIterator last );
-    void     assign( size_type n, const value_type &val );
-    void     push_back( const value_type &val );
-    void     pop_back();
-    iterator insert( iterator position, const value_type &val );
-    void     insert( iterator position, size_type n, const value_type &val );
-    template <class InputIterator>
-    void insert( iterator position, InputIterator first, InputIterator last );
-    iterator erase( iterator position );
-    iterator erase( iterator first, iterator last );
-    void     swap( vector &x );
-    void     clear();
+    template <class InputIterator> void assign( InputIterator first, InputIterator last );
+    void                                assign( size_type n, const value_type &val );
+    void                                push_back( const value_type &val );
+    void                                pop_back();
+    iterator                            insert( iterator position, const value_type &val );
+    void                                insert( iterator position, size_type n, const value_type &val );
+    template <class InputIterator> void insert( iterator position, InputIterator first, InputIterator last );
+    iterator                            erase( iterator position );
+    iterator                            erase( iterator first, iterator last );
+    void                                swap( vector &x );
+    void                                clear();
 
     /* -------------------------------- Allocator ------------------------------- */
 
