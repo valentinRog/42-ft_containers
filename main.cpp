@@ -2,6 +2,5 @@
 
 int main() {
     ft::vector<int> vector;
-    ft::vector<int>::iterator it;
-    it.yo();
+    ft::vector<int>::iterator it(0);
 }

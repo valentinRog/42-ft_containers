@@ -46,6 +46,8 @@ FixNamespaceComments: false
 
 IndentWidth: 4
 
+ReflowComments: false
+
 SpaceAfterCStyleCast: true
 
 SpaceAfterTemplateKeyword: true
