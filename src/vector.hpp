@@ -36,7 +36,7 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
             return *this;
         }
         Iterator operator--() {
-            _p++;
+            _p--;
             return *this;
         }
         Iterator operator++( int ) {
@@ -94,7 +94,7 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
             return *this;
         }
         ConstIterator operator--() {
-            _p++;
+            _p--;
             return *this;
         }
         ConstIterator operator++( int ) {
@@ -138,7 +138,48 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
         pointer _p;
 
     public:
-        void yo();
+        ReverseIterator( pointer p ) : _p( p ) {}
+        ReverseIterator( ReverseIterator &other ) : _p( other._p ) {}
+
+        ReverseIterator operator+( difference_type n ) const { return ReverseIterator( _p - n ); }
+        ReverseIterator operator-( difference_type n ) const { return ReverseIterator( _p + n ); }
+        ReverseIterator operator+( const ReverseIterator &other ) const { return ReverseIterator( _p - other._p ); }
+        ReverseIterator operator-( const ReverseIterator &other ) const { return ReverseIterator( _p + other._p ); }
+
+        ReverseIterator operator++() {
+            _p--;
+            return *this;
+        }
+        ReverseIterator operator--() {
+            _p++;
+            return *this;
+        }
+        ReverseIterator operator++( int ) {
+            ReverseIterator copy( *this );
+            _p--;
+            return copy;
+        }
+        ReverseIterator operator--( int ) {
+            ReverseIterator copy( *this );
+            _p++;
+            return copy;
+        }
+
+        void operator+=( difference_type n ) { _p -= n; };
+        void operator-=( difference_type n ) { _p += n; };
+
+        bool operator==( const ReverseIterator &other ) const { return ( _p == other._p ); };
+        bool operator!=( const ReverseIterator &other ) const { return ( _p != other._p ); };
+        bool operator>( const ReverseIterator &other ) const { return ( _p > other._p ); };
+        bool operator<( const ReverseIterator &other ) const { return ( _p < other._p ); };
+        bool operator>=( const ReverseIterator &other ) const { return ( _p >= other._p ); };
+        bool operator<=( const ReverseIterator &other ) const { return ( _p <= other._p ); };
+
+        reference       operator*() { return *_p; }
+        const_reference operator*() const { return *_p; }
+        reference       operator[]( difference_type i ) { return *( _p - i ); }
+        const_reference operator[]( difference_type i ) const { return *( _p - i ); }
+        pointer         operator->() const { return ( _p ); };
     };
 
     /* -------------------------------------------------------------------------- */
@@ -155,7 +196,50 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
         pointer _p;
 
     public:
-        void yo();
+        ConstReverseIterator( pointer p ) : _p( p ) {}
+        ConstReverseIterator( ConstReverseIterator &other ) : _p( other._p ) {}
+
+        ConstReverseIterator operator+( difference_type n ) const { return ConstReverseIterator( _p - n ); }
+        ConstReverseIterator operator-( difference_type n ) const { return ConstReverseIterator( _p + n ); }
+        ConstReverseIterator operator+( const ConstReverseIterator &other ) const {
+            return ConstReverseIterator( _p - other._p );
+        }
+        ConstReverseIterator operator-( const ConstReverseIterator &other ) const {
+            return ConstReverseIterator( _p + other._p );
+        }
+
+        ConstReverseIterator operator++() {
+            _p--;
+            return *this;
+        }
+        ConstReverseIterator operator--() {
+            _p++;
+            return *this;
+        }
+        ConstReverseIterator operator++( int ) {
+            ConstReverseIterator copy( *this );
+            _p--;
+            return copy;
+        }
+        ConstReverseIterator operator--( int ) {
+            ConstReverseIterator copy( *this );
+            _p++;
+            return copy;
+        }
+
+        void operator+=( difference_type n ) { _p -= n; };
+        void operator-=( difference_type n ) { _p += n; };
+
+        bool operator==( const ConstReverseIterator &other ) const { return ( _p == other._p ); };
+        bool operator!=( const ConstReverseIterator &other ) const { return ( _p != other._p ); };
+        bool operator>( const ConstReverseIterator &other ) const { return ( _p > other._p ); };
+        bool operator<( const ConstReverseIterator &other ) const { return ( _p < other._p ); };
+        bool operator>=( const ConstReverseIterator &other ) const { return ( _p >= other._p ); };
+        bool operator<=( const ConstReverseIterator &other ) const { return ( _p <= other._p ); };
+
+        const_reference operator*() const { return *_p; }
+        const_reference operator[]( difference_type i ) const { return *( _p - i ); }
+        pointer         operator->() const { return ( _p ); };
     };
 
     /* ------------------------------ Member types ------------------------------ */
@@ -202,11 +286,11 @@ public:
 
     /* -------------------------------- Capacity -------------------------------- */
 
-    size_type size() const;
+    size_type size() const { return _size; }
     size_type max_size() const;
     void      resize( size_type n, value_type val = value_type() );
-    size_type capacity() const;
-    bool      empty() const;
+    size_type capacity() const { return _capacity; }
+    bool      empty() const { return !_size; }
     void      reserve( size_type n );
     void      shrink_to_fit();
 
