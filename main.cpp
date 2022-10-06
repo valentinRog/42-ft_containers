@@ -5,8 +5,8 @@
 
 int main() {
     ft::vector<int> v;
-    ft::vector<int>::Iterator it = v.begin();
-    *it = 4;
+    ft::vector<int>::iterator it = v.begin();
+     *it = 4;
     std::cout << *it << std::endl;
     it++;
     std::cout << *it << std::endl;

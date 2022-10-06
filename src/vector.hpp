@@ -8,13 +8,12 @@ namespace ft {
 
 template <typename T, class Allocator = std::allocator<T>> class vector {
 
-    /* ---------------------------- Iterator classes ---------------------------- */
+    /* -------------------------------- Iterator -------------------------------- */
+
 public:
-    class Iterator {
+    template <typename value_type> class Iterator {
     public:
-        typedef T                         value_type;
         typedef value_type &                    reference;
-        typedef const value_type &              const_reference;
         typedef value_type *                    pointer;
         typedef typename std::ptrdiff_t         difference_type;
         typedef std::random_access_iterator_tag iterator_category;
@@ -60,76 +59,16 @@ public:
         bool operator>=( const Iterator &other ) const { return ( _p >= other._p ); };
         bool operator<=( const Iterator &other ) const { return ( _p <= other._p ); };
 
-        reference       operator*() { return *_p; }
-        const_reference operator*() const { return *_p; }
-        reference       operator[]( difference_type i ) { return _p[i]; }
-        const_reference operator[]( difference_type i ) const { return _p[i]; }
-        pointer         operator->() const { return ( _p ); };
+        reference operator*() { return *_p; }
+        reference operator[]( difference_type i ) { return _p[i]; }
+        pointer   operator->() const { return ( _p ); };
     };
 
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------- Reverse iterator ---------------------------- */
 
-    class ConstIterator {
+    template <typename value_type> class ReverseIterator {
     public:
-        typedef const T                         value_type;
-        typedef const value_type &              const_reference;
-        typedef value_type *                    pointer;
-        typedef typename std::ptrdiff_t         difference_type;
-        typedef std::random_access_iterator_tag iterator_category;
-
-    private:
-        pointer _p;
-
-    public:
-        ConstIterator( pointer p ) : _p( p ) {}
-        ConstIterator( const ConstIterator &other ) : _p( other._p ) {}
-
-        ConstIterator operator+( difference_type n ) const { return ConstIterator( _p + n ); }
-        ConstIterator operator-( difference_type n ) const { return ConstIterator( _p - n ); }
-        ConstIterator operator+( const ConstIterator &other ) const { return ConstIterator( _p + other._p ); }
-        ConstIterator operator-( const ConstIterator &other ) const { return ConstIterator( _p - other._p ); }
-
-        ConstIterator operator++() {
-            _p++;
-            return *this;
-        }
-        ConstIterator operator--() {
-            _p--;
-            return *this;
-        }
-        ConstIterator operator++( int ) {
-            ConstIterator copy( *this );
-            _p++;
-            return copy;
-        }
-        ConstIterator operator--( int ) {
-            ConstIterator copy( *this );
-            _p--;
-            return copy;
-        }
-
-        void operator+=( difference_type n ) { _p += n; };
-        void operator-=( difference_type n ) { _p -= n; };
-
-        bool operator==( const ConstIterator &other ) const { return ( _p == other._p ); };
-        bool operator!=( const ConstIterator &other ) const { return ( _p != other._p ); };
-        bool operator>( const ConstIterator &other ) const { return ( _p > other._p ); };
-        bool operator<( const ConstIterator &other ) const { return ( _p < other._p ); };
-        bool operator>=( const ConstIterator &other ) const { return ( _p >= other._p ); };
-        bool operator<=( const ConstIterator &other ) const { return ( _p <= other._p ); };
-
-        const_reference operator*() const { return *_p; }
-        const_reference operator[]( difference_type i ) const { return _p[i]; }
-        pointer         operator->() const { return ( _p ); };
-    };
-
-    /* -------------------------------------------------------------------------- */
-
-    class ReverseIterator {
-    public:
-        typedef const T                         value_type;
         typedef value_type &                    reference;
-        typedef const value_type &              const_reference;
         typedef value_type *                    pointer;
         typedef typename std::ptrdiff_t         difference_type;
         typedef std::random_access_iterator_tag iterator_category;
@@ -175,71 +114,9 @@ public:
         bool operator>=( const ReverseIterator &other ) const { return ( _p >= other._p ); };
         bool operator<=( const ReverseIterator &other ) const { return ( _p <= other._p ); };
 
-        reference       operator*() { return *_p; }
-        const_reference operator*() const { return *_p; }
-        reference       operator[]( difference_type i ) { return _p[-i]; }
-        const_reference operator[]( difference_type i ) const { return _p[-i]; }
-        pointer         operator->() const { return ( _p ); };
-    };
-
-    /* -------------------------------------------------------------------------- */
-
-    class ConstReverseIterator {
-    public:
-        typedef const T                         value_type;
-        typedef const value_type &              const_reference;
-        typedef value_type *                    pointer;
-        typedef typename std::ptrdiff_t         difference_type;
-        typedef std::random_access_iterator_tag iterator_category;
-
-    private:
-        pointer _p;
-
-    public:
-        ConstReverseIterator( pointer p ) : _p( p ) {}
-        ConstReverseIterator( const ConstReverseIterator &other ) : _p( other._p ) {}
-
-        ConstReverseIterator operator+( difference_type n ) const { return ConstReverseIterator( _p - n ); }
-        ConstReverseIterator operator-( difference_type n ) const { return ConstReverseIterator( _p + n ); }
-        ConstReverseIterator operator+( const ConstReverseIterator &other ) const {
-            return ConstReverseIterator( _p - other._p );
-        }
-        ConstReverseIterator operator-( const ConstReverseIterator &other ) const {
-            return ConstReverseIterator( _p + other._p );
-        }
-
-        ConstReverseIterator operator++() {
-            _p--;
-            return *this;
-        }
-        ConstReverseIterator operator--() {
-            _p++;
-            return *this;
-        }
-        ConstReverseIterator operator++( int ) {
-            ConstReverseIterator copy( *this );
-            _p--;
-            return copy;
-        }
-        ConstReverseIterator operator--( int ) {
-            ConstReverseIterator copy( *this );
-            _p++;
-            return copy;
-        }
-
-        void operator+=( difference_type n ) { _p -= n; };
-        void operator-=( difference_type n ) { _p += n; };
-
-        bool operator==( const ConstReverseIterator &other ) const { return ( _p == other._p ); };
-        bool operator!=( const ConstReverseIterator &other ) const { return ( _p != other._p ); };
-        bool operator>( const ConstReverseIterator &other ) const { return ( _p > other._p ); };
-        bool operator<( const ConstReverseIterator &other ) const { return ( _p < other._p ); };
-        bool operator>=( const ConstReverseIterator &other ) const { return ( _p >= other._p ); };
-        bool operator<=( const ConstReverseIterator &other ) const { return ( _p <= other._p ); };
-
-        const_reference operator*() const { return *_p; }
-        const_reference operator[]( difference_type i ) const { return _p[-i]; }
-        pointer         operator->() const { return ( _p ); };
+        reference operator*() { return *_p; }
+        reference operator[]( difference_type i ) { return _p[-i]; }
+        pointer   operator->() const { return ( _p ); };
     };
 
     /* ------------------------------ Member types ------------------------------ */
@@ -251,10 +128,10 @@ public:
     typedef typename allocator_type::const_reference const_reference;
     typedef typename allocator_type::pointer         pointer;
     typedef typename allocator_type::const_pointer   const_pointer;
-    typedef Iterator                                 iterator;
-    typedef ConstIterator                            const_iterator;
-    typedef ReverseIterator                          reverse_iterator;
-    typedef ConstReverseIterator                     const_reverse_iterator;
+    typedef Iterator<value_type>                     iterator;
+    typedef Iterator<const value_type>               const_iterator;
+    typedef ReverseIterator<value_type>              reverse_iterator;
+    typedef ReverseIterator<const value_type>        const_reverse_iterator;
     typedef std::size_t                              size_type;
 
     /* ------------------------------- Attributes ------------------------------- */
@@ -273,7 +150,7 @@ public:
           _data( 0 ),
           _capacity( 0 ),
           _size( 0 ) {
-        _data = new T[10];
+        _data    = new T[10];
         _data[1] = 8;
     }
 
@@ -299,8 +176,8 @@ public:
 
     /* -------------------------------- Iterators ------------------------------- */
 
-    iterator               begin() { return iterator( _data ); }
-    const_iterator         begin() const;
+    iterator               begin() { return _data; }
+    const_iterator         begin() const { return _data; }
     iterator               end();
     const_iterator         end() const;
     reverse_iterator       rbegin();
