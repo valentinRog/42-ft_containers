@@ -6,7 +6,7 @@
 
 namespace ft {
 
-template <typename T, class Allocator = std::allocator<T>> class vector {
+template <typename T, class Allocator = std::allocator<T> > class vector {
 
     /* -------------------------------- Iterator -------------------------------- */
 
@@ -181,13 +181,13 @@ public:
     iterator               end();
     const_iterator         end() const;
     reverse_iterator       rbegin();
-    const_reverse_iterator rbegin() const;
+    const_reverse_iterator rbegin() const {return _data;};
     reverse_iterator       rend();
     const_reverse_iterator rend() const;
-    const_iterator         cbegin() const noexcept;
-    const_iterator         cend() const noexcept;
-    const_reverse_iterator crbegin() const noexcept;
-    const_reverse_iterator crend() const noexcept;
+    const_iterator         cbegin() const ;
+    const_iterator         cend() const ;
+    const_reverse_iterator crbegin() const ;
+    const_reverse_iterator crend() const ;
 
     /* ----------------------------- Element access ----------------------------- */
 
@@ -199,8 +199,8 @@ public:
     const_reference   front() const;
     reference         back();
     const_reference   back() const;
-    value_type *      data() noexcept;
-    const value_type *data() const noexcept;
+    value_type *      data() ;
+    const value_type *data() const ;
 
     /* -------------------------------- Modifiers ------------------------------- */
 
