@@ -1,7 +1,13 @@
 #include "src/vector.hpp"
 
 #include <vector>
+#include <iostream>
 
 int main() {
-    ft::vector<int> vector;
+    ft::vector<int> v;
+    ft::vector<int>::Iterator it = v.begin();
+    *it = 4;
+    std::cout << *it << std::endl;
+    it++;
+    std::cout << *it << std::endl;
 }

@@ -9,10 +9,10 @@ namespace ft {
 template <typename T, class Allocator = std::allocator<T>> class vector {
 
     /* ---------------------------- Iterator classes ---------------------------- */
-
+public:
     class Iterator {
     public:
-        typedef const T                         value_type;
+        typedef T                         value_type;
         typedef value_type &                    reference;
         typedef const value_type &              const_reference;
         typedef value_type *                    pointer;
@@ -24,7 +24,7 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
 
     public:
         Iterator( pointer p ) : _p( p ) {}
-        Iterator( Iterator &other ) : _p( other._p ) {}
+        Iterator( const Iterator &other ) : _p( other._p ) {}
 
         Iterator operator+( difference_type n ) const { return Iterator( _p + n ); }
         Iterator operator-( difference_type n ) const { return Iterator( _p - n ); }
@@ -82,7 +82,7 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
 
     public:
         ConstIterator( pointer p ) : _p( p ) {}
-        ConstIterator( ConstIterator &other ) : _p( other._p ) {}
+        ConstIterator( const ConstIterator &other ) : _p( other._p ) {}
 
         ConstIterator operator+( difference_type n ) const { return ConstIterator( _p + n ); }
         ConstIterator operator-( difference_type n ) const { return ConstIterator( _p - n ); }
@@ -139,7 +139,7 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
 
     public:
         ReverseIterator( pointer p ) : _p( p ) {}
-        ReverseIterator( ReverseIterator &other ) : _p( other._p ) {}
+        ReverseIterator( const ReverseIterator &other ) : _p( other._p ) {}
 
         ReverseIterator operator+( difference_type n ) const { return ReverseIterator( _p - n ); }
         ReverseIterator operator-( difference_type n ) const { return ReverseIterator( _p + n ); }
@@ -197,7 +197,7 @@ template <typename T, class Allocator = std::allocator<T>> class vector {
 
     public:
         ConstReverseIterator( pointer p ) : _p( p ) {}
-        ConstReverseIterator( ConstReverseIterator &other ) : _p( other._p ) {}
+        ConstReverseIterator( const ConstReverseIterator &other ) : _p( other._p ) {}
 
         ConstReverseIterator operator+( difference_type n ) const { return ConstReverseIterator( _p - n ); }
         ConstReverseIterator operator-( difference_type n ) const { return ConstReverseIterator( _p + n ); }
@@ -272,7 +272,10 @@ public:
         : _allocator( alloc ),
           _data( 0 ),
           _capacity( 0 ),
-          _size( 0 ) {}
+          _size( 0 ) {
+        _data = new T[10];
+        _data[1] = 8;
+    }
 
     explicit vector( size_type             n,
                      const value_type &    val   = value_type(),
@@ -296,7 +299,7 @@ public:
 
     /* -------------------------------- Iterators ------------------------------- */
 
-    iterator               begin();
+    iterator               begin() { return iterator( _data ); }
     const_iterator         begin() const;
     iterator               end();
     const_iterator         end() const;
