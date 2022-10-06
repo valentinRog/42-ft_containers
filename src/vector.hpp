@@ -23,7 +23,7 @@ public:
 
     public:
         Iterator( pointer p ) : _p( p ) {}
-        Iterator( const Iterator &other ) : _p( other._p ) {}
+        Iterator( const Iterator<T> &other ) : _p( other.operator->() ) {}
 
         Iterator operator+( difference_type n ) const { return Iterator( _p + n ); }
         Iterator operator-( difference_type n ) const { return Iterator( _p - n ); }
@@ -78,7 +78,7 @@ public:
 
     public:
         ReverseIterator( pointer p ) : _p( p ) {}
-        ReverseIterator( const ReverseIterator &other ) : _p( other._p ) {}
+        ReverseIterator( const ReverseIterator<T> &other ) : _p( other.operator->() ) {}
 
         ReverseIterator operator+( difference_type n ) const { return ReverseIterator( _p - n ); }
         ReverseIterator operator-( difference_type n ) const { return ReverseIterator( _p + n ); }
