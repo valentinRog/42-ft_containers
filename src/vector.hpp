@@ -6,15 +6,14 @@
 
 namespace ft {
 
-template <typename T, class Allocator = std::allocator<T> > class vector {
+template < typename T, class Allocator = std::allocator< T > > class vector {
 
     /* -------------------------------- Iterator -------------------------------- */
 
-public:
-    template <typename value_type> class Iterator {
+    template < typename U > class Iterator {
     public:
-        typedef value_type &                    reference;
-        typedef value_type *                    pointer;
+        typedef U &                             reference;
+        typedef U *                             pointer;
         typedef typename std::ptrdiff_t         difference_type;
         typedef std::random_access_iterator_tag iterator_category;
 
@@ -23,18 +22,18 @@ public:
 
     public:
         Iterator( pointer p ) : _p( p ) {}
-        Iterator( const Iterator<T> &other ) : _p( other.operator->() ) {}
+        Iterator( const Iterator< T > &other ) : _p( other.operator->() ) {}
 
-        Iterator operator+( difference_type n ) const { return Iterator( _p + n ); }
-        Iterator operator-( difference_type n ) const { return Iterator( _p - n ); }
-        Iterator operator+( const Iterator &other ) const { return Iterator( _p + other._p ); }
-        Iterator operator-( const Iterator &other ) const { return Iterator( _p - other._p ); }
+        Iterator        operator+( difference_type n ) const { return _p + n; }
+        Iterator        operator-( difference_type n ) const { return _p - n; }
+        difference_type operator-( const Iterator &other ) const { return _p - other._p; }
 
         Iterator operator++() {
             _p++;
             return *this;
         }
         Iterator operator--() {
+
             _p--;
             return *this;
         }
@@ -66,57 +65,29 @@ public:
 
     /* ---------------------------- Reverse iterator ---------------------------- */
 
-    template <typename value_type> class ReverseIterator {
-    public:
-        typedef value_type &                    reference;
-        typedef value_type *                    pointer;
-        typedef typename std::ptrdiff_t         difference_type;
-        typedef std::random_access_iterator_tag iterator_category;
-
-    private:
-        pointer _p;
+    template < typename U > class ReverseIterator : public Iterator< U > {
+        typedef typename Iterator< U >::reference         reference;
+        typedef typename Iterator< U >::pointer           pointer;
+        typedef typename Iterator< U >::difference_type   difference_type;
+        typedef typename Iterator< U >::iterator_category iterator_category;
 
     public:
-        ReverseIterator( pointer p ) : _p( p ) {}
-        ReverseIterator( const ReverseIterator<T> &other ) : _p( other.operator->() ) {}
+        ReverseIterator( pointer p ) : Iterator< U >::Iterator( p ) {}
+        ReverseIterator( const ReverseIterator< T > &other ) : Iterator< U >::Iterator( other ) {}
 
-        ReverseIterator operator+( difference_type n ) const { return ReverseIterator( _p - n ); }
-        ReverseIterator operator-( difference_type n ) const { return ReverseIterator( _p + n ); }
-        ReverseIterator operator+( const ReverseIterator &other ) const { return ReverseIterator( _p - other._p ); }
-        ReverseIterator operator-( const ReverseIterator &other ) const { return ReverseIterator( _p + other._p ); }
+        Iterator< U >   operator+( difference_type n ) const { return Iterator< U >::operator-( n ); }
+        Iterator< U >   operator-( difference_type n ) const { return Iterator< U >::operator+( n ); }
+        difference_type operator-( const Iterator< U > &other ) const { return Iterator< U >::operator-( other ); }
 
-        ReverseIterator operator++() {
-            _p--;
-            return *this;
-        }
-        ReverseIterator operator--() {
-            _p++;
-            return *this;
-        }
-        ReverseIterator operator++( int ) {
-            ReverseIterator copy( *this );
-            _p--;
-            return copy;
-        }
-        ReverseIterator operator--( int ) {
-            ReverseIterator copy( *this );
-            _p++;
-            return copy;
-        }
+        Iterator< U > operator++() { return Iterator< U >::operator--(); }
+        Iterator< U > operator--() { return Iterator< U >::operator++(); }
+        Iterator< U > operator++( int ) { return Iterator< U >::operator--( Iterator< U >::operator*() ); }
+        Iterator< U > operator--( int ) { return Iterator< U >::operator++( Iterator< U >::operator*() ); }
 
-        void operator+=( difference_type n ) { _p -= n; };
-        void operator-=( difference_type n ) { _p += n; };
+        void operator+=( difference_type n ) { Iterator< U >::operator-=( n ); };
+        void operator-=( difference_type n ) { Iterator< U >::operator+=( n ); };
 
-        bool operator==( const ReverseIterator &other ) const { return ( _p == other._p ); };
-        bool operator!=( const ReverseIterator &other ) const { return ( _p != other._p ); };
-        bool operator>( const ReverseIterator &other ) const { return ( _p > other._p ); };
-        bool operator<( const ReverseIterator &other ) const { return ( _p < other._p ); };
-        bool operator>=( const ReverseIterator &other ) const { return ( _p >= other._p ); };
-        bool operator<=( const ReverseIterator &other ) const { return ( _p <= other._p ); };
-
-        reference operator*() { return *_p; }
-        reference operator[]( difference_type i ) { return _p[-i]; }
-        pointer   operator->() const { return ( _p ); };
+        reference operator[]( difference_type i ) { return Iterator< U >::_p[-i]; }
     };
 
     /* ------------------------------ Member types ------------------------------ */
@@ -128,10 +99,10 @@ public:
     typedef typename allocator_type::const_reference const_reference;
     typedef typename allocator_type::pointer         pointer;
     typedef typename allocator_type::const_pointer   const_pointer;
-    typedef Iterator<value_type>                     iterator;
-    typedef Iterator<const value_type>               const_iterator;
-    typedef ReverseIterator<value_type>              reverse_iterator;
-    typedef ReverseIterator<const value_type>        const_reverse_iterator;
+    typedef Iterator< value_type >                   iterator;
+    typedef Iterator< const value_type >             const_iterator;
+    typedef ReverseIterator< value_type >            reverse_iterator;
+    typedef ReverseIterator< const value_type >      const_reverse_iterator;
     typedef std::size_t                              size_type;
 
     /* ------------------------------- Attributes ------------------------------- */
@@ -157,7 +128,7 @@ public:
     explicit vector( size_type             n,
                      const value_type &    val   = value_type(),
                      const allocator_type &alloc = allocator_type() );
-    template <class InputIterator>
+    template < class InputIterator >
     vector( InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type() );
     vector( const vector &x );
     virtual ~vector() {}
@@ -180,14 +151,14 @@ public:
     const_iterator         begin() const { return _data; }
     iterator               end();
     const_iterator         end() const;
-    reverse_iterator       rbegin();
-    const_reverse_iterator rbegin() const {return _data;};
+    reverse_iterator       rbegin() { return _data + 1; }
+    const_reverse_iterator rbegin() const { return _data + 1; };
     reverse_iterator       rend();
     const_reverse_iterator rend() const;
-    const_iterator         cbegin() const ;
-    const_iterator         cend() const ;
-    const_reverse_iterator crbegin() const ;
-    const_reverse_iterator crend() const ;
+    const_iterator         cbegin() const;
+    const_iterator         cend() const;
+    const_reverse_iterator crbegin() const;
+    const_reverse_iterator crend() const;
 
     /* ----------------------------- Element access ----------------------------- */
 
@@ -199,22 +170,22 @@ public:
     const_reference   front() const;
     reference         back();
     const_reference   back() const;
-    value_type *      data() ;
-    const value_type *data() const ;
+    value_type *      data();
+    const value_type *data() const;
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    template <class InputIterator> void assign( InputIterator first, InputIterator last );
-    void                                assign( size_type n, const value_type &val );
-    void                                push_back( const value_type &val );
-    void                                pop_back();
-    iterator                            insert( iterator position, const value_type &val );
-    void                                insert( iterator position, size_type n, const value_type &val );
-    template <class InputIterator> void insert( iterator position, InputIterator first, InputIterator last );
-    iterator                            erase( iterator position );
-    iterator                            erase( iterator first, iterator last );
-    void                                swap( vector &x );
-    void                                clear();
+    template < class InputIterator > void assign( InputIterator first, InputIterator last );
+    void                                  assign( size_type n, const value_type &val );
+    void                                  push_back( const value_type &val );
+    void                                  pop_back();
+    iterator                              insert( iterator position, const value_type &val );
+    void                                  insert( iterator position, size_type n, const value_type &val );
+    template < class InputIterator > void insert( iterator position, InputIterator first, InputIterator last );
+    iterator                              erase( iterator position );
+    iterator                              erase( iterator first, iterator last );
+    void                                  swap( vector &x );
+    void                                  clear();
 
     /* -------------------------------- Allocator ------------------------------- */
 

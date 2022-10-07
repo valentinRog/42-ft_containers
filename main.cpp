@@ -5,9 +5,12 @@
 
 int main() {
     ft::vector<int> v;
-    ft::vector<int>::iterator it = v.begin();
-    *it = 4;
+    ft::vector<int>::reverse_iterator it = v.rbegin();
+    ft::vector<int>::reverse_iterator it2 = v.rbegin();
+    // *it = 4;
     std::cout << *it << std::endl;
     it++;
-    std::cout << *it << std::endl;
+    it + 1;
+    it - it2;
+    std::cout << (it > it) << std::endl;
 }
