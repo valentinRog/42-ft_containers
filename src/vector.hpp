@@ -176,23 +176,26 @@ public:
 
     /* ----------------------------- Element access ----------------------------- */
 
-    reference         operator[]( size_type i );
-    const_reference   operator[]( size_type i ) const;
+    reference         operator[]( size_type i ) { return i >= _size ? *end() : _data[i]; }
+    const_reference   operator[]( size_type i ) const { return operator[]( i ); }
     reference         at( size_type i );
     const_reference   at( size_type i ) const;
-    reference         front();
-    const_reference   front() const;
-    reference         back();
-    const_reference   back() const;
+    reference         front() { return *begin(); }
+    const_reference   front() const { return front(); }
+    reference         back() { return *end(); }
+    const_reference   back() const { return back(); }
     value_type *      data() { return _data; }
-    const value_type *data() const { return _data; }
+    const value_type *data() const { return data(); }
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    template < class InputIterator > void assign( InputIterator first, InputIterator last );
-    void                                  assign( size_type n, const value_type &val );
-    void                                  push_back( const value_type &val ) { insert( end(), val ); }
-    void                                  pop_back() {
+    // template < class InputIterator > void assign( InputIterator first, InputIterator last );
+    void assign( size_type n, const value_type &val ) {
+        clear();
+        insert( begin(), n, val );
+    }
+    void push_back( const value_type &val ) { insert( end(), val ); }
+    void pop_back() {
         if ( _size ) {
             _allocator.destroy( _data + _size - 1 );
             _size--;
@@ -216,7 +219,7 @@ public:
     // template < class InputIterator > void insert( iterator position, InputIterator first, InputIterator last );
     iterator erase( iterator position );
     iterator erase( iterator first, iterator last );
-    void     swap( vector &x );
+    void     swap( vector &other );
     void     clear() {
         for ( size_type i = 0; i < _size; i++ ) { _allocator.destroy( _data + i ); }
         _size = 0;

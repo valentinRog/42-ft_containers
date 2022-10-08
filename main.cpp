@@ -35,5 +35,6 @@ int main() {
     ft::vector<int>::iterator it = v.begin();
     // // it++;
     v.insert(v.begin() + 1, 4, 4);
-    std::cout << v << std::endl;
+    v.assign(33, 36);
+    std::cout << v[2] << std::endl;
 }
