@@ -31,9 +31,15 @@ int main() {
     ft::vector< int > v;
     v.push_back( 42 );
     v.push_back( 1 );
+    v.push_back( 1 );
+    v.push_back( 1 );
     // v.push_back( 1 );
     ft::vector<int>::iterator it = v.begin();
     // // it++;
-    v.insert(v.begin() + 1, 4, 4);
+    std::vector<int> v2;
+    v2.push_back(1);
+    v2.push_back(2);
+    v2.push_back(3);
+    v.assign(v2.begin(), v2.end());
     std::cout << v << std::endl;
 }

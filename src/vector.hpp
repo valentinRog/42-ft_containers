@@ -1,10 +1,10 @@
 #pragma once
 
+#include "type_traits.hpp"
 #include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <memory>
-#include "type_traits.hpp"
 
 namespace ft {
 
@@ -123,19 +123,26 @@ public:
           _data( 0 ),
           _capacity( 0 ),
           _size( 0 ) {}
-
-    explicit vector( size_type             n,
-                     const value_type &    val   = value_type(),
-                     const allocator_type &alloc = allocator_type() );
-    template < class InputIterator >
-    vector( InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type() );
-    vector( const vector &x );
+    explicit vector( size_type n, const value_type &val = value_type(), const allocator_type &alloc = allocator_type() )
+        : _allocator( alloc ),
+          _data( 0 ),
+          _capacity( 0 ),
+          _size( 0 ) {
+        assign( n, val );
+    }
+    template < class U > vector( U first, U last, const allocator_type &alloc = allocator_type() );
+    vector( const vector &other ) : _allocator( other._allocator ), _data( 0 ), _capacity( 0 ), _size( 0 ) {
+        assign( other.begin(), other.end() );
+    }
     virtual ~vector() {
         clear();
         _allocator.deallocate( _data, _capacity );
     }
 
-    vector &operator=( const vector &other ) {}
+    vector &operator=( const vector &other ) {
+        assign( other.begin(), other.end() );
+        return *this;
+    }
 
     /* -------------------------------- Capacity -------------------------------- */
 
@@ -190,7 +197,11 @@ public:
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    // template < class InputIterator > void assign( InputIterator first, InputIterator last );
+    template < class U >
+    void assign( U first, U last, typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 ) {
+        clear();
+        insert( begin(), first, last );
+    }
     void assign( size_type n, const value_type &val ) {
         clear();
         insert( begin(), n, val );
@@ -207,21 +218,29 @@ public:
         return position;
     }
     void insert( iterator position, size_type n, const value_type &val ) {
-        size_type i         = position - begin();
-        size_type prev_size = _size;
+        size_type i = position - begin();
         reserve( _size + n );
-        _size += n;
         position = begin() + i;
         for ( iterator it = position; it < position + n; it++ ) {
-            if ( it - begin() < prev_size ) { it[n] = *it; }
+            if ( it - begin() < _size ) { it[n] = *it; }
             *it = val;
         }
+        _size += n;
     }
-    template < class InputIterator >
-    void     insert( iterator      position,
-                     InputIterator first,
-                     InputIterator last,
-                     typename ft::enable_if< !ft::is_integral< InputIterator >::value, InputIterator >::type * = 0 ) {}
+    template < class U >
+    void insert( iterator position,
+                 U        first,
+                 U        last,
+                 typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 ) {
+        size_type i = position - begin();
+        reserve( _size + ( last - first ) );
+        position = begin() + i;
+        for ( U it = first; it != last; it++, position++ ) {
+            if ( position - begin() < _size ) { position[last - first] = *position; }
+            *position = *it;
+        }
+        _size += last - first;
+    }
     iterator erase( iterator position ) { return erase( position, position + 1 ); }
     iterator erase( iterator first, iterator last ) {
         size_type i = last - first;
@@ -232,7 +251,7 @@ public:
         _size -= i;
         return first;
     }
-    void swap( vector &other );
+    void swap( vector &other ) {}
     void clear() {
         for ( size_type i = 0; i < _size; i++ ) { _allocator.destroy( _data + i ); }
         _size = 0;
