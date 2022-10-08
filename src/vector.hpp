@@ -217,10 +217,18 @@ public:
         }
     }
     // template < class InputIterator > void insert( iterator position, InputIterator first, InputIterator last );
-    iterator erase( iterator position );
-    iterator erase( iterator first, iterator last );
-    void     swap( vector &other );
-    void     clear() {
+    iterator erase( iterator position ) { return erase( position, position + 1 ); }
+    iterator erase( iterator first, iterator last ) {
+        size_type i = last - first;
+        for ( iterator it = first; it != end(); it++ ) {
+            if ( it >= last ) { it[-i] = *it; }
+            _allocator.destroy( it.operator->() );
+        }
+        _size -= i;
+        return first;
+    }
+    void swap( vector &other );
+    void clear() {
         for ( size_type i = 0; i < _size; i++ ) { _allocator.destroy( _data + i ); }
         _size = 0;
     }
