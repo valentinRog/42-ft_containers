@@ -1,5 +1,6 @@
 #pragma once
 
+#include "algorithm.hpp"
 #include "type_traits.hpp"
 #include <algorithm>
 #include <iostream>
@@ -251,7 +252,11 @@ public:
         _size -= i;
         return first;
     }
-    void swap( vector &other ) {}
+    void swap( vector &other ) {
+        ft::swap( _data, other._data );
+        ft::swap( _capacity, other._capacity );
+        ft::swap( _size, other._size );
+    }
     void clear() {
         for ( size_type i = 0; i < _size; i++ ) { _allocator.destroy( _data + i ); }
         _size = 0;

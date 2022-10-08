@@ -41,5 +41,7 @@ int main() {
     v2.push_back(2);
     v2.push_back(3);
     v.assign(v2.begin(), v2.end());
-    std::cout << v << std::endl;
+    ft::vector<int> v3;
+    v.swap(v3);
+    std::cout << v3 << std::endl;
 }
