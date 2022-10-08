@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -14,7 +15,7 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
     public:
         typedef U &                             reference;
         typedef U *                             pointer;
-        typedef typename std::ptrdiff_t         difference_type;
+        typedef std::ptrdiff_t                  difference_type;
         typedef std::random_access_iterator_tag iterator_category;
 
     private:
@@ -87,7 +88,7 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
         void operator+=( difference_type n ) { Iterator< U >::operator-=( n ); };
         void operator-=( difference_type n ) { Iterator< U >::operator+=( n ); };
 
-        reference operator[]( difference_type i ) { return Iterator< U >::_p[-i]; }
+        reference operator[]( difference_type i ) { return Iterator< U >::operator[]( -i ); }
     };
 
     /* ------------------------------ Member types ------------------------------ */
@@ -120,10 +121,7 @@ public:
         : _allocator( alloc ),
           _data( 0 ),
           _capacity( 0 ),
-          _size( 0 ) {
-        _data    = new T[10];
-        _data[1] = 8;
-    }
+          _size( 0 ) {}
 
     explicit vector( size_type             n,
                      const value_type &    val   = value_type(),
@@ -131,34 +129,50 @@ public:
     template < class InputIterator >
     vector( InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type() );
     vector( const vector &x );
-    virtual ~vector() {}
+    virtual ~vector() {
+        clear();
+        _allocator.deallocate( _data, _capacity );
+    }
 
     vector &operator=( const vector &other );
 
     /* -------------------------------- Capacity -------------------------------- */
 
     size_type size() const { return _size; }
-    size_type max_size() const;
+    size_type max_size() const { return _allocator.max_size(); }
     void      resize( size_type n, value_type val = value_type() );
     size_type capacity() const { return _capacity; }
     bool      empty() const { return !_size; }
-    void      reserve( size_type n );
-    void      shrink_to_fit();
+    void      reserve( size_type n ) {
+        if ( n > _capacity ) {
+            size_type len;
+            for ( len = 1; len < n; len <<= 1 )
+                ;
+            pointer tmp = _allocator.allocate( len );
+            for ( size_type i = 0; i < _size; i++ ) { _allocator.construct( tmp + i, _data[i] ); }
+            size_type size = _size;
+            clear();
+            _allocator.deallocate( _data, _capacity );
+            _size     = size;
+            _capacity = len;
+            _data     = tmp;
+        }
+    }
 
     /* -------------------------------- Iterators ------------------------------- */
 
     iterator               begin() { return _data; }
     const_iterator         begin() const { return _data; }
-    iterator               end();
-    const_iterator         end() const;
-    reverse_iterator       rbegin() { return _data + 1; }
-    const_reverse_iterator rbegin() const { return _data + 1; };
-    reverse_iterator       rend();
-    const_reverse_iterator rend() const;
-    const_iterator         cbegin() const;
-    const_iterator         cend() const;
-    const_reverse_iterator crbegin() const;
-    const_reverse_iterator crend() const;
+    iterator               end() { return _data + _size; }
+    const_iterator         end() const { return _data + _size; }
+    reverse_iterator       rbegin() { return _data + _size - 1; }
+    const_reverse_iterator rbegin() const { return _data + _size - 1; };
+    reverse_iterator       rend() { return _data; }
+    const_reverse_iterator rend() const { return _data; }
+    const_iterator         cbegin() const { return _data; }
+    const_iterator         cend() const { return _data + _size; }
+    const_reverse_iterator crbegin() const { return _data + _size; }
+    const_reverse_iterator crend() const { return _data; };
 
     /* ----------------------------- Element access ----------------------------- */
 
@@ -170,22 +184,43 @@ public:
     const_reference   front() const;
     reference         back();
     const_reference   back() const;
-    value_type *      data();
-    const value_type *data() const;
+    value_type *      data() { return _data; }
+    const value_type *data() const { return _data; }
 
     /* -------------------------------- Modifiers ------------------------------- */
 
     template < class InputIterator > void assign( InputIterator first, InputIterator last );
     void                                  assign( size_type n, const value_type &val );
-    void                                  push_back( const value_type &val );
-    void                                  pop_back();
-    iterator                              insert( iterator position, const value_type &val );
-    void                                  insert( iterator position, size_type n, const value_type &val );
-    template < class InputIterator > void insert( iterator position, InputIterator first, InputIterator last );
-    iterator                              erase( iterator position );
-    iterator                              erase( iterator first, iterator last );
-    void                                  swap( vector &x );
-    void                                  clear();
+    void                                  push_back( const value_type &val ) { insert( end(), val ); }
+    void                                  pop_back() {
+        if ( _size ) {
+            _allocator.destroy( _data + _size - 1 );
+            _size--;
+        }
+    }
+    iterator insert( iterator position, const value_type &val ) {
+        insert( position, 1, val );
+        return position;
+    }
+    void insert( iterator position, size_type n, const value_type &val ) {
+        size_type i         = position - begin();
+        size_type prev_size = _size;
+        reserve( _size + n );
+        _size += n;
+        position = begin() + i;
+        for ( iterator it = position; it < position + n; it++ ) {
+            if ( it - begin() < prev_size ) { it[n] = *it; }
+            *it = val;
+        }
+    }
+    // template < class InputIterator > void insert( iterator position, InputIterator first, InputIterator last );
+    iterator erase( iterator position );
+    iterator erase( iterator first, iterator last );
+    void     swap( vector &x );
+    void     clear() {
+        for ( size_type i = 0; i < _size; i++ ) { _allocator.destroy( _data + i ); }
+        _size = 0;
+    }
 
     /* -------------------------------- Allocator ------------------------------- */
 
