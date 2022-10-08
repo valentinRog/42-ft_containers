@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include "type_traits.hpp"
 
 namespace ft {
 
@@ -134,7 +135,7 @@ public:
         _allocator.deallocate( _data, _capacity );
     }
 
-    vector &operator=( const vector &other );
+    vector &operator=( const vector &other ) {}
 
     /* -------------------------------- Capacity -------------------------------- */
 
@@ -171,7 +172,7 @@ public:
     const_reverse_iterator rend() const { return _data; }
     const_iterator         cbegin() const { return _data; }
     const_iterator         cend() const { return _data + _size; }
-    const_reverse_iterator crbegin() const { return _data + _size; }
+    const_reverse_iterator crbegin() const { return _data + _size - 1; }
     const_reverse_iterator crend() const { return _data; };
 
     /* ----------------------------- Element access ----------------------------- */
@@ -216,7 +217,11 @@ public:
             *it = val;
         }
     }
-    // template < class InputIterator > void insert( iterator position, InputIterator first, InputIterator last );
+    template < class InputIterator >
+    void     insert( iterator      position,
+                     InputIterator first,
+                     InputIterator last,
+                     typename ft::enable_if< !ft::is_integral< InputIterator >::value, InputIterator >::type * = 0 ) {}
     iterator erase( iterator position ) { return erase( position, position + 1 ); }
     iterator erase( iterator first, iterator last ) {
         size_type i = last - first;
