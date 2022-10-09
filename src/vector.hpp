@@ -26,7 +26,8 @@ public:
     vector_iterator() : _p( 0 ) {}
     vector_iterator( pointer p ) : _p( p ) {}
     vector_iterator( const vector_iterator &other ) : _p( other.operator->() ) {}
-    template < typename U > vector_iterator( const vector_iterator< U > &other ) : _p( other.operator->() ) {}
+    template < typename U >
+    vector_iterator( const vector_iterator< U > &other ) : _p( const_cast< pointer >( other.operator->() ) ) {}
 
     vector_iterator &operator=( const vector_iterator &other ) {
         _p = other._p;
@@ -198,21 +199,24 @@ public:
     /* ----------------------------- Element access ----------------------------- */
 
     reference       operator[]( size_type i ) { return i >= _size ? *end() : _data[i]; }
-    const_reference operator[]( size_type i ) const { return operator[]( i ); }
+    const_reference operator[]( size_type i ) const { return i >= _size ? *end() : _data[i]; }
 
     reference at( size_type i ) {
-
         if ( i >= _size ) { throw std::out_of_range( "Trop grand frere" ); }
         return operator[]( i );
     }
 
-    const_reference   at( size_type i ) const { return at( i ); }
+    const_reference at( size_type i ) const {
+        if ( i >= _size ) { throw std::out_of_range( "Trop grand frere" ); }
+        return operator[]( i );
+    }
+
     reference         front() { return *begin(); }
-    const_reference   front() const { return front(); }
+    const_reference   front() const { return *begin(); }
     reference         back() { return *rbegin(); }
-    const_reference   back() const { return back(); }
+    const_reference   back() const { return *rbegin(); }
     value_type *      data() { return _data; }
-    const value_type *data() const { return data(); }
+    const value_type *data() const { return _data; }
 
     /* -------------------------------- Modifiers ------------------------------- */
 
