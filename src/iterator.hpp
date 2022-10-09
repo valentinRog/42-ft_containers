@@ -16,7 +16,7 @@ public:
 
     reverse_iterator operator+( difference_type n ) const { return _it - n; }
     reverse_iterator operator-( difference_type n ) const { return _it + n; }
-    difference_type operator-( const reverse_iterator &other ) const { return _it + other; }
+    difference_type  operator-( const reverse_iterator &other ) const { return _it + other; }
 
     reverse_iterator operator++() { return --_it; }
     reverse_iterator operator--() { return ++_it; }
@@ -26,7 +26,15 @@ public:
     void operator+=( difference_type n ) { _it -= n; };
     void operator-=( difference_type n ) { _it += n; };
 
+    bool operator==( const reverse_iterator &other ) const { return ( _it == other._it ); };
+    bool operator!=( const reverse_iterator &other ) const { return ( _it != other._it ); };
+    bool operator>( const reverse_iterator &other ) const { return ( _it > other._it ); };
+    bool operator<( const reverse_iterator &other ) const { return ( _it < other._it ); };
+    bool operator>=( const reverse_iterator &other ) const { return ( _it >= other._it ); };
+    bool operator<=( const reverse_iterator &other ) const { return ( _it <= other._it ); };
+
     reference operator*() { return *_it; }
     reference operator[]( difference_type i ) { return _it[-i]; }
+    pointer   operator->() const { _it.operator->(); };
 };
 }

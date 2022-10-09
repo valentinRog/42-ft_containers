@@ -97,6 +97,7 @@ public:
           _data( 0 ),
           _capacity( 0 ),
           _size( 0 ) {}
+
     explicit vector( size_type n, const value_type &val = value_type(), const allocator_type &alloc = allocator_type() )
         : _allocator( alloc ),
           _data( 0 ),
@@ -104,10 +105,12 @@ public:
           _size( 0 ) {
         assign( n, val );
     }
+
     template < class U > vector( U first, U last, const allocator_type &alloc = allocator_type() );
     vector( const vector &other ) : _allocator( other._allocator ), _data( 0 ), _capacity( 0 ), _size( 0 ) {
         assign( other.begin(), other.end() );
     }
+
     virtual ~vector() {
         clear();
         _allocator.deallocate( _data, _capacity );
@@ -121,17 +124,27 @@ public:
     /* -------------------------------- Capacity -------------------------------- */
 
     size_type size() const { return _size; }
+
     size_type max_size() const { return _allocator.max_size(); }
-    void      resize( size_type n, value_type val = value_type() );
+
+    void resize( size_type n, value_type val = value_type() ) {
+        if ( n > _size ) {
+            insert( end(), n - _size, val );
+        } else {
+            erase( begin() + n, end() );
+        }
+    }
+
     size_type capacity() const { return _capacity; }
-    bool      empty() const { return !_size; }
-    void      reserve( size_type n ) {
+
+    bool empty() const { return !_size; }
+
+    void reserve( size_type n ) {
         if ( n > _capacity ) {
-            size_type len;
-            for ( len = 1; len < n; len <<= 1 )
-                ;
+            size_type len( 1 );
+            while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
-            for ( size_type i = 0; i < _size; i++ ) { _allocator.construct( tmp + i, _data[i] ); }
+            for ( size_type i( 0 ); i < _size; i++ ) { _allocator.construct( tmp + i, _data[i] ); }
             size_type size = _size;
             clear();
             _allocator.deallocate( _data, _capacity );
@@ -176,21 +189,26 @@ public:
         clear();
         insert( begin(), first, last );
     }
+
     void assign( size_type n, const value_type &val ) {
         clear();
         insert( begin(), n, val );
     }
+
     void push_back( const value_type &val ) { insert( end(), val ); }
+
     void pop_back() {
         if ( _size ) {
             _allocator.destroy( _data + _size - 1 );
             _size--;
         }
     }
+
     iterator insert( iterator position, const value_type &val ) {
         insert( position, 1, val );
         return position;
     }
+
     void insert( iterator position, size_type n, const value_type &val ) {
         size_type i = position - begin();
         reserve( _size + n );
@@ -201,6 +219,7 @@ public:
         }
         _size += n;
     }
+
     template < typename U >
     void insert( iterator position,
                  U        first,
@@ -215,7 +234,9 @@ public:
         }
         _size += last - first;
     }
+
     iterator erase( iterator position ) { return erase( position, position + 1 ); }
+
     iterator erase( iterator first, iterator last ) {
         size_type i = last - first;
         for ( iterator it = first; it != end(); it++ ) {
@@ -225,11 +246,13 @@ public:
         _size -= i;
         return first;
     }
+
     void swap( vector &other ) {
         ft::swap( _data, other._data );
         ft::swap( _capacity, other._capacity );
         ft::swap( _size, other._size );
     }
+
     void clear() {
         for ( size_type i = 0; i < _size; i++ ) { _allocator.destroy( _data + i ); }
         _size = 0;
