@@ -28,6 +28,11 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
         Iterator( pointer p ) : _p( p ) {}
         Iterator( const Iterator< T > &other ) : _p( other.operator->() ) {}
 
+        Iterator &operator=( const Iterator< T > &other ) {
+            _p = other._p;
+            return *this;
+        }
+
         Iterator        operator+( difference_type n ) const { return _p + n; }
         Iterator        operator-( difference_type n ) const { return _p - n; }
         difference_type operator-( const Iterator &other ) const { return _p - other._p; }
@@ -214,7 +219,7 @@ public:
         reserve( _size + n );
         position = begin() + i;
         for ( iterator it = position; it < position + n; it++ ) {
-            if ( it - begin() < _size ) { it[n] = *it; }
+            if ( static_cast< size_type >( it - begin() ) < _size ) { it[n] = *it; }
             *it = val;
         }
         _size += n;
@@ -225,11 +230,11 @@ public:
                  U        first,
                  U        last,
                  typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 ) {
-        size_type i = position - begin();
+        typename iterator::difference_type i = position - begin();
         reserve( _size + ( last - first ) );
         position = begin() + i;
         for ( U it = first; it != last; it++, position++ ) {
-            if ( position - begin() < _size ) { position[last - first] = *position; }
+            if ( static_cast< size_type >( position - begin() ) < _size ) { position[last - first] = *position; }
             *position = *it;
         }
         _size += last - first;

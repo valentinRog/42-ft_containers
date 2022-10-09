@@ -34,7 +34,6 @@ int main() {
     v.push_back( 1 );
     v.push_back( 1 );
     // v.push_back( 1 );
-    ft::vector<int>::iterator it = v.begin();
     // // it++;
     std::vector<int> v2;
     v2.push_back(1);

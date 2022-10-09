@@ -13,6 +13,9 @@ private:
 public:
     reverse_iterator( pointer p ) : _it( T( p ) ) {}
     reverse_iterator( const reverse_iterator &other ) : _it( other._it ) {}
+    reverse_iterator( const T &other ) : _it( other ) {}
+
+    T base() const { return _it; }
 
     reverse_iterator operator+( difference_type n ) const { return _it - n; }
     reverse_iterator operator-( difference_type n ) const { return _it + n; }
