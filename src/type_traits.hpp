@@ -11,10 +11,9 @@ template < class T > struct enable_if< true, T > { typedef T type; };
 /* ---------------------------- integral_constant --------------------------- */
 
 template < class T, T v > struct integral_constant {
-    static constexpr T                value = v;
+    static const T                    value = v;
     typedef T                         value_type;
     typedef integral_constant< T, v > type;
-    constexpr                         operator T() { return v; }
 };
 
 typedef integral_constant< bool, true >  true_type;

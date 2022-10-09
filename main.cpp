@@ -28,21 +28,10 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 }
 
 int main() {
-    ft::vector< int > v;
-    v.push_back( 42 );
-    v.push_back( 1 );
-    v.push_back( 1 );
-    v.push_back( 1 );
-    // v.push_back( 1 );
-    // // it++;
-    std::vector<int> v2;
-    v2.push_back(1);
-    v2.push_back(2);
-    v2.push_back(3);
-    v.assign(v2.begin(), v2.end());
-    ft::vector<int> v3;
-    v.swap(v3);
-    std::cout << v3 << std::endl;
-    ft::vector<int>::reverse_iterator rit = v3.rbegin();
-    std::cout << rit[2] << std::endl;
+    ft::vector<int> v;
+    try {
+    v.at(3);}
+    catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
 }

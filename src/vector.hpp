@@ -10,66 +10,79 @@
 
 namespace ft {
 
+/* -------------------------------- Iterator -------------------------------- */
+
+template < typename T > class vector_iterator {
+public:
+    typedef T &                             reference;
+    typedef T *                             pointer;
+    typedef std::ptrdiff_t                  difference_type;
+    typedef std::random_access_iterator_tag iterator_category;
+
+private:
+    pointer _p;
+
+public:
+    vector_iterator() : _p( 0 ) {}
+    vector_iterator( pointer p ) : _p( p ) {}
+    vector_iterator( const vector_iterator &other ) : _p( other.operator->() ) {}
+    template < typename U > vector_iterator( const vector_iterator< U > &other ) : _p( other.operator->() ) {}
+
+    vector_iterator &operator=( const vector_iterator &other ) {
+        _p = other._p;
+        return *this;
+    }
+
+    vector_iterator operator+( difference_type n ) const { return _p + n; }
+    vector_iterator operator-( difference_type n ) const { return _p - n; }
+    difference_type operator-( const vector_iterator &other ) const { return _p - other._p; }
+
+    vector_iterator operator++() {
+        _p++;
+        return *this;
+    }
+    vector_iterator operator--() {
+        _p--;
+        return *this;
+    }
+    vector_iterator operator++( int ) {
+        vector_iterator copy( *this );
+        _p++;
+        return copy;
+    }
+    vector_iterator operator--( int ) {
+        vector_iterator copy( *this );
+        _p--;
+        return copy;
+    }
+
+    vector_iterator operator+=( difference_type n ) {
+        _p += n;
+        return *this;
+    }
+    vector_iterator operator-=( difference_type n ) {
+        _p -= n;
+        return *this;
+    }
+
+    bool operator==( const vector_iterator &other ) const { return ( _p == other._p ); };
+    bool operator!=( const vector_iterator &other ) const { return ( _p != other._p ); };
+    bool operator>( const vector_iterator &other ) const { return ( _p > other._p ); };
+    bool operator<( const vector_iterator &other ) const { return ( _p < other._p ); };
+    bool operator>=( const vector_iterator &other ) const { return ( _p >= other._p ); };
+    bool operator<=( const vector_iterator &other ) const { return ( _p <= other._p ); };
+
+    reference operator*() { return *_p; }
+    reference operator[]( difference_type i ) { return _p[i]; }
+    pointer   operator->() const { return ( _p ); };
+};
+
+template < typename T >
+vector_iterator< T > operator+( typename vector_iterator< T >::difference_type lhs, const vector_iterator< T > &rhs ) {
+    return rhs + lhs;
+}
+
 template < typename T, class Allocator = std::allocator< T > > class vector {
-
-    /* -------------------------------- Iterator -------------------------------- */
-
-    template < typename U > class Iterator {
-    public:
-        typedef U &                             reference;
-        typedef U *                             pointer;
-        typedef std::ptrdiff_t                  difference_type;
-        typedef std::random_access_iterator_tag iterator_category;
-
-    private:
-        pointer _p;
-
-    public:
-        Iterator( pointer p ) : _p( p ) {}
-        Iterator( const Iterator< T > &other ) : _p( other.operator->() ) {}
-
-        Iterator &operator=( const Iterator< T > &other ) {
-            _p = other._p;
-            return *this;
-        }
-
-        Iterator        operator+( difference_type n ) const { return _p + n; }
-        Iterator        operator-( difference_type n ) const { return _p - n; }
-        difference_type operator-( const Iterator &other ) const { return _p - other._p; }
-
-        Iterator operator++() {
-            _p++;
-            return *this;
-        }
-        Iterator operator--() {
-            _p--;
-            return *this;
-        }
-        Iterator operator++( int ) {
-            Iterator copy( *this );
-            _p++;
-            return copy;
-        }
-        Iterator operator--( int ) {
-            Iterator copy( *this );
-            _p--;
-            return copy;
-        }
-
-        void operator+=( difference_type n ) { _p += n; };
-        void operator-=( difference_type n ) { _p -= n; };
-
-        bool operator==( const Iterator &other ) const { return ( _p == other._p ); };
-        bool operator!=( const Iterator &other ) const { return ( _p != other._p ); };
-        bool operator>( const Iterator &other ) const { return ( _p > other._p ); };
-        bool operator<( const Iterator &other ) const { return ( _p < other._p ); };
-        bool operator>=( const Iterator &other ) const { return ( _p >= other._p ); };
-        bool operator<=( const Iterator &other ) const { return ( _p <= other._p ); };
-
-        reference operator*() { return *_p; }
-        reference operator[]( difference_type i ) { return _p[i]; }
-        pointer   operator->() const { return ( _p ); };
-    };
 
     /* ------------------------------ Member types ------------------------------ */
 
@@ -80,8 +93,8 @@ public:
     typedef typename allocator_type::const_reference const_reference;
     typedef typename allocator_type::pointer         pointer;
     typedef typename allocator_type::const_pointer   const_pointer;
-    typedef Iterator< value_type >                   iterator;
-    typedef Iterator< const value_type >             const_iterator;
+    typedef vector_iterator< value_type >            iterator;
+    typedef vector_iterator< const value_type >      const_iterator;
     typedef ft::reverse_iterator< iterator >         reverse_iterator;
     typedef ft::reverse_iterator< const_iterator >   const_reverse_iterator;
     typedef std::size_t                              size_type;
@@ -111,9 +124,17 @@ public:
         assign( n, val );
     }
 
-    template < class U > vector( U first, U last, const allocator_type &alloc = allocator_type() );
+    template < class U >
+    vector( U first, U last, const allocator_type &alloc = allocator_type() )
+        : _allocator( alloc ),
+          _data( 0 ),
+          _capacity( 0 ),
+          _size( 0 ) {
+        assign( first, last );
+    }
+
     vector( const vector &other ) : _allocator( other._allocator ), _data( 0 ), _capacity( 0 ), _size( 0 ) {
-        assign( other.begin(), other.end() );
+        *this = other;
     }
 
     virtual ~vector() {
@@ -176,13 +197,19 @@ public:
 
     /* ----------------------------- Element access ----------------------------- */
 
-    reference         operator[]( size_type i ) { return i >= _size ? *end() : _data[i]; }
-    const_reference   operator[]( size_type i ) const { return operator[]( i ); }
-    reference         at( size_type i );
-    const_reference   at( size_type i ) const;
+    reference       operator[]( size_type i ) { return i >= _size ? *end() : _data[i]; }
+    const_reference operator[]( size_type i ) const { return operator[]( i ); }
+
+    reference at( size_type i ) {
+
+        if ( i >= _size ) { throw std::out_of_range( "Trop grand frere" ); }
+        return operator[]( i );
+    }
+
+    const_reference   at( size_type i ) const { return at( i ); }
     reference         front() { return *begin(); }
     const_reference   front() const { return front(); }
-    reference         back() { return *end(); }
+    reference         back() { return *rbegin(); }
     const_reference   back() const { return back(); }
     value_type *      data() { return _data; }
     const value_type *data() const { return data(); }
@@ -231,13 +258,15 @@ public:
                  U        last,
                  typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 ) {
         typename iterator::difference_type i = position - begin();
-        reserve( _size + ( last - first ) );
+        size_type                          n( 0 );
+        for ( U it = first; it != last; it++ ) { n++; }
+        reserve( _size + n );
         position = begin() + i;
         for ( U it = first; it != last; it++, position++ ) {
-            if ( static_cast< size_type >( position - begin() ) < _size ) { position[last - first] = *position; }
+            if ( static_cast< size_type >( position - begin() ) < _size ) { position[n] = *position; }
             *position = *it;
         }
-        _size += last - first;
+        _size += n;
     }
 
     iterator erase( iterator position ) { return erase( position, position + 1 ); }
