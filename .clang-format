@@ -22,7 +22,7 @@ AllowAllParametersOfDeclarationOnNextLine: false
 
 AllowShortBlocksOnASingleLine: true
 
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
 
 AllowShortFunctionsOnASingleLine: All
 

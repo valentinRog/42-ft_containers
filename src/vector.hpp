@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithm.hpp"
+#include "iterator.hpp"
 #include "type_traits.hpp"
 #include <algorithm>
 #include <iostream>
@@ -36,7 +37,6 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
             return *this;
         }
         Iterator operator--() {
-
             _p--;
             return *this;
         }
@@ -66,33 +66,6 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
         pointer   operator->() const { return ( _p ); };
     };
 
-    /* ---------------------------- Reverse iterator ---------------------------- */
-
-    template < typename U > class ReverseIterator : public Iterator< U > {
-        typedef typename Iterator< U >::reference         reference;
-        typedef typename Iterator< U >::pointer           pointer;
-        typedef typename Iterator< U >::difference_type   difference_type;
-        typedef typename Iterator< U >::iterator_category iterator_category;
-
-    public:
-        ReverseIterator( pointer p ) : Iterator< U >::Iterator( p ) {}
-        ReverseIterator( const ReverseIterator< T > &other ) : Iterator< U >::Iterator( other ) {}
-
-        Iterator< U >   operator+( difference_type n ) const { return Iterator< U >::operator-( n ); }
-        Iterator< U >   operator-( difference_type n ) const { return Iterator< U >::operator+( n ); }
-        difference_type operator-( const Iterator< U > &other ) const { return Iterator< U >::operator-( other ); }
-
-        Iterator< U > operator++() { return Iterator< U >::operator--(); }
-        Iterator< U > operator--() { return Iterator< U >::operator++(); }
-        Iterator< U > operator++( int ) { return Iterator< U >::operator--( Iterator< U >::operator*() ); }
-        Iterator< U > operator--( int ) { return Iterator< U >::operator++( Iterator< U >::operator*() ); }
-
-        void operator+=( difference_type n ) { Iterator< U >::operator-=( n ); };
-        void operator-=( difference_type n ) { Iterator< U >::operator+=( n ); };
-
-        reference operator[]( difference_type i ) { return Iterator< U >::operator[]( -i ); }
-    };
-
     /* ------------------------------ Member types ------------------------------ */
 
 public:
@@ -104,8 +77,8 @@ public:
     typedef typename allocator_type::const_pointer   const_pointer;
     typedef Iterator< value_type >                   iterator;
     typedef Iterator< const value_type >             const_iterator;
-    typedef ReverseIterator< value_type >            reverse_iterator;
-    typedef ReverseIterator< const value_type >      const_reverse_iterator;
+    typedef ft::reverse_iterator< iterator >         reverse_iterator;
+    typedef ft::reverse_iterator< const_iterator >   const_reverse_iterator;
     typedef std::size_t                              size_type;
 
     /* ------------------------------- Attributes ------------------------------- */
@@ -228,7 +201,7 @@ public:
         }
         _size += n;
     }
-    template < class U >
+    template < typename U >
     void insert( iterator position,
                  U        first,
                  U        last,

@@ -44,4 +44,6 @@ int main() {
     ft::vector<int> v3;
     v.swap(v3);
     std::cout << v3 << std::endl;
+    ft::vector<int>::reverse_iterator rit = v3.rbegin();
+    std::cout << rit[2] << std::endl;
 }
