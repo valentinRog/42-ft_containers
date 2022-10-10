@@ -183,7 +183,7 @@ public:
             size_type len( 1 );
             while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
-            for ( size_type i( 0 ); i < _size; i++ ) { _allocator.construct( tmp + i, i < _size ? _data[i] : T() ); }
+            for ( size_type i( 0 ); i < len; i++ ) { _allocator.construct( tmp + i, i < _size ? _data[i] : T() ); }
             size_type size = _size;
             clear();
             _allocator.deallocate( _data, _capacity );
