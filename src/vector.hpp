@@ -201,8 +201,8 @@ public:
     const_iterator         end() const { return _data + _size; }
     reverse_iterator       rbegin() { return _data + _size - 1; }
     const_reverse_iterator rbegin() const { return _data + _size - 1; };
-    reverse_iterator       rend() { return _data; }
-    const_reverse_iterator rend() const { return _data; }
+    reverse_iterator       rend() { return _data - 1; }
+    const_reverse_iterator rend() const { return _data - 1; }
     const_iterator         cbegin() const { return _data; }
     const_iterator         cend() const { return _data + _size; }
     const_reverse_iterator crbegin() const { return _data + _size - 1; }
@@ -253,19 +253,18 @@ public:
     }
 
     iterator insert( iterator position, const value_type &val ) {
+        typename iterator::difference_type i = position - begin();
         insert( position, 1, val );
-        return position;
+        return begin() + i;
     }
 
     void insert( iterator position, size_type n, const value_type &val ) {
-        size_type i = position - begin();
+        typename iterator::difference_type i = position - begin();
         reserve( _size + n );
-        position = begin() + i;
-        for ( iterator it = position; it < position + n; it++ ) {
-            if ( static_cast< size_type >( it - begin() ) < _size ) { it[n] = *it; }
-            *it = val;
-        }
         _size += n;
+        position = begin() + i;
+        for ( reverse_iterator rit = rbegin(); rit != rend() - i - n; rit++ ) { *rit = rit[n]; }
+        for ( iterator it = position; it < position + n; it++ ) { *it = val; }
     }
 
     template < typename U >
@@ -277,12 +276,10 @@ public:
         size_type                          n( 0 );
         for ( U it = first; it != last; it++ ) { n++; }
         reserve( _size + n );
-        position = begin() + i;
-        for ( U it = first; it != last; it++, position++ ) {
-            if ( static_cast< size_type >( position - begin() ) < _size ) { position[n] = *position; }
-            *position = *it;
-        }
         _size += n;
+        position = begin() + i;
+        for ( reverse_iterator rit = rbegin(); rit != rend() - i - n; rit++ ) { *rit = rit[n]; }
+        for ( U it = first; it != last; it++, position++ ) { *position = *it; }
     }
 
     iterator erase( iterator position ) { return erase( position, position + 1 ); }
