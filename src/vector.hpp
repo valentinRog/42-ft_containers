@@ -36,11 +36,11 @@ public:
     vector_iterator operator-( difference_type n ) const { return _p - n; }
     difference_type operator-( const vector_iterator &other ) const { return _p - other._p; }
 
-    vector_iterator operator++() {
+    vector_iterator &operator++() {
         _p++;
         return *this;
     }
-    vector_iterator operator--() {
+    vector_iterator &operator--() {
         _p--;
         return *this;
     }
@@ -184,6 +184,7 @@ public:
             while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
             for ( size_type i( 0 ); i < _size; i++ ) { _allocator.construct( tmp + i, _data[i] ); }
+            for ( size_type i( _size ); i < len; i++ ) { _allocator.construct( tmp + i ); }
             size_type size = _size;
             clear();
             _allocator.deallocate( _data, _capacity );

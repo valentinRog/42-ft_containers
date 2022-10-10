@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 template < typename T > std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
     os << "size: " << v.size() << std::endl;
@@ -28,9 +29,5 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 }
 
 int main() {
-    std::vector<int> v1;
-    v1.push_back(1);
-    std::vector<int> v2;
-    v2.push_back(1);
-    std::cout << (v1 == v2) << std::endl;
+    ft::vector<std::string> v(10);
 }
