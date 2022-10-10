@@ -28,7 +28,9 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 }
 
 int main() {
-    std::vector<int> v;
-    std::vector<int>::const_iterator it = v.begin();
-    std::vector<int>::iterator it2(it);
+    std::vector<int> v1;
+    v1.push_back(1);
+    std::vector<int> v2;
+    v2.push_back(1);
+    std::cout << (v1 == v2) << std::endl;
 }
