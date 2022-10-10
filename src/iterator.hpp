@@ -62,8 +62,8 @@ public:
         return ( _it <= other.base() );
     };
 
-    reference operator*() { return *_it; }
-    reference operator[]( difference_type i ) { return _it[-i]; }
+    reference operator*() { return _it[-1]; }
+    reference operator[]( difference_type i ) { return *operator+( i ); }
     pointer   operator->() const { return _it.operator->(); };
 };
 

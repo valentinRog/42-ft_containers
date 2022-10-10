@@ -199,13 +199,13 @@ public:
     const_iterator         begin() const { return _data; }
     iterator               end() { return _data + _size; }
     const_iterator         end() const { return _data + _size; }
-    reverse_iterator       rbegin() { return _data + _size - 1; }
-    const_reverse_iterator rbegin() const { return _data + _size - 1; };
-    reverse_iterator       rend() { return _data - 1; }
-    const_reverse_iterator rend() const { return _data - 1; }
+    reverse_iterator       rbegin() { return _data + _size; }
+    const_reverse_iterator rbegin() const { return _data + _size; };
+    reverse_iterator       rend() { return _data; }
+    const_reverse_iterator rend() const { return _data; }
     const_iterator         cbegin() const { return _data; }
     const_iterator         cend() const { return _data + _size; }
-    const_reverse_iterator crbegin() const { return _data + _size - 1; }
+    const_reverse_iterator crbegin() const { return _data + _size; }
     const_reverse_iterator crend() const { return _data; };
 
     /* ----------------------------- Element access ----------------------------- */
