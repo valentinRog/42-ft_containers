@@ -26,8 +26,6 @@ public:
     vector_iterator() : _p( 0 ) {}
     vector_iterator( pointer p ) : _p( p ) {}
     vector_iterator( const vector_iterator &other ) : _p( other.operator->() ) {}
-    template < typename U >
-    vector_iterator( const vector_iterator< U > &other ) : _p( const_cast< pointer >( other.operator->() ) ) {}
 
     vector_iterator &operator=( const vector_iterator &other ) {
         _p = other._p;
@@ -66,16 +64,30 @@ public:
         return *this;
     }
 
-    bool operator==( const vector_iterator &other ) const { return ( _p == other._p ); };
-    bool operator!=( const vector_iterator &other ) const { return ( _p != other._p ); };
-    bool operator>( const vector_iterator &other ) const { return ( _p > other._p ); };
-    bool operator<( const vector_iterator &other ) const { return ( _p < other._p ); };
-    bool operator>=( const vector_iterator &other ) const { return ( _p >= other._p ); };
-    bool operator<=( const vector_iterator &other ) const { return ( _p <= other._p ); };
+    template < typename U > bool operator==( const vector_iterator< U > &other ) const {
+        return ( _p == other.operator->() );
+    };
+    template < typename U > bool operator!=( const vector_iterator< U > &other ) const {
+        return ( _p != other.operator->() );
+    };
+    template < typename U > bool operator>( const vector_iterator< U > &other ) const {
+        return ( _p > other.operator->() );
+    };
+    template < typename U > bool operator<( const vector_iterator< U > &other ) const {
+        return ( _p < other.operator->() );
+    };
+    template < typename U > bool operator>=( const vector_iterator< U > &other ) const {
+        return ( _p >= other.operator->() );
+    };
+    template < typename U > bool operator<=( const vector_iterator< U > &other ) const {
+        return ( _p <= other.operator->() );
+    };
 
     reference operator*() { return *_p; }
     reference operator[]( difference_type i ) { return _p[i]; }
     pointer   operator->() const { return ( _p ); };
+
+    operator vector_iterator< const T >() const { return ( vector_iterator< const T >( _p ) ); }
 };
 
 template < typename T >

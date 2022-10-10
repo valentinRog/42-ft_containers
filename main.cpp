@@ -28,10 +28,7 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 }
 
 int main() {
-    ft::vector<int> v;
-    try {
-    v.at(3);}
-    catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
+    std::vector<int> v;
+    std::vector<int>::const_iterator it = v.begin();
+    std::vector<int>::iterator it2(it);
 }
