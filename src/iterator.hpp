@@ -13,7 +13,6 @@ private:
 public:
     reverse_iterator() {}
     reverse_iterator( pointer p ) : _it( T( p ) ) {}
-    reverse_iterator( const reverse_iterator &other ) : _it( other._it ) {}
     reverse_iterator( const T &other ) : _it( other ) {}
     template < typename U > reverse_iterator( const reverse_iterator< U > &other ) : _it( other.base() ) {}
 
@@ -50,21 +49,21 @@ public:
         return ( _it != other.base() );
     };
     template < typename U > bool operator>( const reverse_iterator< U > &other ) const {
-        return ( _it > other.base() );
-    };
-    template < typename U > bool operator<( const reverse_iterator< U > &other ) const {
         return ( _it < other.base() );
     };
+    template < typename U > bool operator<( const reverse_iterator< U > &other ) const {
+        return ( _it > other.base() );
+    };
     template < typename U > bool operator>=( const reverse_iterator< U > &other ) const {
-        return ( _it >= other.base() );
+        return ( _it <= other.base() );
     };
     template < typename U > bool operator<=( const reverse_iterator< U > &other ) const {
-        return ( _it <= other.base() );
+        return ( _it >= other.base() );
     };
 
     reference operator*() { return _it[-1]; }
     reference operator[]( difference_type i ) { return *operator+( i ); }
-    pointer   operator->() const { return _it.operator->(); };
+    pointer   operator->() const { return ( _it - 1 ).operator->(); };
 };
 
 }
