@@ -27,7 +27,7 @@ public:
     reverse_iterator        operator+( difference_type n ) const { return _it - n; }
     friend reverse_iterator operator+( difference_type n, const reverse_iterator &other ) { return other + n; };
     reverse_iterator        operator-( difference_type n ) const { return _it + n; }
-    difference_type         operator-( const reverse_iterator &other ) const { return _it - other.base(); }
+    difference_type         operator-( const reverse_iterator &other ) const { return other.base() - _it; }
 
     reverse_iterator operator++() { return --_it; }
     reverse_iterator operator--() { return ++_it; }
