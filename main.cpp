@@ -1,4 +1,5 @@
 #include "src/vector.hpp"
+#include "src/stack.hpp"
 
 #include <iostream>
 #include <vector>
@@ -29,5 +30,5 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 }
 
 int main() {
-    ft::vector<std::string> v(10);
+    ft::stack<int> s;
 }
