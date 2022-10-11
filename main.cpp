@@ -30,5 +30,9 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 }
 
 int main() {
-    ft::stack<int> s;
+    ft::vector<int> v1;
+    ft::vector<int> v2;
+    v1.push_back(1);
+    v2.push_back(2);
+    std::cout << (v1 == v2) << std::endl;
 }
