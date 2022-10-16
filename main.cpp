@@ -1,5 +1,6 @@
 #include "src/vector.hpp"
 #include "src/stack.hpp"
+#include "src/rb_tree.hpp"
 
 #include <iostream>
 #include <vector>
@@ -30,9 +31,10 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 }
 
 int main() {
-    ft::vector<int> v1;
-    ft::vector<int> v2;
-    v1.push_back(1);
-    v2.push_back(2);
-    std::cout << (v1 == v2) << std::endl;
+    ft::rb_tree<int> tree;
+    tree.insert(3);
+    tree.insert(21);
+    tree.insert(32);
+    tree.insert(15);
+    std::cout << tree << std::endl;
 }
