@@ -40,12 +40,8 @@ public:
                 _node = _node->right;
                 while ( _node->left != &_nil ) { _node = _node->left; }
             } else {
-                Node *tmp = _node;
-                _node     = _node->p;
-                while ( _node->left != tmp ) {
-                    tmp   = _node;
-                    _node = _node->p;
-                }
+                while ( _node->p && _node == _node->p->right ) { _node = _node->p; }
+                _node = _node->p;
             }
         }
 
@@ -71,9 +67,9 @@ public:
     typedef Iterator< const value_type > const_iterator;
 
 public:
-    Node *  _root;
-    static Node   _nil;
-    Compare _cmp;
+    Node *      _root;
+    static Node _nil;
+    Compare     _cmp;
 
 public:
     rb_tree() : _cmp( Compare() ) { _root = &_nil; }
@@ -308,6 +304,7 @@ public:
     };
 };
 
-template<class T, class Compare> typename rb_tree<T, Compare>::Node rb_tree<T, Compare>::_nil = rb_tree<T, Compare>::Node();
+template < class T, class Compare >
+typename rb_tree< T, Compare >::Node rb_tree< T, Compare >::_nil = rb_tree< T, Compare >::Node();
 
 }
