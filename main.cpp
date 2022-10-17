@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <set>
 
 template < typename T > std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
     os << "size: " << v.size() << std::endl;
@@ -35,15 +36,16 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 int main() {
     srand( time( 0 ) );
     ft::rb_tree< int > tree;
-    for ( int i = 0; i < 10; i++ ) { tree.insert( rand() % 100 ); }
+    for ( int i = 0; i < 10; i++ ) { tree.insert(i + 1 ); }
     std::cout << tree << std::endl;
-    ft::rb_tree<int>::const_iterator it = tree._root;
+    ft::rb_tree<int>::const_iterator it = tree.minimum(tree._root);
+    for (int i = 0; i < 10; i++) {
+    if (i) {++it;}
     std::cout << *it << std::endl;
-    ++it;
-    std::cout << *it << std::endl;
-    ++it;
-    std::cout << *it << std::endl;
-    ++it;
-    std::cout << *it << std::endl;
+    }
     
+    std::set<int> s;
+    
+    s.insert(5);
+    std::set<int>::iterator sit = s.end();
 }

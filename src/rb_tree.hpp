@@ -40,7 +40,7 @@ public:
                 _node = _node->right;
                 while ( _node->left != &_nil ) { _node = _node->left; }
             } else {
-                while ( _node->p && _node == _node->p->right ) { _node = _node->p; }
+                while ( _node == _node->p->right ) { _node = _node->p; }
                 _node = _node->p;
             }
         }
