@@ -148,5 +148,17 @@ public:
         }
         fix_insert( new_node );
     }
+    
+    void transplant(Node *u, Node *v) {
+        if (u == _root) {
+            _root = v;
+        } else if ( u == u->p->left) {
+            u->p->left = v;
+        } else {
+            u->p->right = v;
+        }
+        v->p = u->p;
+    }
+    
    };
 }
