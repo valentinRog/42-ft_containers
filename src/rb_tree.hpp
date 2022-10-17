@@ -240,10 +240,10 @@ public:
         bool  y_orig_color = y->red;
         if ( z->left == _nil ) {
             x = z->right;
-            transplant( z, z->right );
+            transplant( z, x );
         } else if ( z->right == _nil ) {
             x = z->left;
-            transplant( z, z->left );
+            transplant( z, x );
         } else {
             y            = minimum( z->right );
             y_orig_color = y->red;
