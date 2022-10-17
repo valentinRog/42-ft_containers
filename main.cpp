@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 template < typename T > std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
     os << "size: " << v.size() << std::endl;
@@ -32,9 +33,16 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 
 int main() {
     ft::rb_tree<int> tree;
-    tree.insert(3);
-    tree.insert(21);
-    tree.insert(32);
-    tree.insert(15);
-    std::cout << tree << std::endl;
+    while (true) {
+        std::stringstream ss;
+        int n;
+        std::string line;
+        std::getline(std::cin, line);
+        std::cout << "------------------------------------------------------" << std::endl;
+        ss << line;
+        ss >> n;
+        tree.insert(n);
+        std::cout << tree << std::endl;
+        std::cout << "------------------------------------------------------" << std::endl;
+    }
 }

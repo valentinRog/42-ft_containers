@@ -17,13 +17,13 @@ public:
     typedef const value_type &const_reference;
 
     struct Node {
-        value_type val;
-        bool       is_red;
-        Node *     parent;
+        value_type data;
+        bool       red;
+        Node *     p;
         Node *     left;
         Node *     right;
 
-        Node( const_reference val = value_type() ) : val( val ), is_red( false ), parent( 0 ), left( 0 ), right( 0 ) {}
+        Node( const_reference data = value_type() ) : data( data ), red( false ), p( 0 ), left( 0 ), right( 0 ) {}
     };
 
 public:
@@ -41,8 +41,8 @@ public:
         print( os, root->right, space );
         std::cout << std::endl;
         for ( int i = count; i < space; i++ ) { os << " "; };
-        if ( root->is_red ) { os << "\033[1;31m"; }
-        os << root->val << "\033[0m"
+        if ( root->red ) { os << "\033[1;31m"; }
+        os << root->data << "\033[0m"
            << "\n";
         print( os, root->left, space );
     }
@@ -55,98 +55,98 @@ public:
     void rotate_left( Node *x ) {
         Node *y  = x->right;
         x->right = y->left;
-        if ( y->left != _nil ) { y->left->parent = x; }
-        y->parent = x->parent;
-        if ( !x->parent ) {
+        if ( y->left != _nil ) { y->left->p = x; }
+        y->p = x->p;
+        if ( !x->p ) {
             _root = y;
-        } else if ( x == x->parent->left ) {
-            x->parent->left = y;
+        } else if ( x == x->p->left ) {
+            x->p->left = y;
         } else {
-            x->parent->right = y;
+            x->p->right = y;
         }
-        y->left   = x;
-        x->parent = y;
+        y->left = x;
+        x->p    = y;
     }
 
     void rotate_right( Node *x ) {
-        Node *y  = x->left;
+        Node *y = x->left;
         x->left = y->right;
-        if ( y->right != _nil ) { y->right->parent = x; }
-        y->parent = x->parent;
-        if ( !x->parent ) {
+        if ( y->right != _nil ) { y->right->p = x; }
+        y->p = x->p;
+        if ( !x->p ) {
             _root = y;
-        } else if ( x == x->parent->right ) {
-            x->parent->right = y;
+        } else if ( x == x->p->right ) {
+            x->p->right = y;
         } else {
-            x->parent->left = y;
+            x->p->left = y;
         }
-        y->right   = x;
-        x->parent = y;
+        y->right = x;
+        x->p     = y;
     }
 
     void fix_insert( Node *z ) {
-        while ( z != _root && z->parent->is_red ) {
-            if ( z->parent == z->parent->parent->right ) {
-                if ( z->parent->parent->left->is_red ) {
-                    z->parent->parent->left->is_red = false;
-                    z->parent->is_red               = false;
-                    z->parent->parent->is_red       = true;
-                    z                               = z->parent->parent;
+        while ( z != _root && z->p->red ) {
+            if ( z->p == z->p->p->right ) {
+                if ( z->p->p->left->red ) {
+                    z->p->p->left->red = false;
+                    z->p->red          = false;
+                    z->p->p->red       = true;
+                    z                  = z->p->p;
                 } else {
-                    if ( z == z->parent->left ) {
-                        z = z->parent;
+                    if ( z == z->p->left ) {
+                        z = z->p;
                         rotate_right( z );
                     }
-                    z->parent->is_red         = false;
-                    z->parent->parent->is_red = true;
-                    rotate_left( z->parent->parent );
+                    z->p->red    = false;
+                    z->p->p->red = true;
+                    rotate_left( z->p->p );
                 }
             } else {
-                if ( z->parent->parent->right->is_red ) {
-                    z->parent->parent->right->is_red = false;
-                    z->parent->is_red                = false;
-                    z->parent->parent->is_red        = true;
-                    z                                = z->parent->parent;
+                if ( z->p->p->right->red ) {
+                    z->p->p->right->red = false;
+                    z->p->red           = false;
+                    z->p->p->red        = true;
+                    z                   = z->p->p;
                 } else {
-                    if ( z == z->parent->right ) {
-                        z = z->parent;
+                    if ( z == z->p->right ) {
+                        z = z->p;
                         rotate_left( z );
                     }
-                    z->parent->is_red         = false;
-                    z->parent->parent->is_red = true;
-                    rotate_right( z->parent->parent );
+                    z->p->red    = false;
+                    z->p->p->red = true;
+                    rotate_right( z->p->p );
                 }
             }
         }
-        _root->is_red = false;
+        _root->red = false;
     }
 
-    void insert( value_type val ) {
-        Node *new_node   = new Node( val );
-        new_node->is_red = true;
-        new_node->left   = _nil;
-        new_node->right  = _nil;
-        Node *current    = _root;
-        Node *parent( 0 );
+    void insert( value_type data ) {
+        Node *new_node  = new Node( data );
+        new_node->red   = true;
+        new_node->left  = _nil;
+        new_node->right = _nil;
+        Node *current   = _root;
+        Node *p( 0 );
         while ( current != _nil ) {
-            parent = current;
-            if ( new_node->val < current->val ) {
+            p = current;
+            if ( new_node->data < current->data ) {
                 current = current->left;
-            } else if ( new_node->val > current->val ) {
+            } else if ( new_node->data > current->data ) {
                 current = current->right;
             } else {
                 return;
             }
         }
-        new_node->parent = parent;
-        if ( !parent ) {
+        new_node->p = p;
+        if ( !p ) {
             _root = new_node;
-        } else if ( new_node->val < parent->val ) {
-            parent->left = new_node;
+        } else if ( new_node->data < p->data ) {
+            p->left = new_node;
         } else {
-            parent->right = new_node;
+            p->right = new_node;
         }
         fix_insert( new_node );
     }
-};
+   };
 }
