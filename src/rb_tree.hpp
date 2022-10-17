@@ -148,17 +148,119 @@ public:
         }
         fix_insert( new_node );
     }
-    
-    void transplant(Node *u, Node *v) {
-        if (u == _root) {
+
+    Node *search_node( const value_type &val ) {
+        Node *current = _root;
+        while ( current != _nil && current->data != val ) {
+            if ( val < current->data ) {
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+        }
+        return current;
+    }
+
+    void transplant( Node *u, Node *v ) {
+        if ( u == _root ) {
             _root = v;
-        } else if ( u == u->p->left) {
+        } else if ( u == u->p->left ) {
             u->p->left = v;
         } else {
             u->p->right = v;
         }
         v->p = u->p;
     }
-    
-   };
+
+    Node *minimum( Node *x ) {
+        while ( x->left != _nil ) { x = x->left; }
+        return x;
+    }
+
+    void remove_fixup( Node *x ) {
+        while ( x != _root and x->red == false ) {
+            if ( x == x->p->left ) {
+                Node *w = x->p->right;
+                if ( w->red ) {
+                    w->red    = false;
+                    x->p->red = true;
+                    rotate_left( x->p );
+                    w = x->p->right;
+                }
+                if ( w->left->red == false and w->right->red == false ) {
+                    w->red = true;
+                    x      = x->p;
+                } else {
+                    if ( w->right->red == false ) {
+                        w->left->red = false;
+                        w->red       = true;
+                        rotate_right( w );
+                        w = x->p->right;
+                    }
+                    w->red        = x->p->red;
+                    x->p->red     = false;
+                    w->right->red = false;
+                    rotate_left( x->p );
+                    x = _root;
+                }
+            } else {
+                Node *w = x->p->left;
+                if ( w->red ) {
+                    w->red    = false;
+                    x->p->red = true;
+                    rotate_right( x->p );
+                    w = x->p->left;
+                }
+                if ( w->right->red == false and w->left->red == false ) {
+                    w->red = true;
+                    x      = x->p;
+                } else {
+                    if ( w->left->red == false ) {
+                        w->right->red = false;
+                        w->red        = true;
+                        rotate_left( w );
+                        w = x->p->left;
+                    }
+                    w->red       = x->p->red;
+                    x->p->red    = false;
+                    w->left->red = false;
+                    rotate_right( x->p );
+                    x = _root;
+                }
+            }
+        }
+        x->red = false;
+    }
+
+    void remove( const value_type &val ) {
+        Node *z = search_node( val );
+        if ( z == _nil ) { return; }
+        Node *y = z;
+        Node *x;
+        bool  y_orig_color = y->red;
+        if ( z->left == _nil ) {
+            x = z->right;
+            transplant( z, z->right );
+        } else if ( z->right == _nil ) {
+            x = z->left;
+            transplant( z, z->left );
+        } else {
+            y            = minimum( z->right );
+            y_orig_color = y->red;
+            x            = y->right;
+            if ( y->p == z ) {
+                x->p = y;
+            } else {
+                transplant( y, y->right );
+                y->right    = z->right;
+                y->right->p = y;
+            }
+            transplant( z, y );
+            y->left    = z->left;
+            y->left->p = y;
+            y->red     = z->red;
+        }
+        if ( !y_orig_color ) { remove_fixup( x ); }
+    };
+};
 }

@@ -33,16 +33,24 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 
 int main() {
     ft::rb_tree<int> tree;
-    while (true) {
-        std::stringstream ss;
-        int n;
-        std::string line;
-        std::getline(std::cin, line);
-        std::cout << "------------------------------------------------------" << std::endl;
-        ss << line;
-        ss >> n;
-        tree.insert(n);
-        std::cout << tree << std::endl;
-        std::cout << "------------------------------------------------------" << std::endl;
-    }
+    //while (true) {
+    //    std::stringstream ss;
+    //    int n;
+    //    std::string line;
+    //    std::getline(std::cin, line);
+    //    std::cout << "------------------------------------------------------" << std::endl;
+    //    ss << line;
+    //    ss >> n;
+    //    tree.insert(n);
+    //    std::cout << tree << std::endl;
+    //    std::cout << "------------------------------------------------------" << std::endl;
+    //}
+    tree.insert(6);
+    tree.insert(8);
+    tree.insert(90);
+    tree.insert(-36);
+    std::cout << tree << std::endl;
+    tree.remove(8);
+    tree.remove(6);
+    std::cout << tree << std::endl;
 }
