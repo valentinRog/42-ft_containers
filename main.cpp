@@ -1,12 +1,12 @@
-#include "src/vector.hpp"
-#include "src/stack.hpp"
 #include "src/rb_tree.hpp"
+#include "src/stack.hpp"
+#include "src/vector.hpp"
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <sstream>
 #include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 template < typename T > std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
     os << "size: " << v.size() << std::endl;
@@ -33,26 +33,17 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const std::v
 }
 
 int main() {
-    std::srand(time(0));
-    ft::rb_tree<int> tree;
-    //while (true) {
-    //    std::stringstream ss;
-    //    int n;
-    //    std::string line;
-    //    std::getline(std::cin, line);
-    //    std::cout << "------------------------------------------------------" << std::endl;
-    //    ss << line;
-    //    ss >> n;
-    //    tree.insert(n);
-    //    std::cout << tree << std::endl;
-    //    std::cout << "------------------------------------------------------" << std::endl;
-    //}
-    tree.insert(6);
-    tree.insert(8);
-    tree.insert(90);
-    tree.insert(-36);
+    srand( time( 0 ) );
+    ft::rb_tree< int > tree;
+    for ( int i = 0; i < 10; i++ ) { tree.insert( rand() % 100 ); }
     std::cout << tree << std::endl;
-    tree.remove(8);
-    tree.remove(6);
-    std::cout << tree << std::endl;
+    ft::rb_tree<int>::const_iterator it = tree._root;
+    std::cout << *it << std::endl;
+    ++it;
+    std::cout << *it << std::endl;
+    ++it;
+    std::cout << *it << std::endl;
+    ++it;
+    std::cout << *it << std::endl;
+    
 }

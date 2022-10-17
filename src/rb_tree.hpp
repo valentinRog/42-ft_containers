@@ -9,34 +9,78 @@ namespace ft {
 
 template < typename T, typename Compare = std::less< T > > class rb_tree {
 
-public:
-    typedef T                 value_type;
-    typedef value_type *      pointer;
-    typedef const pointer     const_pointer;
-    typedef value_type &      reference;
-    typedef const value_type &const_reference;
-
     struct Node {
-        value_type data;
-        bool       red;
-        Node *     p;
-        Node *     left;
-        Node *     right;
+        T     data;
+        bool  red;
+        Node *p;
+        Node *left;
+        Node *right;
 
-        Node( const_reference data = value_type() ) : data( data ), red( false ), p( 0 ), left( 0 ), right( 0 ) {}
+        Node( const T &data = T() ) : data( data ), red( false ), p( 0 ), left( 0 ), right( 0 ) {}
+        Node( const Node &other )
+            : data( other.data ),
+              red( other.red ),
+              p( other.p ),
+              left( other.left ),
+              right( other.right ) {}
     };
 
 public:
+    template < typename U > class Iterator {
+    public:
+        typedef U &            reference;
+        typedef U *            pointer;
+        typedef std::ptrdiff_t difference_type;
+
+    private:
+        Node *_node;
+
+        void next() {
+            if ( _node->right != &_nil ) {
+                _node = _node->right;
+                while ( _node->left != &_nil ) { _node = _node->left; }
+            } else {
+                Node *tmp = _node;
+                _node     = _node->p;
+                while ( _node->left != tmp ) {
+                    tmp   = _node;
+                    _node = _node->p;
+                }
+            }
+        }
+
+    public:
+        Iterator() : _node() {}
+        Iterator( Node *other ) : _node( other ) {}
+
+        Iterator &operator++() {
+            next();
+            return *this;
+        }
+
+        reference operator*() { return _node->data; }
+    };
+
+public:
+    typedef T                            value_type;
+    typedef value_type *                 pointer;
+    typedef const pointer                const_pointer;
+    typedef value_type &                 reference;
+    typedef const value_type &           const_reference;
+    typedef Iterator< value_type >       iterator;
+    typedef Iterator< const value_type > const_iterator;
+
+public:
     Node *  _root;
-    Node *  _nil;
+    static Node   _nil;
     Compare _cmp;
 
 public:
-    rb_tree() : _nil( new Node() ), _cmp( Compare() ) { _root = _nil; }
+    rb_tree() : _cmp( Compare() ) { _root = &_nil; }
 
     void print( std::ostream &os, Node *root, int space = 0 ) {
         static const int count = 10;
-        if ( root == _nil ) { return; }
+        if ( root == &_nil ) { return; }
         space += count;
         print( os, root->right, space );
         std::cout << std::endl;
@@ -55,7 +99,7 @@ public:
     void rotate_left( Node *x ) {
         Node *y  = x->right;
         x->right = y->left;
-        if ( y->left != _nil ) { y->left->p = x; }
+        if ( y->left != &_nil ) { y->left->p = x; }
         y->p = x->p;
         if ( !x->p ) {
             _root = y;
@@ -71,7 +115,7 @@ public:
     void rotate_right( Node *x ) {
         Node *y = x->left;
         x->left = y->right;
-        if ( y->right != _nil ) { y->right->p = x; }
+        if ( y->right != &_nil ) { y->right->p = x; }
         y->p = x->p;
         if ( !x->p ) {
             _root = y;
@@ -124,11 +168,11 @@ public:
     void insert( value_type data ) {
         Node *new_node  = new Node( data );
         new_node->red   = true;
-        new_node->left  = _nil;
-        new_node->right = _nil;
+        new_node->left  = &_nil;
+        new_node->right = &_nil;
         Node *current   = _root;
         Node *p( 0 );
-        while ( current != _nil ) {
+        while ( current != &_nil ) {
             p = current;
             if ( new_node->data < current->data ) {
                 current = current->left;
@@ -151,7 +195,7 @@ public:
 
     Node *search_node( const value_type &val ) {
         Node *current = _root;
-        while ( current != _nil && current->data != val ) {
+        while ( current != &_nil && current->data != val ) {
             if ( val < current->data ) {
                 current = current->left;
             } else {
@@ -173,7 +217,7 @@ public:
     }
 
     Node *minimum( Node *x ) {
-        while ( x->left != _nil ) { x = x->left; }
+        while ( x->left != &_nil ) { x = x->left; }
         return x;
     }
 
@@ -234,14 +278,14 @@ public:
 
     void remove( const value_type &val ) {
         Node *z = search_node( val );
-        if ( z == _nil ) { return; }
+        if ( z == &_nil ) { return; }
         Node *y = z;
         Node *x;
         bool  y_orig_color = y->red;
-        if ( z->left == _nil ) {
+        if ( z->left == &_nil ) {
             x = z->right;
             transplant( z, x );
-        } else if ( z->right == _nil ) {
+        } else if ( z->right == &_nil ) {
             x = z->left;
             transplant( z, x );
         } else {
@@ -263,4 +307,7 @@ public:
         if ( !y_orig_color ) { remove_fixup( x ); }
     };
 };
+
+template<class T, class Compare> typename rb_tree<T, Compare>::Node rb_tree<T, Compare>::_nil = rb_tree<T, Compare>::Node();
+
 }
