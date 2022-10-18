@@ -32,29 +32,74 @@ public:
         typedef U *            pointer;
         typedef std::ptrdiff_t difference_type;
 
-    private:
+    public:
         Node *_node;
-
-        void next() {
-            if ( _node->right != &_nil ) {
-                _node = _node->right;
-                while ( _node->left != &_nil ) { _node = _node->left; }
-            } else {
-                while ( _node == _node->p->right ) { _node = _node->p; }
-                _node = _node->p;
-            }
-        }
+        bool  overflow;
 
     public:
-        Iterator() : _node() {}
-        Iterator( Node *other ) : _node( other ) {}
+        Iterator() : _node(), overflow( true ) {}
+        Iterator( Node *node ) : _node( node ), overflow( false ) {}
+        Iterator( const Iterator &other ) : _node( other._node ), overflow( other.overflow ) {}
 
         Iterator &operator++() {
-            next();
+            if ( overflow ) {
+                overflow = false;
+            } else {
+                if ( _node->right != &_nil ) {
+                    _node = _node->right;
+                    while ( _node->left != &_nil ) { _node = _node->left; }
+                } else {
+                    Node *tmp = _node;
+                    while ( tmp->p && tmp == tmp->p->right ) { tmp = tmp->p; }
+                    if ( !tmp->p ) {
+                        overflow = true;
+                    } else {
+                        _node = tmp->p;
+                    }
+                }
+            }
             return *this;
         }
 
+        Iterator operator++( int ) {
+            Iterator tmp( *this );
+            ++( *this );
+            return tmp;
+        }
+
+        Iterator &operator--() {
+            if ( overflow ) {
+                overflow = false;
+            } else {
+                if ( _node->left != &_nil ) {
+                    _node = _node->left;
+                    while ( _node->right != &_nil ) { _node = _node->right; }
+                } else {
+                    Node *tmp = _node;
+                    while ( tmp->p && tmp == tmp->p->left ) { tmp = tmp->p; }
+                    if ( !tmp->p ) {
+                        overflow = true;
+                    } else {
+                        _node = tmp->p;
+                    }
+                }
+            }
+            return *this;
+        }
+
+        Iterator operator--( int ) {
+            Iterator tmp( *this );
+            --( *this );
+            return tmp;
+        }
+
+        template<typename V> bool operator==(const Iterator<V> &other) const {
+            return overflow == other.overflow && _node == other._node;
+        }
+        
         reference operator*() { return _node->data; }
+        
+        operator Iterator<const U>() const {return Iterator<const U>(_node);}
     };
 
 public:
@@ -74,6 +119,11 @@ public:
 public:
     rb_tree() : _cmp( Compare() ) { _root = &_nil; }
 
+    iterator               begin() { return minimum(_root); }
+    const_iterator         begin() const { return minimum(_root); }
+    iterator               end() { return ++iterator(maximum(_root)); }
+    const_iterator         end() const { return ++const_iterator(maximum(_root)); }
+    
     void print( std::ostream &os, Node *root, int space = 0 ) {
         static const int count = 10;
         if ( root == &_nil ) { return; }
@@ -213,7 +263,11 @@ public:
     }
 
     Node *minimum( Node *x ) {
-        while ( x->left != &_nil ) { x = x->left; }
+        while ( x != &_nil && x->left != &_nil ) { x = x->left; }
+        return x;
+    }
+    Node *maximum( Node *x ) {
+        while ( x != &_nil && x->right != &_nil ) { x = x->right; }
         return x;
     }
 
