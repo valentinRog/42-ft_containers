@@ -125,7 +125,9 @@ public:
           _capacity( 0 ),
           _size( 0 ) {}
 
-    explicit vector( size_type n, const value_type &val = value_type(), const allocator_type &alloc = allocator_type() )
+    explicit vector( size_type             n,
+                     const value_type &    val   = value_type(),
+                     const allocator_type &alloc = allocator_type() )
         : _allocator( alloc ),
           _data( 0 ),
           _capacity( 0 ),
@@ -142,7 +144,11 @@ public:
         assign( first, last );
     }
 
-    vector( const vector &other ) : _allocator( other._allocator ), _data( 0 ), _capacity( 0 ), _size( 0 ) {
+    vector( const vector &other )
+        : _allocator( other._allocator ),
+          _data( 0 ),
+          _capacity( 0 ),
+          _size( 0 ) {
         *this = other;
     }
 
@@ -179,7 +185,9 @@ public:
             size_type len( 1 );
             while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
-            for ( size_type i( 0 ); i < len; i++ ) { _allocator.construct( tmp + i, i < _size ? _data[i] : T() ); }
+            for ( size_type i( 0 ); i < len; i++ ) {
+                _allocator.construct( tmp + i, i < _size ? _data[i] : T() );
+            }
             size_type size = _size;
             clear();
             _allocator.deallocate( _data, _capacity );
@@ -229,7 +237,9 @@ public:
     /* -------------------------------- Modifiers ------------------------------- */
 
     template < class U >
-    void assign( U first, U last, typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 ) {
+    void assign( U first,
+                 U last,
+                 typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 ) {
         clear();
         insert( begin(), first, last );
     }
@@ -310,22 +320,28 @@ public:
 
 /* -------------------------- Relational operators -------------------------- */
 
-template < class T, class Alloc > bool operator==( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+template < class T, class Alloc >
+bool operator==( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
     return lhs.size() == rhs.size() ? ft::equal( lhs.begin(), lhs.end(), rhs.begin() ) : false;
 }
-template < class T, class Alloc > bool operator!=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+template < class T, class Alloc >
+bool operator!=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
     return lhs.size() < rhs.size() ? true : !( lhs == rhs );
 }
-template < class T, class Alloc > bool operator<( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+template < class T, class Alloc >
+bool operator<( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
     return ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );
 }
-template < class T, class Alloc > bool operator<=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+template < class T, class Alloc >
+bool operator<=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
     return lhs < rhs || lhs == rhs;
 }
-template < class T, class Alloc > bool operator>( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+template < class T, class Alloc >
+bool operator>( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
     return !( lhs <= rhs );
 }
-template < class T, class Alloc > bool operator>=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+template < class T, class Alloc >
+bool operator>=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
     return !( lhs < rhs );
 }
 

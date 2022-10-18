@@ -28,9 +28,10 @@ template < typename T, typename Compare = std::less< T > > class rb_tree {
 public:
     template < typename U > class Iterator {
     public:
-        typedef U &            reference;
-        typedef U *            pointer;
-        typedef std::ptrdiff_t difference_type;
+        typedef U &                             reference;
+        typedef U *                             pointer;
+        typedef std::ptrdiff_t                  difference_type;
+        typedef std::random_access_iterator_tag iterator_category;
 
     public:
         Node *_node;
@@ -103,13 +104,15 @@ public:
     };
 
 public:
-    typedef T                            value_type;
-    typedef value_type *                 pointer;
-    typedef const pointer                const_pointer;
-    typedef value_type &                 reference;
-    typedef const value_type &           const_reference;
-    typedef Iterator< value_type >       iterator;
-    typedef Iterator< const value_type > const_iterator;
+    typedef T                                      value_type;
+    typedef value_type *                           pointer;
+    typedef const pointer                          const_pointer;
+    typedef value_type &                           reference;
+    typedef const value_type &                     const_reference;
+    typedef Iterator< value_type >                 iterator;
+    typedef Iterator< const value_type >           const_iterator;
+    typedef ft::reverse_iterator< iterator >       reverse_iterator;
+    typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 
 public:
     Node *      _root;
@@ -119,10 +122,18 @@ public:
 public:
     rb_tree() : _cmp( Compare() ) { _root = &_nil; }
 
-    iterator       begin() { return minimum( _root ); }
-    const_iterator begin() const { return minimum( _root ); }
-    iterator       end() { return ++iterator( maximum( _root ) ); }
-    const_iterator end() const { return ++const_iterator( maximum( _root ) ); }
+    iterator               begin() { return minimum( _root ); }
+    const_iterator         begin() const { return minimum( _root ); }
+    iterator               end() { return ++iterator( maximum( _root ) ); }
+    const_iterator         end() const { return ++const_iterator( maximum( _root ) ); }
+    reverse_iterator       rbegin() { return end(); }
+    const_reverse_iterator rbegin() const { return end(); };
+    reverse_iterator       rend() { return begin(); }
+    const_reverse_iterator rend() const { return begin(); }
+    const_iterator         cbegin() const { return end(); }
+    const_iterator         cend() const { return begin(); }
+    const_reverse_iterator crbegin() const { return end(); }
+    const_reverse_iterator crend() const { return begin(); };
 
     void print( std::ostream &os, Node *root, int space = 0 ) {
         static const int count = 10;

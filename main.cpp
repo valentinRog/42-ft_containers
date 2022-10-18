@@ -38,7 +38,7 @@ int main() {
     srand( time( 0 ) );
     ft::rb_tree< int > tree;
     for ( int i = 0; i < 10; i++ ) { tree.insert(i + 1 ); }
-    for (ft::rb_tree< int >::const_iterator it = tree.begin(); !(it == tree.end()); it++) {
+    for (ft::rb_tree< int >::reverse_iterator it = tree.rbegin(); !(it == tree.rend()); it++) {
         std::cout << *it << std::endl;
     }
 }
