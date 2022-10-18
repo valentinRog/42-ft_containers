@@ -16,7 +16,12 @@ template < typename T, typename Compare = std::less< T > > class rb_tree {
         Node *left;
         Node *right;
 
-        Node( const T &data = T() ) : data( data ), red( false ), p( 0 ), left( 0 ), right( 0 ) {}
+        Node( const T &data = T() )
+            : data( data ),
+              red( false ),
+              p( 0 ),
+              left( 0 ),
+              right( 0 ) {}
         Node( const Node &other )
             : data( other.data ),
               red( other.red ),
@@ -40,7 +45,9 @@ public:
     public:
         Iterator() : _node( &_nil ), overflow( true ) {}
         Iterator( Node *node ) : _node( node ) { overflow = _node == &_nil; }
-        Iterator( const Iterator &other ) : _node( other._node ), overflow( other.overflow ) {}
+        Iterator( const Iterator &other )
+            : _node( other._node ),
+              overflow( other.overflow ) {}
 
         Iterator &operator++() {
             if ( overflow ) {
@@ -94,13 +101,16 @@ public:
             return tmp;
         }
 
-        template < typename V > bool operator==( const Iterator< V > &other ) const {
+        template < typename V >
+        bool operator==( const Iterator< V > &other ) const {
             return overflow == other.overflow && _node == other._node;
         }
 
         reference operator*() { return _node->data; }
 
-        operator Iterator< const U >() const { return Iterator< const U >( _node ); }
+        operator Iterator< const U >() const {
+            return Iterator< const U >( _node );
+        }
     };
 
 public:
@@ -122,10 +132,10 @@ public:
 public:
     rb_tree() : _cmp( Compare() ) { _root = &_nil; }
 
-    iterator               begin() { return minimum( _root ); }
-    const_iterator         begin() const { return minimum( _root ); }
-    iterator               end() { return ++iterator( maximum( _root ) ); }
-    const_iterator         end() const { return ++const_iterator( maximum( _root ) ); }
+    iterator       begin() { return minimum( _root ); }
+    const_iterator begin() const { return minimum( _root ); }
+    iterator       end() { return ++iterator( maximum( _root ) ); }
+    const_iterator end() const { return ++const_iterator( maximum( _root ) ); }
     reverse_iterator       rbegin() { return end(); }
     const_reverse_iterator rbegin() const { return end(); };
     reverse_iterator       rend() { return begin(); }
@@ -370,6 +380,7 @@ public:
 };
 
 template < class T, class Compare >
-typename rb_tree< T, Compare >::Node rb_tree< T, Compare >::_nil = rb_tree< T, Compare >::Node();
+typename rb_tree< T, Compare >::Node rb_tree< T, Compare >::_nil
+    = rb_tree< T, Compare >::Node();
 
 }

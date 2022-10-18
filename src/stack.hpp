@@ -27,27 +27,33 @@ public:
     void            pop() { _c.pop_back(); }
 
     template < typename U >
-    friend bool operator==( const stack< U, Container > &lhs, const stack< U, Container > &rhs ) {
+    friend bool operator==( const stack< U, Container > &lhs,
+                            const stack< U, Container > &rhs ) {
         return lhs._c == rhs._c;
     }
     template < typename U >
-    friend bool operator!=( const stack< U, Container > &lhs, const stack< U, Container > &rhs ) {
+    friend bool operator!=( const stack< U, Container > &lhs,
+                            const stack< U, Container > &rhs ) {
         return lhs._c != rhs._c;
     }
     template < typename U >
-    friend bool operator<( const stack< U, Container > &lhs, const stack< U, Container > &rhs ) {
+    friend bool operator<( const stack< U, Container > &lhs,
+                           const stack< U, Container > &rhs ) {
         return lhs._c < rhs._c;
     }
     template < typename U >
-    friend bool operator<=( const stack< U, Container > &lhs, const stack< U, Container > &rhs ) {
+    friend bool operator<=( const stack< U, Container > &lhs,
+                            const stack< U, Container > &rhs ) {
         return lhs._c <= rhs._c;
     }
     template < typename U >
-    friend bool operator>( const stack< U, Container > &lhs, const stack< U, Container > &rhs ) {
+    friend bool operator>( const stack< U, Container > &lhs,
+                           const stack< U, Container > &rhs ) {
         return lhs._c > rhs._c;
     }
     template < typename U >
-    friend bool operator>=( const stack< U, Container > &lhs, const stack< U, Container > &rhs ) {
+    friend bool operator>=( const stack< U, Container > &lhs,
+                            const stack< U, Container > &rhs ) {
         return lhs._c >= rhs._c;
     }
 };

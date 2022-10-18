@@ -40,7 +40,7 @@ BreakBeforeBinaryOperators: All
 
 BreakBeforeTernaryOperators: true
 
-ColumnLimit: 100
+ColumnLimit: 80
 
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 

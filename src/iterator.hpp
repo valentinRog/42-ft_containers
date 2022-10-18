@@ -17,21 +17,26 @@ public:
     reverse_iterator( pointer p ) : _it( T( p ) ) {}
     reverse_iterator( const T &other ) : _it( other ) {}
     template < typename U >
-    reverse_iterator( const reverse_iterator< U > &other ) : _it( other.base() ) {}
+    reverse_iterator( const reverse_iterator< U > &other )
+        : _it( other.base() ) {}
 
-    template < typename U > reverse_iterator &operator=( const reverse_iterator< U > &other ) {
+    template < typename U >
+    reverse_iterator &operator=( const reverse_iterator< U > &other ) {
         _it = other.base();
         return *this;
     }
 
     T base() const { return _it; }
 
-    reverse_iterator        operator+( difference_type n ) const { return _it - n; }
-    friend reverse_iterator operator+( difference_type n, const reverse_iterator &other ) {
+    reverse_iterator operator+( difference_type n ) const { return _it - n; }
+    friend reverse_iterator operator+( difference_type         n,
+                                       const reverse_iterator &other ) {
         return other + n;
     };
     reverse_iterator operator-( difference_type n ) const { return _it + n; }
-    difference_type  operator-( const reverse_iterator &other ) const { return other.base() - _it; }
+    difference_type  operator-( const reverse_iterator &other ) const {
+        return other.base() - _it;
+    }
 
     reverse_iterator operator++() { return --_it; }
     reverse_iterator operator--() { return ++_it; }
@@ -47,22 +52,28 @@ public:
         return *this;
     };
 
-    template < typename U > bool operator==( const reverse_iterator< U > &other ) const {
+    template < typename U >
+    bool operator==( const reverse_iterator< U > &other ) const {
         return ( _it == other.base() );
     };
-    template < typename U > bool operator!=( const reverse_iterator< U > &other ) const {
+    template < typename U >
+    bool operator!=( const reverse_iterator< U > &other ) const {
         return ( _it != other.base() );
     };
-    template < typename U > bool operator>( const reverse_iterator< U > &other ) const {
+    template < typename U >
+    bool operator>( const reverse_iterator< U > &other ) const {
         return ( _it < other.base() );
     };
-    template < typename U > bool operator<( const reverse_iterator< U > &other ) const {
+    template < typename U >
+    bool operator<( const reverse_iterator< U > &other ) const {
         return ( _it > other.base() );
     };
-    template < typename U > bool operator>=( const reverse_iterator< U > &other ) const {
+    template < typename U >
+    bool operator>=( const reverse_iterator< U > &other ) const {
         return ( _it <= other.base() );
     };
-    template < typename U > bool operator<=( const reverse_iterator< U > &other ) const {
+    template < typename U >
+    bool operator<=( const reverse_iterator< U > &other ) const {
         return ( _it >= other.base() );
     };
 

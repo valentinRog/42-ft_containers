@@ -35,9 +35,13 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
         }
 
         Iterator        operator+( difference_type n ) const { return _p + n; }
-        friend Iterator operator+( difference_type lhs, const Iterator &rhs ) { return rhs + lhs; }
+        friend Iterator operator+( difference_type lhs, const Iterator &rhs ) {
+            return rhs + lhs;
+        }
         Iterator        operator-( difference_type n ) const { return _p - n; }
-        difference_type operator-( const Iterator &other ) const { return _p - other._p; }
+        difference_type operator-( const Iterator &other ) const {
+            return _p - other._p;
+        }
 
         Iterator &operator++() {
             _p++;
@@ -67,22 +71,28 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
             return *this;
         }
 
-        template < typename V > bool operator==( const Iterator< V > &other ) const {
+        template < typename V >
+        bool operator==( const Iterator< V > &other ) const {
             return ( _p == other.operator->() );
         };
-        template < typename V > bool operator!=( const Iterator< V > &other ) const {
+        template < typename V >
+        bool operator!=( const Iterator< V > &other ) const {
             return ( _p != other.operator->() );
         };
-        template < typename V > bool operator>( const Iterator< V > &other ) const {
+        template < typename V >
+        bool operator>( const Iterator< V > &other ) const {
             return ( _p > other.operator->() );
         };
-        template < typename V > bool operator<( const Iterator< V > &other ) const {
+        template < typename V >
+        bool operator<( const Iterator< V > &other ) const {
             return ( _p < other.operator->() );
         };
-        template < typename V > bool operator>=( const Iterator< V > &other ) const {
+        template < typename V >
+        bool operator>=( const Iterator< V > &other ) const {
             return ( _p >= other.operator->() );
         };
-        template < typename V > bool operator<=( const Iterator< V > &other ) const {
+        template < typename V >
+        bool operator<=( const Iterator< V > &other ) const {
             return ( _p <= other.operator->() );
         };
 
@@ -90,7 +100,9 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
         reference operator[]( difference_type i ) { return _p[i]; }
         pointer   operator->() const { return ( _p ); };
 
-        operator Iterator< const U >() const { return ( Iterator< const U >( _p ) ); }
+        operator Iterator< const U >() const {
+            return ( Iterator< const U >( _p ) );
+        }
     };
 
     /* ------------------------------ Member types ------------------------------ */
@@ -214,8 +226,12 @@ public:
 
     /* ----------------------------- Element access ----------------------------- */
 
-    reference       operator[]( size_type i ) { return i >= _size ? *end() : _data[i]; }
-    const_reference operator[]( size_type i ) const { return i >= _size ? *end() : _data[i]; }
+    reference operator[]( size_type i ) {
+        return i >= _size ? *end() : _data[i];
+    }
+    const_reference operator[]( size_type i ) const {
+        return i >= _size ? *end() : _data[i];
+    }
 
     reference at( size_type i ) {
         if ( i >= _size ) { throw std::out_of_range( "Trop grand frere" ); }
@@ -239,7 +255,8 @@ public:
     template < class U >
     void assign( U first,
                  U last,
-                 typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 ) {
+                 typename ft::enable_if< !ft::is_integral< U >::value, U >::type
+                     * = 0 ) {
         clear();
         insert( begin(), first, last );
     }
@@ -269,7 +286,9 @@ public:
         reserve( _size + n );
         _size += n;
         position = begin() + i;
-        for ( reverse_iterator rit = rbegin(); rit != rend() - i - n; rit++ ) { *rit = rit[n]; }
+        for ( reverse_iterator rit = rbegin(); rit != rend() - i - n; rit++ ) {
+            *rit = rit[n];
+        }
         for ( iterator it = position; it < position + n; it++ ) { *it = val; }
     }
 
@@ -277,18 +296,23 @@ public:
     void insert( iterator position,
                  U        first,
                  U        last,
-                 typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 ) {
+                 typename ft::enable_if< !ft::is_integral< U >::value, U >::type
+                     * = 0 ) {
         typename iterator::difference_type i = position - begin();
         size_type                          n( 0 );
         for ( U it = first; it != last; it++ ) { n++; }
         reserve( _size + n );
         _size += n;
         position = begin() + i;
-        for ( reverse_iterator rit = rbegin(); rit != rend() - i - n; rit++ ) { *rit = rit[n]; }
+        for ( reverse_iterator rit = rbegin(); rit != rend() - i - n; rit++ ) {
+            *rit = rit[n];
+        }
         for ( U it = first; it != last; it++, position++ ) { *position = *it; }
     }
 
-    iterator erase( iterator position ) { return erase( position, position + 1 ); }
+    iterator erase( iterator position ) {
+        return erase( position, position + 1 );
+    }
 
     iterator erase( iterator first, iterator last ) {
         size_type i = last - first;
@@ -307,7 +331,9 @@ public:
     }
 
     void clear() {
-        for ( size_type i = 0; i < _size; i++ ) { _allocator.destroy( _data + i ); }
+        for ( size_type i = 0; i < _size; i++ ) {
+            _allocator.destroy( _data + i );
+        }
         _size = 0;
     }
 
@@ -321,19 +347,27 @@ public:
 /* -------------------------- Relational operators -------------------------- */
 
 template < class T, class Alloc >
-bool operator==( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
-    return lhs.size() == rhs.size() ? ft::equal( lhs.begin(), lhs.end(), rhs.begin() ) : false;
+bool operator==( const vector< T, Alloc > &lhs,
+                 const vector< T, Alloc > &rhs ) {
+    return lhs.size() == rhs.size()
+               ? ft::equal( lhs.begin(), lhs.end(), rhs.begin() )
+               : false;
 }
 template < class T, class Alloc >
-bool operator!=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+bool operator!=( const vector< T, Alloc > &lhs,
+                 const vector< T, Alloc > &rhs ) {
     return lhs.size() < rhs.size() ? true : !( lhs == rhs );
 }
 template < class T, class Alloc >
 bool operator<( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
-    return ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );
+    return ft::lexicographical_compare( lhs.begin(),
+                                        lhs.end(),
+                                        rhs.begin(),
+                                        rhs.end() );
 }
 template < class T, class Alloc >
-bool operator<=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+bool operator<=( const vector< T, Alloc > &lhs,
+                 const vector< T, Alloc > &rhs ) {
     return lhs < rhs || lhs == rhs;
 }
 template < class T, class Alloc >
@@ -341,13 +375,16 @@ bool operator>( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
     return !( lhs <= rhs );
 }
 template < class T, class Alloc >
-bool operator>=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
+bool operator>=( const vector< T, Alloc > &lhs,
+                 const vector< T, Alloc > &rhs ) {
     return !( lhs < rhs );
 }
 
 /* ---------------------------------- Swap ---------------------------------- */
 
-template < typename T > void swap( vector< T > &x, vector< T > &y ) { x.swap( y ); }
+template < typename T > void swap( vector< T > &x, vector< T > &y ) {
+    x.swap( y );
+}
 
 /* -------------------------------------------------------------------------- */
 
