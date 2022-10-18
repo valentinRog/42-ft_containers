@@ -37,13 +37,13 @@ public:
         bool  overflow;
 
     public:
-        Iterator() : _node(), overflow( true ) {}
-        Iterator( Node *node ) : _node( node ), overflow( false ) {}
+        Iterator() : _node( &_nil ), overflow( true ) {}
+        Iterator( Node *node ) : _node( node ) { overflow = _node == &_nil; }
         Iterator( const Iterator &other ) : _node( other._node ), overflow( other.overflow ) {}
 
         Iterator &operator++() {
             if ( overflow ) {
-                overflow = false;
+                if ( _node != &_nil ) { overflow = false; }
             } else {
                 if ( _node->right != &_nil ) {
                     _node = _node->right;
@@ -69,7 +69,7 @@ public:
 
         Iterator &operator--() {
             if ( overflow ) {
-                overflow = false;
+                if ( _node != &_nil ) { overflow = false; }
             } else {
                 if ( _node->left != &_nil ) {
                     _node = _node->left;
@@ -93,13 +93,13 @@ public:
             return tmp;
         }
 
-        template<typename V> bool operator==(const Iterator<V> &other) const {
+        template < typename V > bool operator==( const Iterator< V > &other ) const {
             return overflow == other.overflow && _node == other._node;
         }
-        
+
         reference operator*() { return _node->data; }
-        
-        operator Iterator<const U>() const {return Iterator<const U>(_node);}
+
+        operator Iterator< const U >() const { return Iterator< const U >( _node ); }
     };
 
 public:
@@ -119,11 +119,11 @@ public:
 public:
     rb_tree() : _cmp( Compare() ) { _root = &_nil; }
 
-    iterator               begin() { return minimum(_root); }
-    const_iterator         begin() const { return minimum(_root); }
-    iterator               end() { return ++iterator(maximum(_root)); }
-    const_iterator         end() const { return ++const_iterator(maximum(_root)); }
-    
+    iterator       begin() { return minimum( _root ); }
+    const_iterator begin() const { return minimum( _root ); }
+    iterator       end() { return ++iterator( maximum( _root ) ); }
+    const_iterator end() const { return ++const_iterator( maximum( _root ) ); }
+
     void print( std::ostream &os, Node *root, int space = 0 ) {
         static const int count = 10;
         if ( root == &_nil ) { return; }
