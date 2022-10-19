@@ -8,18 +8,25 @@
 namespace ft {
 
 template < typename T,
-           typename Compare = std::less< T >,
-           typename Alloc   = std::allocator< T > >
+           typename Compare   = std::less< T >,
+           typename Allocator = std::allocator< T > >
 class rb_tree {
 
-    struct Node {
-        T     data;
-        bool  red;
-        Node *p;
-        Node *left;
-        Node *right;
+    typedef T                                        value_type;
+    typedef Allocator                                allocator_type;
+    typedef typename allocator_type::reference       reference;
+    typedef typename allocator_type::const_reference const_reference;
+    typedef typename allocator_type::pointer         pointer;
+    typedef typename allocator_type::const_pointer   const_pointer;
 
-        Node( const T &val = T() )
+    struct Node {
+        value_type data;
+        bool       red;
+        Node *     p;
+        Node *     left;
+        Node *     right;
+
+        Node( const value_type &val = value_type() )
             : data( val ),
               red( false ),
               p( 0 ),
@@ -33,6 +40,10 @@ class rb_tree {
               right( other.right ) {}
     };
 
+    typedef
+        typename Allocator::template rebind< Node >::other node_allocator_type;
+    typedef typename node_allocator_type::pointer          node_pointer;
+
 public:
     template < typename U > class Iterator {
     public:
@@ -42,12 +53,14 @@ public:
         typedef std::random_access_iterator_tag iterator_category;
 
     public:
-        Node *_node;
-        bool  overflow;
+        node_pointer _node;
+        bool         overflow;
 
     public:
         Iterator() : _node( &_nil ), overflow( true ) {}
-        Iterator( Node *node ) : _node( node ) { overflow = _node == &_nil; }
+        Iterator( node_pointer node ) : _node( node ) {
+            overflow = _node == &_nil;
+        }
         Iterator( const Iterator &other )
             : _node( other._node ),
               overflow( other.overflow ) {}
@@ -60,7 +73,7 @@ public:
                     _node = _node->right;
                     while ( _node->left != &_nil ) { _node = _node->left; }
                 } else {
-                    Node *tmp = _node;
+                    node_pointer tmp = _node;
                     while ( tmp->p && tmp == tmp->p->right ) { tmp = tmp->p; }
                     if ( !tmp->p ) {
                         overflow = true;
@@ -86,7 +99,7 @@ public:
                     _node = _node->left;
                     while ( _node->right != &_nil ) { _node = _node->right; }
                 } else {
-                    Node *tmp = _node;
+                    node_pointer tmp = _node;
                     while ( tmp->p && tmp == tmp->p->left ) { tmp = tmp->p; }
                     if ( !tmp->p ) {
                         overflow = true;
@@ -117,26 +130,19 @@ public:
     };
 
 public:
-    typedef T                                      value_type;
-    typedef value_type *                           pointer;
-    typedef const pointer                          const_pointer;
-    typedef value_type &                           reference;
-    typedef const value_type &                     const_reference;
     typedef Iterator< value_type >                 iterator;
     typedef Iterator< const value_type >           const_iterator;
     typedef ft::reverse_iterator< iterator >       reverse_iterator;
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 
 public:
-    Node *                                         _root;
-    static Node                                    _nil;
-    Compare                                        _cmp;
-    typename Alloc::template rebind< Node >::other alloc;
+    node_pointer        _root;
+    static Node         _nil;
+    Compare             _cmp;
+    node_allocator_type _allocator;
 
 public:
-    rb_tree()
-        : _cmp( Compare() ),
-          alloc( typename Alloc::template rebind< Node >::other() ) {
+    rb_tree() : _cmp( Compare() ), _allocator( node_allocator_type() ) {
         _root = &_nil;
     }
     ~rb_tree() {
@@ -156,7 +162,7 @@ public:
     const_reverse_iterator crbegin() const { return end(); }
     const_reverse_iterator crend() const { return begin(); };
 
-    void print( std::ostream &os, Node *root, int space = 0 ) {
+    void print( std::ostream &os, node_pointer root, int space = 0 ) {
         static const int count = 10;
         if ( root == &_nil ) { return; }
         space += count;
@@ -174,9 +180,9 @@ public:
         return os;
     }
 
-    void rotate_left( Node *x ) {
-        Node *y  = x->right;
-        x->right = y->left;
+    void rotate_left( node_pointer x ) {
+        node_pointer y = x->right;
+        x->right       = y->left;
         if ( y->left != &_nil ) { y->left->p = x; }
         y->p = x->p;
         if ( !x->p ) {
@@ -190,9 +196,9 @@ public:
         x->p    = y;
     }
 
-    void rotate_right( Node *x ) {
-        Node *y = x->left;
-        x->left = y->right;
+    void rotate_right( node_pointer x ) {
+        node_pointer y = x->left;
+        x->left        = y->right;
         if ( y->right != &_nil ) { y->right->p = x; }
         y->p = x->p;
         if ( !x->p ) {
@@ -206,7 +212,7 @@ public:
         x->p     = y;
     }
 
-    void fix_insert( Node *z ) {
+    void fix_insert( node_pointer z ) {
         while ( z != _root && z->p->red ) {
             if ( z->p == z->p->p->right ) {
                 if ( z->p->p->left->red ) {
@@ -244,13 +250,13 @@ public:
     }
 
     void insert( value_type data ) {
-        Node *new_node = alloc.allocate( 1 );
-        alloc.construct( new_node, data );
-        new_node->red   = true;
-        new_node->left  = &_nil;
-        new_node->right = &_nil;
-        Node *current   = _root;
-        Node *p( 0 );
+        node_pointer new_node = _allocator.allocate( 1 );
+        _allocator.construct( new_node, data );
+        new_node->red        = true;
+        new_node->left       = &_nil;
+        new_node->right      = &_nil;
+        node_pointer current = _root;
+        node_pointer p( 0 );
         while ( current != &_nil ) {
             p = current;
             if ( new_node->data < current->data ) {
@@ -272,8 +278,8 @@ public:
         fix_insert( new_node );
     }
 
-    Node *search_node( const value_type &val ) {
-        Node *current = _root;
+    node_pointer search_node( const value_type &val ) {
+        node_pointer current = _root;
         while ( current != &_nil && current->data != val ) {
             if ( val < current->data ) {
                 current = current->left;
@@ -284,7 +290,7 @@ public:
         return current;
     }
 
-    void transplant( Node *u, Node *v ) {
+    void transplant( node_pointer u, node_pointer v ) {
         if ( u == _root ) {
             _root = v;
         } else if ( u == u->p->left ) {
@@ -295,19 +301,19 @@ public:
         v->p = u->p;
     }
 
-    Node *minimum( Node *x ) {
+    node_pointer minimum( node_pointer x ) {
         while ( x != &_nil && x->left != &_nil ) { x = x->left; }
         return x;
     }
-    Node *maximum( Node *x ) {
+    node_pointer maximum( node_pointer x ) {
         while ( x != &_nil && x->right != &_nil ) { x = x->right; }
         return x;
     }
 
-    void remove_fixup( Node *x ) {
+    void remove_fixup( node_pointer x ) {
         while ( x != _root and x->red == false ) {
             if ( x == x->p->left ) {
-                Node *w = x->p->right;
+                node_pointer w = x->p->right;
                 if ( w->red ) {
                     w->red    = false;
                     x->p->red = true;
@@ -331,7 +337,7 @@ public:
                     x = _root;
                 }
             } else {
-                Node *w = x->p->left;
+                node_pointer w = x->p->left;
                 if ( w->red ) {
                     w->red    = false;
                     x->p->red = true;
@@ -360,11 +366,11 @@ public:
     }
 
     void remove( const value_type &val ) {
-        Node *z = search_node( val );
+        node_pointer z = search_node( val );
         if ( z == &_nil ) { return; }
-        Node *y = z;
-        Node *x;
-        bool  y_orig_color = y->red;
+        node_pointer y = z;
+        node_pointer x;
+        bool         y_orig_color = y->red;
         if ( z->left == &_nil ) {
             x = z->right;
             transplant( z, x );
@@ -388,13 +394,14 @@ public:
             y->red     = z->red;
         }
         if ( !y_orig_color ) { remove_fixup( x ); }
-        alloc.destroy( z );
-        alloc.deallocate( z, 1 );
+        _allocator.destroy( z );
+        _allocator.deallocate( z, 1 );
     };
 };
 
-template < class T, class Compare, class Alloc >
-typename rb_tree< T, Compare, Alloc >::Node rb_tree< T, Compare, Alloc >::_nil
-    = rb_tree< T, Compare, Alloc >::Node();
+template < class T, class Compare, class Allocator >
+typename rb_tree< T, Compare, Allocator >::Node
+    rb_tree< T, Compare, Allocator >::_nil
+    = rb_tree< T, Compare, Allocator >::Node();
 
 }
