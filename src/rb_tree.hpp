@@ -129,7 +129,7 @@ public:
         }
         template < typename V >
         bool operator!=( const Iterator< V > &other ) const {
-            return !(*this == other);
+            return !( *this == other );
         }
 
         reference operator*() { return _node->data; }
@@ -145,10 +145,12 @@ public:
     typedef Iterator< const value_type >           const_iterator;
     typedef ft::reverse_iterator< iterator >       reverse_iterator;
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
+    typedef std::size_t                            size_type;
 
 private:
     node_pointer        _root;
     static node_type    _nil;
+    size_type           _size;
     Less                _less;
     node_allocator_type _allocator;
 
@@ -159,7 +161,7 @@ public:
     ~rb_tree() {
         while ( _root != &_nil ) { remove( _root->data ); }
     }
-
+    
     iterator       begin() { return minimum( _root ); }
     const_iterator begin() const { return minimum( _root ); }
     iterator       end() { return ++iterator( maximum( _root ) ); }
@@ -173,6 +175,8 @@ public:
     const_reverse_iterator crbegin() const { return rbegin(); }
     const_reverse_iterator crend() const { return rend(); };
 
+    size_type size() const {return _size;}
+    
     void print( std::ostream &os, node_pointer root = 0, int space = 0 ) const {
         static const int count = 10;
         if ( !root ) { root = _root; }
@@ -290,6 +294,7 @@ public:
             p->right = new_node;
         }
         fix_insert( new_node );
+        _size++;
     }
 
     node_pointer search_node( const value_type &val ) {
@@ -412,6 +417,7 @@ public:
         if ( !y_orig_color ) { remove_fixup( x ); }
         _allocator.destroy( z );
         _allocator.deallocate( z, 1 );
+        _size--;
     };
 };
 
