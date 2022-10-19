@@ -57,24 +57,15 @@ template < typename T, typename U > struct cmp {
 int main() {
     srand( time( 0 ) );
 
-    ft::rb_tree< int > t;
-    for ( int i = 0; i < 10; i++ ) { t.insert( rand() % 1000 ); }
-    std::cout << t << std::endl;
-    ft::rb_tree< int >::const_iterator it = t.begin();
-    while ( it != t.end() ) {
-        std::cout << *it << std::endl;
-        it++;
-    }
-
     ft::rb_tree< std::pair< std::string, int >, cmp< std::string, int > > map;
     map.insert( std::make_pair( "E", 6 ) );
     map.insert( std::make_pair( "A", 9 ) );
+    map.insert( std::make_pair( "AA", 9 ) );
     map.insert( std::make_pair( "B", 9 ) );
-    std::cout << ( *map.begin() ).second << std::endl;
-    for ( ft::rb_tree< std::pair< std::string, int >, cmp<std::string, int> >::reverse_iterator
-              rit
+    for ( ft::rb_tree< std::pair< std::string, int >,
+                       cmp< std::string, int > >::const_reverse_iterator rit
           = map.rbegin();
-          !(rit == map.rend());
+           rit != map.rend() ;
           rit++ ) {
         std::cout << rit->first << std::endl;
     }

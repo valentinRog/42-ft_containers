@@ -53,18 +53,22 @@ public:
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
 
-    public:
+    private:
         node_pointer _node;
         bool         _overflow;
 
     public:
         Iterator() : _node( &_nil ), _overflow( true ) {}
-        Iterator( node_pointer node ) : _node( node ) {
-            _overflow = _node == &_nil;
+        Iterator( node_pointer node, bool overflow = false )
+            : _node( node ),
+              _overflow( overflow ) {
+            _overflow |= _node == &_nil;
         }
         Iterator( const Iterator &other )
             : _node( other._node ),
               _overflow( other._overflow ) {}
+
+        bool overflow() const { return _overflow; }
 
         Iterator &operator++() {
             if ( _overflow ) {
@@ -120,18 +124,19 @@ public:
 
         template < typename V >
         bool operator==( const Iterator< V > &other ) const {
-            return _overflow == other._overflow && _node == other._node;
+            return operator->() == other.operator->()
+                   && overflow() == other.overflow();
         }
         template < typename V >
         bool operator!=( const Iterator< V > &other ) const {
-            return !operator==( other );
+            return !(*this == other);
         }
 
         reference operator*() { return _node->data; }
-        pointer operator->() {return &_node->data; }
+        pointer   operator->() const { return &_node->data; }
 
         operator Iterator< const U >() const {
-            return Iterator< const U >( _node );
+            return Iterator< const U >( _node, _overflow );
         }
     };
 
@@ -163,10 +168,10 @@ public:
     const_reverse_iterator rbegin() const { return end(); };
     reverse_iterator       rend() { return begin(); }
     const_reverse_iterator rend() const { return begin(); }
-    const_iterator         cbegin() const { return end(); }
-    const_iterator         cend() const { return begin(); }
-    const_reverse_iterator crbegin() const { return end(); }
-    const_reverse_iterator crend() const { return begin(); };
+    const_iterator         cbegin() const { return begin(); }
+    const_iterator         cend() const { return end(); }
+    const_reverse_iterator crbegin() const { return rbegin(); }
+    const_reverse_iterator crend() const { return rend(); };
 
     void print( std::ostream &os, node_pointer root = 0, int space = 0 ) const {
         static const int count = 10;
@@ -312,11 +317,11 @@ public:
         v->p = u->p;
     }
 
-    node_pointer minimum( node_pointer x ) {
+    node_pointer minimum( node_pointer x ) const {
         while ( x != &_nil && x->left != &_nil ) { x = x->left; }
         return x;
     }
-    node_pointer maximum( node_pointer x ) {
+    node_pointer maximum( node_pointer x ) const {
         while ( x != &_nil && x->right != &_nil ) { x = x->right; }
         return x;
     }
