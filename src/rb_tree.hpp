@@ -13,37 +13,24 @@ template < typename T,
 class rb_tree {
 
     struct Node {
-        typedef Alloc allocator_type;
-
-        allocator_type alloc;
-        T *            data;
-        bool           red;
-        Node *         p;
-        Node *         left;
-        Node *         right;
+        T     data;
+        bool  red;
+        Node *p;
+        Node *left;
+        Node *right;
 
         Node( const T &val = T() )
-            : alloc( allocator_type() ),
+            : data( val ),
               red( false ),
               p( 0 ),
               left( 0 ),
-              right( 0 ) {
-            data = alloc.allocate( 1 );
-            alloc.construct( data, val );
-        }
+              right( 0 ) {}
         Node( const Node &other )
-            : alloc( allocator_type() ),
+            : data( other.data ),
               red( other.red ),
               p( other.p ),
               left( other.left ),
-              right( other.right ) {
-            data = alloc.allocate( 1 );
-            alloc.construct( data, *other.data );
-        }
-        ~Node() {
-            alloc.destroy( data );
-            alloc.deallocate( data, 1 );
-        }
+              right( other.right ) {}
     };
 
 public:
@@ -122,7 +109,7 @@ public:
             return overflow == other.overflow && _node == other._node;
         }
 
-        reference operator*() { return *_node->data; }
+        reference operator*() { return _node->data; }
 
         operator Iterator< const U >() const {
             return Iterator< const U >( _node );
@@ -141,17 +128,19 @@ public:
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 
 public:
-    Node *                 _root;
-    static Node            _nil;
-    Compare                _cmp;
-    std::allocator< Node > alloc;
+    Node *                                         _root;
+    static Node                                    _nil;
+    Compare                                        _cmp;
+    typename Alloc::template rebind< Node >::other alloc;
 
 public:
-    rb_tree() : _cmp( Compare() ), alloc( std::allocator< Node >() ) {
+    rb_tree()
+        : _cmp( Compare() ),
+          alloc( typename Alloc::template rebind< Node >::other() ) {
         _root = &_nil;
     }
     ~rb_tree() {
-        while ( _root != &_nil ) { remove( *_root->data ); }
+        while ( _root != &_nil ) { remove( _root->data ); }
     }
 
     iterator       begin() { return minimum( _root ); }
@@ -264,9 +253,9 @@ public:
         Node *p( 0 );
         while ( current != &_nil ) {
             p = current;
-            if ( *new_node->data < *current->data ) {
+            if ( new_node->data < current->data ) {
                 current = current->left;
-            } else if ( *new_node->data > *current->data ) {
+            } else if ( new_node->data > current->data ) {
                 current = current->right;
             } else {
                 return;
@@ -275,7 +264,7 @@ public:
         new_node->p = p;
         if ( !p ) {
             _root = new_node;
-        } else if ( *new_node->data < *p->data ) {
+        } else if ( new_node->data < p->data ) {
             p->left = new_node;
         } else {
             p->right = new_node;
@@ -285,8 +274,8 @@ public:
 
     Node *search_node( const value_type &val ) {
         Node *current = _root;
-        while ( current != &_nil && *current->data != val ) {
-            if ( val < *current->data ) {
+        while ( current != &_nil && current->data != val ) {
+            if ( val < current->data ) {
                 current = current->left;
             } else {
                 current = current->right;
