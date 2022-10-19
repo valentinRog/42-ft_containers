@@ -41,28 +41,41 @@ std::ostream &operator<<( std::ostream &os, const std::vector< T > &v ) {
     return os;
 }
 
-template < typename T, typename U > struct cmp {
-    int operator()( const std::pair< T, U > &a,
-                    const std::pair< T, U > &b ) const {
-        return a.first - b.first;
-    }
-};
-
 template < typename T, typename U >
 std::ostream &operator<<( std::ostream &os, const std::pair< T, U > &p ) {
     os << p.first << " " << p.second;
     return os;
 }
 
+template < typename T, typename U > struct cmp {
+    bool operator()( const std::pair< T, U > &a,
+                     const std::pair< T, U > &b ) const {
+        return a.first < b.first;
+    }
+};
+
 int main() {
     srand( time( 0 ) );
 
-    ft::rb_tree< std::pair< int, int >, cmp< int, int > > t;
-    t.insert( std::make_pair( 1, 1 ) );
-    t.insert( std::make_pair( 3, 2 ) );
-    t.insert( std::make_pair( 3, 9 ) );
-    t.insert( std::make_pair( 8, -99 ) );
+    ft::rb_tree< int > t;
+    for ( int i = 0; i < 10; i++ ) { t.insert( rand() % 1000 ); }
     std::cout << t << std::endl;
-    auto it = t.begin();
-    std::cout << *it << std::endl;
+    ft::rb_tree< int >::const_iterator it = t.begin();
+    while ( it != t.end() ) {
+        std::cout << *it << std::endl;
+        it++;
+    }
+
+    ft::rb_tree< std::pair< std::string, int >, cmp< std::string, int > > map;
+    map.insert( std::make_pair( "E", 6 ) );
+    map.insert( std::make_pair( "A", 9 ) );
+    map.insert( std::make_pair( "B", 9 ) );
+    std::cout << ( *map.begin() ).second << std::endl;
+    for ( ft::rb_tree< std::pair< std::string, int >, cmp<std::string, int> >::reverse_iterator
+              rit
+          = map.rbegin();
+          !(rit == map.rend());
+          rit++ ) {
+        std::cout << rit->first << std::endl;
+    }
 }

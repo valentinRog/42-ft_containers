@@ -79,7 +79,7 @@ public:
 
     reference operator*() { return *( --T( _it ) ); }
     reference operator[]( difference_type i ) { return *operator+( i ); }
-    pointer   operator->() const { return ( _it - 1 ).operator->(); };
+    pointer   operator->() const { return  (--T(_it)).operator->(); };
 };
 
 }

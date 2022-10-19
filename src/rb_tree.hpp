@@ -8,7 +8,7 @@
 namespace ft {
 
 template < typename T,
-           typename Compare   = std::less< T >,
+           typename Less      = std::less< T >,
            typename Allocator = std::allocator< T > >
 class rb_tree {
 
@@ -22,9 +22,9 @@ class rb_tree {
     struct Node {
         value_type data;
         bool       red;
-        Node *     p;
-        Node *     left;
-        Node *     right;
+        Node      *p;
+        Node      *left;
+        Node      *right;
 
         Node( const value_type &val = value_type() )
             : data( val ),
@@ -48,12 +48,12 @@ class rb_tree {
 public:
     template < typename U > class Iterator {
     public:
-        typedef U &                             reference;
-        typedef U *                             pointer;
+        typedef U                              &reference;
+        typedef U                              *pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
 
-    private:
+    public:
         node_pointer _node;
         bool         _overflow;
 
@@ -122,8 +122,13 @@ public:
         bool operator==( const Iterator< V > &other ) const {
             return _overflow == other._overflow && _node == other._node;
         }
+        template < typename V >
+        bool operator!=( const Iterator< V > &other ) const {
+            return !operator==( other );
+        }
 
         reference operator*() { return _node->data; }
+        pointer operator->() {return &_node->data; }
 
         operator Iterator< const U >() const {
             return Iterator< const U >( _node );
@@ -139,11 +144,11 @@ public:
 private:
     node_pointer        _root;
     static node_type    _nil;
-    Compare             _cmp;
+    Less                _less;
     node_allocator_type _allocator;
 
 public:
-    rb_tree() : _cmp( Compare() ), _allocator( node_allocator_type() ) {
+    rb_tree() : _less( Less() ), _allocator( node_allocator_type() ) {
         _root = &_nil;
     }
     ~rb_tree() {
@@ -165,19 +170,17 @@ public:
 
     void print( std::ostream &os, node_pointer root = 0, int space = 0 ) const {
         static const int count = 10;
-        if ( root == &_nil ) {
-            return;
-        } else if ( !root ) {
-            root = _root;
+        if ( !root ) { root = _root; }
+        if ( root != &_nil ) {
+            space += count;
+            print( os, root->right, space );
+            std::cout << std::endl;
+            for ( int i = count; i < space; i++ ) { os << " "; };
+            if ( root->red ) { os << "\033[1;31m"; }
+            os << root->data << "\033[0m"
+               << "\n";
+            print( os, root->left, space );
         }
-        space += count;
-        print( os, root->right, space );
-        std::cout << std::endl;
-        for ( int i = count; i < space; i++ ) { os << " "; };
-        if ( root->red ) { os << "\033[1;31m"; }
-        os << root->data << "\033[0m"
-           << "\n";
-        print( os, root->left, space );
     }
 
     friend std::ostream &operator<<( std::ostream &os, const rb_tree &tree ) {
@@ -259,9 +262,9 @@ public:
         node_pointer p( 0 );
         while ( current != &_nil ) {
             p = current;
-            if ( _cmp( data, current->data ) < 0 ) {
+            if ( _less( data, current->data ) ) {
                 current = current->left;
-            } else if ( _cmp( data, current->data ) > 0 ) {
+            } else if ( _less( current->data, data ) ) {
                 current = current->right;
             } else {
                 current->data = data;
@@ -286,8 +289,10 @@ public:
 
     node_pointer search_node( const value_type &val ) {
         node_pointer current = _root;
-        while ( current != &_nil && _cmp( current->data, val ) ) {
-            if ( _cmp( val, current->data ) < 0 ) {
+        while ( current != &_nil
+                && ( _less( val, current->data )
+                     || _less( current->data, val ) ) ) {
+            if ( _less( val, current->data ) ) {
                 current = current->left;
             } else {
                 current = current->right;
@@ -405,9 +410,9 @@ public:
     };
 };
 
-template < class T, class Compare, class Allocator >
-typename rb_tree< T, Compare, Allocator >::node_type
-    rb_tree< T, Compare, Allocator >::_nil
-    = rb_tree< T, Compare, Allocator >::node_type();
+template < class T, class Less, class Allocator >
+typename rb_tree< T, Less, Allocator >::node_type
+    rb_tree< T, Less, Allocator >::_nil
+    = rb_tree< T, Less, Allocator >::node_type();
 
 }
