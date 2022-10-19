@@ -7,27 +7,43 @@
 
 namespace ft {
 
-template < typename T, typename Compare = std::less< T > > class rb_tree {
+template < typename T,
+           typename Compare = std::less< T >,
+           typename Alloc   = std::allocator< T > >
+class rb_tree {
 
     struct Node {
-        T     data;
-        bool  red;
-        Node *p;
-        Node *left;
-        Node *right;
+        typedef Alloc allocator_type;
 
-        Node( const T &data = T() )
-            : data( data ),
+        allocator_type alloc;
+        T *            data;
+        bool           red;
+        Node *         p;
+        Node *         left;
+        Node *         right;
+
+        Node( const T &val = T() )
+            : alloc( allocator_type() ),
               red( false ),
               p( 0 ),
               left( 0 ),
-              right( 0 ) {}
+              right( 0 ) {
+            data = alloc.allocate( 1 );
+            alloc.construct( data, val );
+        }
         Node( const Node &other )
-            : data( other.data ),
+            : alloc( allocator_type() ),
               red( other.red ),
               p( other.p ),
               left( other.left ),
-              right( other.right ) {}
+              right( other.right ) {
+            data = alloc.allocate( 1 );
+            alloc.construct( data, *other.data );
+        }
+        ~Node() {
+            alloc.destroy( data );
+            alloc.deallocate( data, 1 );
+        }
     };
 
 public:
@@ -106,7 +122,7 @@ public:
             return overflow == other.overflow && _node == other._node;
         }
 
-        reference operator*() { return _node->data; }
+        reference operator*() { return *_node->data; }
 
         operator Iterator< const U >() const {
             return Iterator< const U >( _node );
@@ -125,12 +141,18 @@ public:
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 
 public:
-    Node *      _root;
-    static Node _nil;
-    Compare     _cmp;
+    Node *                 _root;
+    static Node            _nil;
+    Compare                _cmp;
+    std::allocator< Node > alloc;
 
 public:
-    rb_tree() : _cmp( Compare() ) { _root = &_nil; }
+    rb_tree() : _cmp( Compare() ), alloc( std::allocator< Node >() ) {
+        _root = &_nil;
+    }
+    ~rb_tree() {
+        while ( _root != &_nil ) { remove( *_root->data ); }
+    }
 
     iterator       begin() { return minimum( _root ); }
     const_iterator begin() const { return minimum( _root ); }
@@ -153,7 +175,7 @@ public:
         std::cout << std::endl;
         for ( int i = count; i < space; i++ ) { os << " "; };
         if ( root->red ) { os << "\033[1;31m"; }
-        os << root->data << "\033[0m"
+        os << *root->data << "\033[0m"
            << "\n";
         print( os, root->left, space );
     }
@@ -233,7 +255,8 @@ public:
     }
 
     void insert( value_type data ) {
-        Node *new_node  = new Node( data );
+        Node *new_node = alloc.allocate( 1 );
+        alloc.construct( new_node, data );
         new_node->red   = true;
         new_node->left  = &_nil;
         new_node->right = &_nil;
@@ -241,9 +264,9 @@ public:
         Node *p( 0 );
         while ( current != &_nil ) {
             p = current;
-            if ( new_node->data < current->data ) {
+            if ( *new_node->data < *current->data ) {
                 current = current->left;
-            } else if ( new_node->data > current->data ) {
+            } else if ( *new_node->data > *current->data ) {
                 current = current->right;
             } else {
                 return;
@@ -252,7 +275,7 @@ public:
         new_node->p = p;
         if ( !p ) {
             _root = new_node;
-        } else if ( new_node->data < p->data ) {
+        } else if ( *new_node->data < *p->data ) {
             p->left = new_node;
         } else {
             p->right = new_node;
@@ -262,8 +285,8 @@ public:
 
     Node *search_node( const value_type &val ) {
         Node *current = _root;
-        while ( current != &_nil && current->data != val ) {
-            if ( val < current->data ) {
+        while ( current != &_nil && *current->data != val ) {
+            if ( val < *current->data ) {
                 current = current->left;
             } else {
                 current = current->right;
@@ -376,11 +399,13 @@ public:
             y->red     = z->red;
         }
         if ( !y_orig_color ) { remove_fixup( x ); }
+        alloc.destroy( z );
+        alloc.deallocate( z, 1 );
     };
 };
 
-template < class T, class Compare >
-typename rb_tree< T, Compare >::Node rb_tree< T, Compare >::_nil
-    = rb_tree< T, Compare >::Node();
+template < class T, class Compare, class Alloc >
+typename rb_tree< T, Compare, Alloc >::Node rb_tree< T, Compare, Alloc >::_nil
+    = rb_tree< T, Compare, Alloc >::Node();
 
 }
