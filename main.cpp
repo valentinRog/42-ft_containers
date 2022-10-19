@@ -62,6 +62,7 @@ int main() {
     map.insert( std::make_pair( "A", 9 ) );
     map.insert( std::make_pair( "AA", 9 ) );
     map.insert( std::make_pair( "B", 9 ) );
+    map.insert( std::make_pair( "IIIIIIIII", 9 ) );
     for ( ft::rb_tree< std::pair< std::string, int >,
                        cmp< std::string, int > >::const_reverse_iterator rit
           = map.rbegin();
