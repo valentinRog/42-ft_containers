@@ -40,6 +40,7 @@ class rb_tree {
               right( other.right ) {}
     };
 
+    typedef Node node_type;
     typedef
         typename Allocator::template rebind< Node >::other node_allocator_type;
     typedef typename node_allocator_type::pointer          node_pointer;
@@ -50,24 +51,24 @@ public:
         typedef U &                             reference;
         typedef U *                             pointer;
         typedef std::ptrdiff_t                  difference_type;
-        typedef std::random_access_iterator_tag iterator_category;
+        typedef std::bidirectional_iterator_tag iterator_category;
 
-    public:
+    private:
         node_pointer _node;
-        bool         overflow;
+        bool         _overflow;
 
     public:
-        Iterator() : _node( &_nil ), overflow( true ) {}
+        Iterator() : _node( &_nil ), _overflow( true ) {}
         Iterator( node_pointer node ) : _node( node ) {
-            overflow = _node == &_nil;
+            _overflow = _node == &_nil;
         }
         Iterator( const Iterator &other )
             : _node( other._node ),
-              overflow( other.overflow ) {}
+              _overflow( other._overflow ) {}
 
         Iterator &operator++() {
-            if ( overflow ) {
-                if ( _node != &_nil ) { overflow = false; }
+            if ( _overflow ) {
+                if ( _node != &_nil ) { _overflow = false; }
             } else {
                 if ( _node->right != &_nil ) {
                     _node = _node->right;
@@ -76,7 +77,7 @@ public:
                     node_pointer tmp = _node;
                     while ( tmp->p && tmp == tmp->p->right ) { tmp = tmp->p; }
                     if ( !tmp->p ) {
-                        overflow = true;
+                        _overflow = true;
                     } else {
                         _node = tmp->p;
                     }
@@ -92,8 +93,8 @@ public:
         }
 
         Iterator &operator--() {
-            if ( overflow ) {
-                if ( _node != &_nil ) { overflow = false; }
+            if ( _overflow ) {
+                if ( _node != &_nil ) { _overflow = false; }
             } else {
                 if ( _node->left != &_nil ) {
                     _node = _node->left;
@@ -102,7 +103,7 @@ public:
                     node_pointer tmp = _node;
                     while ( tmp->p && tmp == tmp->p->left ) { tmp = tmp->p; }
                     if ( !tmp->p ) {
-                        overflow = true;
+                        _overflow = true;
                     } else {
                         _node = tmp->p;
                     }
@@ -119,7 +120,7 @@ public:
 
         template < typename V >
         bool operator==( const Iterator< V > &other ) const {
-            return overflow == other.overflow && _node == other._node;
+            return _overflow == other._overflow && _node == other._node;
         }
 
         reference operator*() { return _node->data; }
@@ -135,9 +136,9 @@ public:
     typedef ft::reverse_iterator< iterator >       reverse_iterator;
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 
-public:
+private:
     node_pointer        _root;
-    static Node         _nil;
+    static node_type    _nil;
     Compare             _cmp;
     node_allocator_type _allocator;
 
@@ -162,21 +163,25 @@ public:
     const_reverse_iterator crbegin() const { return end(); }
     const_reverse_iterator crend() const { return begin(); };
 
-    void print( std::ostream &os, node_pointer root, int space = 0 ) {
+    void print( std::ostream &os, node_pointer root = 0, int space = 0 ) const {
         static const int count = 10;
-        if ( root == &_nil ) { return; }
+        if ( root == &_nil ) {
+            return;
+        } else if ( !root ) {
+            root = _root;
+        }
         space += count;
         print( os, root->right, space );
         std::cout << std::endl;
         for ( int i = count; i < space; i++ ) { os << " "; };
         if ( root->red ) { os << "\033[1;31m"; }
-        os << *root->data << "\033[0m"
+        os << root->data << "\033[0m"
            << "\n";
         print( os, root->left, space );
     }
 
-    friend std::ostream &operator<<( std::ostream &os, rb_tree tree ) {
-        tree.print( os, tree._root );
+    friend std::ostream &operator<<( std::ostream &os, const rb_tree &tree ) {
+        tree.print( os );
         return os;
     }
 
@@ -250,24 +255,25 @@ public:
     }
 
     void insert( value_type data ) {
-        node_pointer new_node = _allocator.allocate( 1 );
-        _allocator.construct( new_node, data );
-        new_node->red        = true;
-        new_node->left       = &_nil;
-        new_node->right      = &_nil;
         node_pointer current = _root;
         node_pointer p( 0 );
         while ( current != &_nil ) {
             p = current;
-            if ( new_node->data < current->data ) {
+            if ( _cmp( data, current->data ) < 0 ) {
                 current = current->left;
-            } else if ( new_node->data > current->data ) {
+            } else if ( _cmp( data, current->data ) > 0 ) {
                 current = current->right;
             } else {
+                current->data = data;
                 return;
             }
         }
-        new_node->p = p;
+        node_pointer new_node = _allocator.allocate( 1 );
+        _allocator.construct( new_node, data );
+        new_node->red   = true;
+        new_node->left  = &_nil;
+        new_node->right = &_nil;
+        new_node->p     = p;
         if ( !p ) {
             _root = new_node;
         } else if ( new_node->data < p->data ) {
@@ -280,8 +286,8 @@ public:
 
     node_pointer search_node( const value_type &val ) {
         node_pointer current = _root;
-        while ( current != &_nil && current->data != val ) {
-            if ( val < current->data ) {
+        while ( current != &_nil && _cmp( current->data, val ) ) {
+            if ( _cmp( val, current->data ) < 0 ) {
                 current = current->left;
             } else {
                 current = current->right;
@@ -400,8 +406,8 @@ public:
 };
 
 template < class T, class Compare, class Allocator >
-typename rb_tree< T, Compare, Allocator >::Node
+typename rb_tree< T, Compare, Allocator >::node_type
     rb_tree< T, Compare, Allocator >::_nil
-    = rb_tree< T, Compare, Allocator >::Node();
+    = rb_tree< T, Compare, Allocator >::node_type();
 
 }

@@ -4,17 +4,21 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <map>
+#include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
-#include <set>
-#include <map>
 
-template < typename T > std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
+template < typename T >
+std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
     os << "size: " << v.size() << std::endl;
     os << "capacity: " << v.capacity() << std::endl;
     os << "[";
-    for ( typename ft::vector< T >::const_iterator it = v.begin(); it != v.end(); it++ ) {
+    for ( typename ft::vector< T >::const_iterator it = v.begin();
+          it != v.end();
+          it++ ) {
         if ( it != v.begin() ) { os << ", "; }
         os << *it;
     }
@@ -22,23 +26,43 @@ template < typename T > std::ostream &operator<<( std::ostream &os, const ft::ve
     return os;
 }
 
-template < typename T > std::ostream &operator<<( std::ostream &os, const std::vector< T > &v ) {
+template < typename T >
+std::ostream &operator<<( std::ostream &os, const std::vector< T > &v ) {
     os << "size: " << v.size() << std::endl;
     os << "capacity: " << v.capacity() << std::endl;
     os << "[";
-    for ( typename std::vector< T >::const_iterator it = v.begin(); it != v.end(); it++ ) {
+    for ( typename std::vector< T >::const_iterator it = v.begin();
+          it != v.end();
+          it++ ) {
         if ( it != v.begin() ) { os << ", "; }
         os << *it;
     }
     os << "]";
+    return os;
+}
+
+template < typename T, typename U > struct cmp {
+    int operator()( const std::pair< T, U > &a,
+                    const std::pair< T, U > &b ) const {
+        return a.first - b.first;
+    }
+};
+
+template < typename T, typename U >
+std::ostream &operator<<( std::ostream &os, const std::pair< T, U > &p ) {
+    os << p.first << " " << p.second;
     return os;
 }
 
 int main() {
     srand( time( 0 ) );
-    ft::rb_tree< int > tree;
-    for ( int i = 0; i < 10; i++ ) { tree.insert(i + 1 ); }
-    for (ft::rb_tree< int >::reverse_iterator it = tree.rbegin(); !(it == tree.rend()); it++) {
-        std::cout << *it << std::endl;
-    }
+
+    ft::rb_tree< std::pair< int, int >, cmp< int, int > > t;
+    t.insert( std::make_pair( 1, 1 ) );
+    t.insert( std::make_pair( 3, 2 ) );
+    t.insert( std::make_pair( 3, 9 ) );
+    t.insert( std::make_pair( 8, -99 ) );
+    std::cout << t << std::endl;
+    auto it = t.begin();
+    std::cout << *it << std::endl;
 }
