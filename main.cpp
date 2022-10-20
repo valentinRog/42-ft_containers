@@ -1,6 +1,7 @@
 #include "src/rb_tree.hpp"
 #include "src/stack.hpp"
 #include "src/vector.hpp"
+#include "src/map.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -70,4 +71,10 @@ int main() {
           rit++ ) {
         std::cout << rit->first << std::endl;
     }
+    std::cout << map.find(std::make_pair("A", int()))->second << std::endl;
+
+    ft::rb_tree< std::pair< std::string, int >, cmp< std::string, int > >::iterator cit = map.find(std::make_pair("A", int()));
+    cit->second = 42;
+        std::cout << map.find(std::make_pair("A", int()))->second << std::endl;
+
 }
