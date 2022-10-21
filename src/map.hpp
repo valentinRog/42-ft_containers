@@ -79,9 +79,26 @@ public:
     size_type max_size() const;
 
     /* ----------------------------- Element access ----------------------------- */
-    mapped_type &operator[]( const key_type &k );
-    mapped_type &at(  key_type &k ) {return _tree.at(std::make_pair(k, mapped_type())).second;}
-    const mapped_type &at( const key_type &k ) const {return _tree.at(std::make_pair(k, mapped_type())).second;}
+    mapped_type &operator[]( const key_type &k ) {
+        value_type x = value_type( k, mapped_type() );
+        _tree.insert( x );
+        return _tree.find( x )->second;
+    }
+    mapped_type &at( key_type &k ) {
+    }
+    const mapped_type &at( const key_type &k ) const {}
+
+    /* -------------------------------- Modifiers ------------------------------- */
+
+    std::pair< iterator, bool > insert( const value_type &val ) {
+        if (_tree.find(val) == _tree.end()) {
+            _tree.insert(val);
+            return std::make_pair(_tree.find(val), true);
+        }
+    }
+    iterator insert( iterator position, const value_type &val );
+    template < class InputIterator >
+    void insert( InputIterator first, InputIterator last );
 
     /* -------------------------------------------------------------------------- */
 };

@@ -7,21 +7,20 @@
 
 namespace ft {
 
-template < typename T,
-           typename Less      = std::less< T >,
-           typename Allocator = std::allocator< T > >
+template < typename K,
+           typename V,
+           typename Less      = std::less< K >,
+           typename Allocator = std::allocator< std::pair< const K, V > > >
 class rb_tree {
 
 public:
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef T                                        value_type;
+    typedef K                                        key_type;
+    typedef V                                        mapped_type;
+    typedef std::pair< const key_type, mapped_type > value_type;
+    typedef Less                                     key_compare;
     typedef Allocator                                allocator_type;
-    typedef typename allocator_type::reference       reference;
-    typedef typename allocator_type::const_reference const_reference;
-    typedef typename allocator_type::pointer         pointer;
-    typedef typename allocator_type::const_pointer   const_pointer;
-    typedef std::ptrdiff_t                           difference_type;
     typedef std::size_t                              size_type;
 
 private:
@@ -46,6 +45,17 @@ private:
               p( other.p ),
               left( other.left ),
               right( other.right ) {}
+
+        Node *min_child() {
+            Node *tmp( this );
+            while ( tmp->left && tmp->left != &_nil ) { tmp = tmp->left; }
+            return tmp;
+        }
+        Node *max_child() {
+            Node *tmp( this );
+            while ( tmp->right && tmp->right != &_nil ) { tmp = tmp->right; }
+            return tmp;
+        }
     };
 
     typedef Node node_type;
@@ -55,10 +65,10 @@ private:
 
     /* -------------------------------- Iterator -------------------------------- */
 
-    template < typename U > class Iterator {
+    template < typename T > class Iterator {
     public:
-        typedef U &                             reference;
-        typedef U *                             pointer;
+        typedef T &                             reference;
+        typedef T *                             pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
 
@@ -131,21 +141,21 @@ private:
             return tmp;
         }
 
-        template < typename V >
-        bool operator==( const Iterator< V > &other ) const {
+        template < typename U >
+        bool operator==( const Iterator< U > &other ) const {
             return operator->() == other.operator->()
                    && overflow() == other.overflow();
         }
-        template < typename V >
-        bool operator!=( const Iterator< V > &other ) const {
+        template < typename U >
+        bool operator!=( const Iterator< U > &other ) const {
             return !( *this == other );
         }
 
         reference operator*() { return _node->data; }
         pointer   operator->() const { return &_node->data; }
 
-        operator Iterator< const U >() const {
-            return Iterator< const U >( _node, _overflow );
+        operator Iterator< const T >() const {
+            return Iterator< const T >( _node, _overflow );
         }
     };
 
@@ -164,7 +174,7 @@ public:
         _root = &_nil;
     }
     ~rb_tree() {
-        while ( _root != &_nil ) { remove( _root->data ); }
+        while ( _root != &_nil ) { remove( _root->data.first ); }
     }
 
     /* -------------------------------- Iterators ------------------------------- */
@@ -173,12 +183,13 @@ public:
     typedef Iterator< const value_type >           const_iterator;
     typedef ft::reverse_iterator< iterator >       reverse_iterator;
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
+    typedef typename iterator::difference_type     difference_type;
 
-    iterator       begin() { return _min_child( _root ); }
-    const_iterator begin() const { return _min_child( _root ); }
-    iterator       end() { return ++iterator( _max_child( _root ) ); }
+    iterator       begin() { return _root->min_child(); }
+    const_iterator begin() const { return _root->min_child(); }
+    iterator       end() { return ++iterator( _root->max_child() ); }
     const_iterator end() const {
-        return ++const_iterator( _max_child( _root ) );
+        return ++const_iterator( _root->max_child() );
     }
     reverse_iterator       rbegin() { return end(); }
     const_reverse_iterator rbegin() const { return end(); };
@@ -189,8 +200,8 @@ public:
     const_reverse_iterator crbegin() const { return rbegin(); }
     const_reverse_iterator crend() const { return rend(); };
 
-    iterator       find( const value_type &x ) { return _find_node( x ); }
-    const_iterator find( const value_type &x ) const { return _find_node( x ); }
+    iterator       find( const key_type &k ) { return _find_node( k ); }
+    const_iterator find( const key_type &k ) const { return _find_node( k ); }
 
     /* -------------------------------- Capacity -------------------------------- */
 
@@ -203,12 +214,12 @@ public:
         node_pointer p( 0 );
         while ( current != &_nil ) {
             p = current;
-            if ( _less( data, current->data ) ) {
+            if ( _less( data.first, current->data.first ) ) {
                 current = current->left;
-            } else if ( _less( current->data, data ) ) {
+            } else if ( _less( current->data.first, data.first ) ) {
                 current = current->right;
             } else {
-                current->data = data;
+                current->data.second = data.second;
                 return;
             }
         }
@@ -229,8 +240,8 @@ public:
         _size++;
     }
 
-    void remove( const value_type &val ) {
-        node_pointer z = _find_node( val );
+    void remove( const key_type &k ) {
+        node_pointer z = _find_node( k );
         if ( z == &_nil ) { return; }
         node_pointer y = z;
         node_pointer x;
@@ -242,7 +253,7 @@ public:
             x = z->left;
             _transplant( z, x );
         } else {
-            y            = _min_child( z->right );
+            y            = z->right->min_child();
             y_orig_color = y->red;
             x            = y->right;
             if ( y->p == z ) {
@@ -263,15 +274,19 @@ public:
         _size--;
     }
 
+    /* -------------------------------- Allocator ------------------------------- */
+
+    allocator_type get_allocator() { return _allocator; }
+
     /* --------------------------------- Helper --------------------------------- */
 
 private:
-    node_pointer _find_node( const value_type &val ) {
+    node_pointer _find_node( const key_type &k ) {
         node_pointer current = _root;
         while ( current != &_nil
-                && ( _less( val, current->data )
-                     || _less( current->data, val ) ) ) {
-            if ( _less( val, current->data ) ) {
+                && ( _less( k, current->data.first )
+                     || _less( current->data.first, k ) ) ) {
+            if ( _less( k, current->data.first ) ) {
                 current = current->left;
             } else {
                 current = current->right;
@@ -289,15 +304,6 @@ private:
             u->p->right = v;
         }
         v->p = u->p;
-    }
-
-    node_pointer _min_child( node_pointer x ) const {
-        while ( x != &_nil && x->left != &_nil ) { x = x->left; }
-        return x;
-    }
-    node_pointer _max_child( node_pointer x ) const {
-        while ( x != &_nil && x->right != &_nil ) { x = x->right; }
-        return x;
     }
 
     void _remove_fixup( node_pointer x ) {
@@ -426,10 +432,10 @@ private:
 
 /* --------------------------- nil initialization --------------------------- */
 
-template < class T, class Less, class Allocator >
-typename rb_tree< T, Less, Allocator >::node_type
-    rb_tree< T, Less, Allocator >::_nil
-    = rb_tree< T, Less, Allocator >::node_type();
+template < class K, class V, class Less, class Allocator >
+typename ft::rb_tree< K, V, Less, Allocator >::node_type
+    ft::rb_tree< K, V, Less, Allocator >::_nil
+    = rb_tree< K, V, Less, Allocator >::node_type();
 
 /* -------------------------------------------------------------------------- */
 

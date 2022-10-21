@@ -1,7 +1,7 @@
+#include "src/map.hpp"
 #include "src/rb_tree.hpp"
 #include "src/stack.hpp"
 #include "src/vector.hpp"
-#include "src/map.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -11,6 +11,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <type_traits>
 
 template < typename T >
 std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
@@ -55,26 +56,27 @@ template < typename T, typename U > struct cmp {
     }
 };
 
+template < typename K, typename V > struct getter {
+    typedef V return_type;
+    V         operator()( std::pair< K, V > p ) const { return p.second; }
+};
+
+template < typename T, typename = typename std::enable_if< true >::type >
+struct Yo {
+    T a;
+
+    Yo( T a ) : a( a ) {}
+};
+
 int main() {
     srand( time( 0 ) );
 
-    ft::rb_tree< std::pair< std::string, int >, cmp< std::string, int > > map;
-    map.insert( std::make_pair( "E", 6 ) );
-    map.insert( std::make_pair( "A", 9 ) );
-    map.insert( std::make_pair( "AA", 9 ) );
-    map.insert( std::make_pair( "B", 9 ) );
-    map.insert( std::make_pair( "IIIIIIIII", 9 ) );
-    for ( ft::rb_tree< std::pair< std::string, int >,
-                       cmp< std::string, int > >::const_reverse_iterator rit
-          = map.rbegin();
-           rit != map.rend() ;
-          rit++ ) {
-        std::cout << rit->first << std::endl;
+    typedef typename ft::rb_tree< int, int > tree_type;
+
+    tree_type tree;
+    tree.insert(tree_type::value_type(4, 5));
+    tree.insert(tree_type::value_type(4, 8));
+    for (tree_type::iterator it = tree.begin(); it != tree.end(); it++) {
+        std::cout << *it << std::endl;
     }
-    std::cout << map.find(std::make_pair("A", int()))->second << std::endl;
-
-    ft::rb_tree< std::pair< std::string, int >, cmp< std::string, int > >::iterator cit = map.find(std::make_pair("A", int()));
-    cit->second = 42;
-        std::cout << map.find(std::make_pair("A", int()))->second << std::endl;
-
 }
