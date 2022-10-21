@@ -97,7 +97,8 @@ private:
             return *this;
         }
 
-        bool overflow() const { return _overflow; }
+        const node_pointer &get_node() const { return _node; }
+        bool                overflow() const { return _overflow; }
 
         Iterator &operator++() {
             if ( _overflow ) {
@@ -151,11 +152,13 @@ private:
             return tmp;
         }
 
-        bool operator==( const Iterator &other ) const {
-            return operator->() == other.operator->()
-                   && _overflow == other._overflow;
+        template < typename U >
+        bool operator==( const Iterator< U > &other ) const {
+            return _node == other.get_node()
+                   && overflow() == other.overflow();
         }
-        bool operator!=( const Iterator &other ) const {
+        template < typename U >
+        bool operator!=( const Iterator< U > &other ) const {
             return !( *this == other );
         }
 
@@ -166,14 +169,6 @@ private:
             return Iterator< const T >( _node, _overflow );
         }
     };
-    friend bool operator==( const Iterator< value_type > &      lhs,
-                            const Iterator< const value_type > &rhs ) {
-        return rhs == lhs;
-    }
-    friend bool operator!=( const Iterator< value_type > &      lhs,
-                            const Iterator< const value_type > &rhs ) {
-        return rhs != lhs;
-    }
 
     /* --------------------------------- Members -------------------------------- */
 
@@ -220,8 +215,14 @@ public:
     const_reverse_iterator crbegin() const { return rbegin(); }
     const_reverse_iterator crend() const { return rend(); };
 
-    iterator       find( const key_type &k ) { return _find_node( k ); }
-    const_iterator find( const key_type &k ) const { return _find_node( k ); }
+    iterator find( const key_type &k ) {
+        node_pointer node = _find_node( k );
+        return node != &_nil ? node : end();
+    }
+    const_iterator find( const key_type &k ) const {
+        node_pointer node = _find_node( k );
+        return node != &_nil ? node : end();
+    }
 
     /* -------------------------------- Capacity -------------------------------- */
 
@@ -261,6 +262,11 @@ public:
         return new_node;
     }
 
+    iterator insert( iterator position, const value_type &data ) {
+        std::cout << is_bounded( position, data.first ) << std::endl;
+        return insert( data );
+    }
+
     void remove( const key_type &k ) {
         node_pointer z = _find_node( k );
         if ( z == &_nil ) { return; }
@@ -295,6 +301,14 @@ public:
         _size--;
     }
 
+    /* ------------------------------- Operations ------------------------------- */
+
+    bool is_bounded( iterator position, const key_type &k ) {
+        iterator right = ++iterator( position );
+        return ( position == begin() || _less( position->first, k ) )
+               && ( position == end() || _less( k, right->first ) );
+    }
+
     /* -------------------------------- Allocator ------------------------------- */
 
     allocator_type get_allocator() { return _allocator; }
@@ -302,17 +316,6 @@ public:
     /* --------------------------------- Helper --------------------------------- */
 
 private:
-    node_pointer _iterator_to_node( iterator &it ) {
-        static_assert( std::is_standard_layout< node_type >::value,
-                       "offsetof() only works on standard-layout types." );
-        if ( it != end() ) {
-            return reinterpret_cast< node_pointer >(
-                reinterpret_cast< pointer >( &( *it ) )
-                - offsetof( node_type, data ) );
-        }
-        return &_nil;
-    }
-
     node_pointer _find_node( const key_type &k ) {
         node_pointer current = _root;
         while ( current != &_nil

@@ -4,6 +4,7 @@ namespace ft {
 /* ---------------------------- Reverse iterator ---------------------------- */
 
 template < typename T > class reverse_iterator {
+public:
     typedef typename T::reference         reference;
     typedef typename T::pointer           pointer;
     typedef typename T::difference_type   difference_type;

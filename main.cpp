@@ -71,11 +71,11 @@ struct Yo {
 int main() {
     srand( time( 0 ) );
 
-    typedef typename ft::rb_tree< std::string, int > map_type;
+    typedef typename ft::map< std::string, int > map_type;
 
     map_type map;
 
-    map.insert( map_type::value_type( "a", 1 ) );
+    map.insert(  map_type::value_type( "a", 1 ) );
     map.insert( map_type::value_type( "b", 2 ) );
     map.insert( map_type::value_type( "c", 3 ) );
     map.insert( map_type::value_type( "d", 4 ) );
@@ -83,7 +83,9 @@ int main() {
     map.insert( map_type::value_type( "f", 6 ) );
     map.insert( map_type::value_type( "g", 7 ) );
 
-    for (auto it = map.begin(); it != map.cend(); ++it) {
-        std::cout << *it << std::endl;
+
+    for (auto rit = map.rbegin(); rit != map.crend(); rit++) {
+        std::cout << *rit << std::endl;
     }
+    
 }
