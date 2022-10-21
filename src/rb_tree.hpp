@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iterator.hpp"
+#include <cstddef>
 #include <functional>
 #include <iostream>
 #include <utility>
@@ -21,6 +22,10 @@ public:
     typedef std::pair< const key_type, mapped_type > value_type;
     typedef Less                                     key_compare;
     typedef Allocator                                allocator_type;
+    typedef typename allocator_type::reference       reference;
+    typedef typename allocator_type::const_reference const_reference;
+    typedef typename allocator_type::pointer         pointer;
+    typedef typename allocator_type::const_pointer   const_pointer;
     typedef std::size_t                              size_type;
 
 private:
@@ -86,6 +91,11 @@ private:
         Iterator( const Iterator &other )
             : _node( other._node ),
               _overflow( other._overflow ) {}
+        Iterator &operator=( const Iterator &other ) {
+            _node     = other._node;
+            _overflow = other._overflow;
+            return *this;
+        }
 
         bool overflow() const { return _overflow; }
 
@@ -141,13 +151,11 @@ private:
             return tmp;
         }
 
-        template < typename U >
-        bool operator==( const Iterator< U > &other ) const {
+        bool operator==( const Iterator &other ) const {
             return operator->() == other.operator->()
-                   && overflow() == other.overflow();
+                   && _overflow == other._overflow;
         }
-        template < typename U >
-        bool operator!=( const Iterator< U > &other ) const {
+        bool operator!=( const Iterator &other ) const {
             return !( *this == other );
         }
 
@@ -158,6 +166,14 @@ private:
             return Iterator< const T >( _node, _overflow );
         }
     };
+    friend bool operator==( const Iterator< value_type > &      lhs,
+                            const Iterator< const value_type > &rhs ) {
+        return rhs == lhs;
+    }
+    friend bool operator!=( const Iterator< value_type > &      lhs,
+                            const Iterator< const value_type > &rhs ) {
+        return rhs != lhs;
+    }
 
     /* --------------------------------- Members -------------------------------- */
 
@@ -170,7 +186,11 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    rb_tree() : _less( Less() ), _allocator( node_allocator_type() ) {
+    rb_tree( const key_compare &   less  = key_compare(),
+             const allocator_type &alloc = allocator_type() )
+        : _size( 0 ),
+          _less( less ),
+          _allocator( alloc ) {
         _root = &_nil;
     }
     ~rb_tree() {
@@ -209,7 +229,7 @@ public:
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    void insert( value_type data ) {
+    iterator insert( const value_type &data ) {
         node_pointer current = _root;
         node_pointer p( 0 );
         while ( current != &_nil ) {
@@ -220,7 +240,7 @@ public:
                 current = current->right;
             } else {
                 current->data.second = data.second;
-                return;
+                return current;
             }
         }
         node_pointer new_node = _allocator.allocate( 1 );
@@ -238,6 +258,7 @@ public:
         }
         _insert_fixup( new_node );
         _size++;
+        return new_node;
     }
 
     void remove( const key_type &k ) {
@@ -281,6 +302,17 @@ public:
     /* --------------------------------- Helper --------------------------------- */
 
 private:
+    node_pointer _iterator_to_node( iterator &it ) {
+        static_assert( std::is_standard_layout< node_type >::value,
+                       "offsetof() only works on standard-layout types." );
+        if ( it != end() ) {
+            return reinterpret_cast< node_pointer >(
+                reinterpret_cast< pointer >( &( *it ) )
+                - offsetof( node_type, data ) );
+        }
+        return &_nil;
+    }
+
     node_pointer _find_node( const key_type &k ) {
         node_pointer current = _root;
         while ( current != &_nil

@@ -9,9 +9,9 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
-#include <type_traits>
 
 template < typename T >
 std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
@@ -71,12 +71,19 @@ struct Yo {
 int main() {
     srand( time( 0 ) );
 
-    typedef typename ft::rb_tree< int, int > tree_type;
+    typedef typename ft::rb_tree< std::string, int > map_type;
 
-    tree_type tree;
-    tree.insert(tree_type::value_type(4, 5));
-    tree.insert(tree_type::value_type(4, 8));
-    for (tree_type::iterator it = tree.begin(); it != tree.end(); it++) {
+    map_type map;
+
+    map.insert( map_type::value_type( "a", 1 ) );
+    map.insert( map_type::value_type( "b", 2 ) );
+    map.insert( map_type::value_type( "c", 3 ) );
+    map.insert( map_type::value_type( "d", 4 ) );
+    map.insert( map_type::value_type( "e", 5 ) );
+    map.insert( map_type::value_type( "f", 6 ) );
+    map.insert( map_type::value_type( "g", 7 ) );
+
+    for (auto it = map.begin(); it != map.cend(); ++it) {
         std::cout << *it << std::endl;
     }
 }
