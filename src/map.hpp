@@ -9,26 +9,27 @@ template < typename K,
            typename Allocator = std::allocator< std::pair< const K, V > > >
 class map {
 
-public:
     /* ------------------------------ Member types ------------------------------ */
 
     typedef typename ft::rb_tree< K, V, Less, Allocator > tree_type;
-    typedef typename tree_type::key_type                  key_type;
-    typedef typename tree_type::mapped_type               mapped_type;
-    typedef typename tree_type::value_type                value_type;
-    typedef typename tree_type::key_compare               key_compare;
-    typedef typename tree_type::allocator_type            allocator_type;
-    typedef typename tree_type::reference                 reference;
-    typedef typename tree_type::const_reference           const_reference;
-    typedef typename tree_type::pointer                   pointer;
-    typedef typename tree_type::const_pointer             const_pointer;
     typedef typename tree_type::iterator                  tree_iterator;
     typedef typename tree_type::const_iterator            tree_const_iterator;
     typedef typename tree_type::reverse_iterator          tree_reverse_iterator;
     typedef
         typename tree_type::const_reverse_iterator tree_const_reverse_iterator;
-    typedef typename tree_type::difference_type    difference_type;
-    typedef typename tree_type::size_type          size_type;
+
+public:
+    typedef typename tree_type::key_type        key_type;
+    typedef typename tree_type::mapped_type     mapped_type;
+    typedef typename tree_type::value_type      value_type;
+    typedef typename tree_type::key_compare     key_compare;
+    typedef typename tree_type::allocator_type  allocator_type;
+    typedef typename tree_type::reference       reference;
+    typedef typename tree_type::const_reference const_reference;
+    typedef typename tree_type::pointer         pointer;
+    typedef typename tree_type::const_pointer   const_pointer;
+    typedef typename tree_type::difference_type difference_type;
+    typedef typename tree_type::size_type       size_type;
 
     struct value_compare {
         bool operator()( const value_type &a, const value_type &b ) const {
@@ -122,7 +123,9 @@ public:
 
     /* ----------------------------- Element access ----------------------------- */
 
-    mapped_type &operator[]( const key_type &k );
+    mapped_type &operator[]( const key_type &k ) {
+        return _tree.insert( value_type( k, mapped_type() ) )->second;
+    }
 
     mapped_type &find( const key_type &k ) { return _tree.find( k )->second; }
 
@@ -136,7 +139,7 @@ public:
         return std::make_pair( it, true );
     }
     iterator insert( iterator position, const value_type &val ) {
-        return _tree.insert( position, val );
+        return _tree.insert( val, position );
     }
     template < class InputIterator >
     void insert( InputIterator first, InputIterator last );

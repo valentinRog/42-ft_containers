@@ -154,8 +154,7 @@ private:
 
         template < typename U >
         bool operator==( const Iterator< U > &other ) const {
-            return _node == other.get_node()
-                   && overflow() == other.overflow();
+            return _node == other.get_node() && _overflow == other.overflow();
         }
         template < typename U >
         bool operator!=( const Iterator< U > &other ) const {
@@ -219,10 +218,6 @@ public:
         node_pointer node = _find_node( k );
         return node != &_nil ? node : end();
     }
-    const_iterator find( const key_type &k ) const {
-        node_pointer node = _find_node( k );
-        return node != &_nil ? node : end();
-    }
 
     /* -------------------------------- Capacity -------------------------------- */
 
@@ -230,8 +225,9 @@ public:
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    iterator insert( const value_type &data ) {
+    iterator insert( const value_type &data, iterator hint = &_nil ) {
         node_pointer current = _root;
+        if ( is_bounded( hint, data.first ) ) { current = hint.get_node(); }
         node_pointer p( 0 );
         while ( current != &_nil ) {
             p = current;
@@ -260,11 +256,6 @@ public:
         _insert_fixup( new_node );
         _size++;
         return new_node;
-    }
-
-    iterator insert( iterator position, const value_type &data ) {
-        std::cout << is_bounded( position, data.first ) << std::endl;
-        return insert( data );
     }
 
     void remove( const key_type &k ) {
@@ -304,9 +295,11 @@ public:
     /* ------------------------------- Operations ------------------------------- */
 
     bool is_bounded( iterator position, const key_type &k ) {
-        iterator right = ++iterator( position );
-        return ( position == begin() || _less( position->first, k ) )
-               && ( position == end() || _less( k, right->first ) );
+        if ( position.get_node() == &_nil ) { return false; }
+        if ( !_less( position->first, k ) && !_less( k, position->first ) ) {
+            return true;
+        }
+        return _less( position->first, k ) && _less( k, ( ++position )->first );
     }
 
     /* -------------------------------- Allocator ------------------------------- */
