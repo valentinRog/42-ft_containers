@@ -10,7 +10,7 @@ namespace ft {
 
 template < typename K,
            typename V,
-           typename Less      = std::less< K >,
+           typename Comp      = std::less< K >,
            typename Allocator = std::allocator< std::pair< const K, V > > >
 class rb_tree {
 
@@ -20,13 +20,19 @@ public:
     typedef K                                        key_type;
     typedef V                                        mapped_type;
     typedef std::pair< const key_type, mapped_type > value_type;
-    typedef Less                                     key_compare;
+    typedef Comp                                     key_compare;
     typedef Allocator                                allocator_type;
     typedef typename allocator_type::reference       reference;
     typedef typename allocator_type::const_reference const_reference;
     typedef typename allocator_type::pointer         pointer;
     typedef typename allocator_type::const_pointer   const_pointer;
     typedef std::size_t                              size_type;
+
+    struct value_compare {
+        bool operator()( const value_type &a, const value_type &b ) const {
+            return key_compare( a.first, b.first );
+        }
+    };
 
 private:
     /* ---------------------------------- Node ---------------------------------- */
@@ -174,22 +180,22 @@ private:
     node_pointer        _root;
     static node_type    _nil;
     size_type           _size;
-    Less                _less;
+    key_compare         _key_compare;
     node_allocator_type _allocator;
 
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    rb_tree( const key_compare &   less  = key_compare(),
+    rb_tree( const key_compare &   comp  = key_compare(),
              const allocator_type &alloc = allocator_type() )
         : _size( 0 ),
-          _less( less ),
+          _key_compare( comp ),
           _allocator( alloc ) {
         _root = &_nil;
     }
     rb_tree( const rb_tree &other )
         : _size( 0 ),
-          _less( other._less ),
+          _key_compare( other._key_compare ),
           _allocator( other._allocator ) {
         _root = &_nil;
         *this = other;
@@ -224,11 +230,6 @@ public:
     const_reverse_iterator crbegin() const { return rbegin(); }
     const_reverse_iterator crend() const { return rend(); };
 
-    iterator find( const key_type &k ) {
-        node_pointer node = _find_node( k );
-        return node != &_nil ? node : end();
-    }
-
     /* -------------------------------- Capacity -------------------------------- */
 
     size_type size() const { return _size; }
@@ -238,9 +239,10 @@ public:
     iterator insert( const value_type &data ) { return _insert( data, _root ); }
     iterator insert( iterator hint, const value_type &data ) {
         iterator right = ++iterator( hint );
-        if ( hint->get_node == &_nil
-             || ( hint == end() || _less( data.first, hint->first ) )
-             || ( right != end() && _less( right->first, data.first ) ) ) {
+        if ( hint->get_node == &_nil || hint == end()
+             || _key_compare( data.first, hint->first )
+             || ( right != end()
+                  && _key_compare( right->first, data.first ) ) ) {
             return insert( data );
         }
         return _insert( data, hint.get_node() );
@@ -267,8 +269,45 @@ public:
 
     /* ------------------------------- Operations ------------------------------- */
 
-    iterator lower_bound( const key_type &k ) { return begin(); }
-    iterator upper_bound( const key_type &k ) { return begin(); }
+    iterator find( const key_type &k ) {
+        node_pointer node = _find_node( k );
+        return node != &_nil ? node : end();
+    }
+
+    iterator lower_bound( const key_type &k ) {
+        node_pointer current( _root );
+        while ( current != &_nil ) {
+            if ( _key_compare( current->data.first, k ) ) {
+                current = current->right;
+            } else if ( _key_compare( k, current->data.first ) ) {
+                if ( current->left != &_nil
+                     && _key_compare( current->left->data.first, k ) ) {
+                    return current;
+                }
+                current = current->left;
+            } else {
+                return current;
+            }
+        }
+        return end();
+    }
+    iterator upper_bound( const key_type &k ) {
+        node_pointer current( _root );
+        while ( current != &_nil ) {
+            if ( _key_compare( current->data.first, k ) ) {
+                current = current->right;
+            } else if ( _key_compare( k, current->data.first ) ) {
+                if ( current->left != &_nil
+                     && _key_compare( current->left->data.first, k ) ) {
+                    return current;
+                }
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+        }
+        return end();
+    }
 
     /* -------------------------------- Allocator ------------------------------- */
 
@@ -280,9 +319,9 @@ private:
     node_pointer _find_node( const key_type &k ) {
         node_pointer current = _root;
         while ( current != &_nil
-                && ( _less( k, current->data.first )
-                     || _less( current->data.first, k ) ) ) {
-            if ( _less( k, current->data.first ) ) {
+                && ( _key_compare( k, current->data.first )
+                     || _key_compare( current->data.first, k ) ) ) {
+            if ( _key_compare( k, current->data.first ) ) {
                 current = current->left;
             } else {
                 current = current->right;
@@ -429,9 +468,9 @@ private:
         while ( ancestor != &_nil ) {
             count++;
             p = ancestor;
-            if ( _less( data.first, ancestor->data.first ) ) {
+            if ( _key_compare( data.first, ancestor->data.first ) ) {
                 ancestor = ancestor->left;
-            } else if ( _less( ancestor->data.first, data.first ) ) {
+            } else if ( _key_compare( ancestor->data.first, data.first ) ) {
                 ancestor = ancestor->right;
             } else {
                 ancestor->data.second = data.second;
@@ -496,11 +535,10 @@ private:
 
 /* --------------------------- nil initialization --------------------------- */
 
-template < class K, class V, class Less, class Allocator >
-typename ft::rb_tree< K, V, Less, Allocator >::node_type
-    ft::rb_tree< K, V, Less, Allocator >::_nil
-    = rb_tree< K, V, Less, Allocator >::node_type();
+template < class K, class V, class Comp, class Allocator >
+typename ft::rb_tree< K, V, Comp, Allocator >::node_type
+    ft::rb_tree< K, V, Comp, Allocator >::_nil
+    = rb_tree< K, V, Comp, Allocator >::node_type();
 
 /* -------------------------------------------------------------------------- */
-
 }

@@ -5,13 +5,13 @@
 namespace ft {
 template < typename K,
            typename V,
-           typename Less      = std::less< K >,
+           typename Comp      = std::less< K >,
            typename Allocator = std::allocator< std::pair< const K, V > > >
 class map {
 
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef typename ft::rb_tree< K, V, Less, Allocator > tree_type;
+    typedef typename ft::rb_tree< K, V, Comp, Allocator > tree_type;
     typedef typename tree_type::iterator                  tree_iterator;
     typedef typename tree_type::const_iterator            tree_const_iterator;
     typedef typename tree_type::reverse_iterator          tree_reverse_iterator;
@@ -187,13 +187,19 @@ public:
 
     /* ------------------------------- Operations ------------------------------- */
 
-    iterator       find( const key_type &k );
-    const_iterator find( const key_type &k ) const;
-    size_type      count( const key_type &k ) const;
-    iterator       lower_bound( const key_type &k );
-    const_iterator lower_bound( const key_type &k ) const;
-    iterator       upper_bound( const key_type &k );
-    const_iterator upper_bound( const key_type &k ) const;
+    iterator       find( const key_type &k ) { return _tree.find( k ); }
+    const_iterator find( const key_type &k ) const { return _tree.find( k ); }
+    size_type      count( const key_type &k ) const {
+        return _tree.find( k ) != end();
+    }
+    iterator lower_bound( const key_type &k ) { return _tree.lower_bound( k ); }
+    const_iterator lower_bound( const key_type &k ) const {
+        return _tree.lower_bound();
+    }
+    iterator upper_bound( const key_type &k ) { return _tree.upper_bound( k ); }
+    const_iterator upper_bound( const key_type &k ) const {
+        return _tree.upper_bound( k );
+    }
     std::pair< const_iterator, const_iterator >
                                     equal_range( const key_type &k ) const;
     std::pair< iterator, iterator > equal_range( const key_type &k );

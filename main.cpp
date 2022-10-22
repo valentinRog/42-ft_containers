@@ -9,7 +9,7 @@
 #include <set>
 #include <sstream>
 #include <string>
-#include <type_traits>
+//#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -61,24 +61,18 @@ template < typename K, typename V > struct getter {
     V         operator()( std::pair< K, V > p ) const { return p.second; }
 };
 
-template < typename T, typename = typename std::enable_if< true >::type >
-struct Yo {
-    T a;
-
-    Yo( T a ) : a( a ) {}
-};
+#define TESTED_NAMESPACE ft
 
 int main() {
     srand( time( 0 ) );
 
-    typedef typename ft::rb_tree< int, int > tree_type;
-    typedef typename std::map< int, int > map_type;
-
-    tree_type t1;
-    map_type t2;
+    typedef typename TESTED_NAMESPACE::map< int, int > map_type;
     
-    for (int i = 0; i < 100000000; i++) {
-        t1.insert(tree_type::value_type(i, i));
-        //t2.insert(map_type::value_type(i, i));
-    }
+    map_type m;
+    
+    m[4] = 8;
+    m[9] = 15;
+    
+    std::cout << *m.upper_bound(9) << std::endl;
+    std::cout << (m.upper_bound(9) == m.end()) << std::endl;
 }
