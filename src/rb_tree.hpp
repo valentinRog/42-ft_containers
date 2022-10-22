@@ -187,9 +187,19 @@ public:
           _allocator( alloc ) {
         _root = &_nil;
     }
-    ~rb_tree() {
-        while ( _root != &_nil ) { remove( _root->data.first ); }
+    rb_tree( const rb_tree &other )
+        : _size( 0 ),
+          _less( other._less ),
+          _allocator( other._allocator ) {
+        _root = &_nil;
+        *this = other;
     }
+    rb_tree &operator=( const rb_tree &other ) {
+        clear();
+        insert( other.cbegin(), other.cend() );
+        return *this;
+    }
+    ~rb_tree() { clear(); }
 
     /* -------------------------------- Iterators ------------------------------- */
 
@@ -225,82 +235,40 @@ public:
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    iterator insert( const value_type &data, iterator hint = &_nil ) {
-        node_pointer current = _root;
-        if ( is_bounded( hint, data.first ) ) { current = hint.get_node(); }
-        node_pointer p( 0 );
-        while ( current != &_nil ) {
-            p = current;
-            if ( _less( data.first, current->data.first ) ) {
-                current = current->left;
-            } else if ( _less( current->data.first, data.first ) ) {
-                current = current->right;
-            } else {
-                current->data.second = data.second;
-                return current;
-            }
+    iterator insert( const value_type &data ) { return _insert( data, _root ); }
+    iterator insert( iterator hint, const value_type &data ) {
+        iterator right = ++iterator( hint );
+        if ( hint->get_node == &_nil
+             || ( hint == end() || _less( data.first, hint->first ) )
+             || ( right != end() && _less( right->first, data.first ) ) ) {
+            return insert( data );
         }
-        node_pointer new_node = _allocator.allocate( 1 );
-        _allocator.construct( new_node, data );
-        new_node->red   = true;
-        new_node->left  = &_nil;
-        new_node->right = &_nil;
-        new_node->p     = p;
-        if ( !p ) {
-            _root = new_node;
-        } else if ( new_node->data < p->data ) {
-            p->left = new_node;
-        } else {
-            p->right = new_node;
+        return _insert( data, hint.get_node() );
+    }
+    template < class InputIterator >
+    void insert( InputIterator first, InputIterator last ) {
+        while ( first != last ) {
+            insert( *first );
+            first++;
         }
-        _insert_fixup( new_node );
-        _size++;
-        return new_node;
     }
 
-    void remove( const key_type &k ) {
-        node_pointer z = _find_node( k );
-        if ( z == &_nil ) { return; }
-        node_pointer y = z;
-        node_pointer x;
-        bool         y_orig_color = y->red;
-        if ( z->left == &_nil ) {
-            x = z->right;
-            _transplant( z, x );
-        } else if ( z->right == &_nil ) {
-            x = z->left;
-            _transplant( z, x );
-        } else {
-            y            = z->right->min_child();
-            y_orig_color = y->red;
-            x            = y->right;
-            if ( y->p == z ) {
-                x->p = y;
-            } else {
-                _transplant( y, y->right );
-                y->right    = z->right;
-                y->right->p = y;
-            }
-            _transplant( z, y );
-            y->left    = z->left;
-            y->left->p = y;
-            y->red     = z->red;
+    size_type erase( const key_type &k ) { return _remove( _find_node( k ) ); }
+    size_type erase( iterator it ) { return _remove( it.get_node() ); }
+    void      erase( iterator first, iterator last ) {
+        while ( first != last ) {
+            iterator tmp = ++( iterator( first ) );
+            erase( first );
+            first = tmp;
         }
-        if ( !y_orig_color ) { _remove_fixup( x ); }
-        _allocator.destroy( z );
-        _allocator.deallocate( z, 1 );
-        _size--;
     }
+
+    void clear() { erase( begin(), end() ); }
 
     /* ------------------------------- Operations ------------------------------- */
 
-    bool is_bounded( iterator position, const key_type &k ) {
-        if ( position.get_node() == &_nil ) { return false; }
-        if ( !_less( position->first, k ) && !_less( k, position->first ) ) {
-            return true;
-        }
-        return _less( position->first, k ) && _less( k, ( ++position )->first );
-    }
+    iterator lower_bound( const key_type &k ) { return begin(); }
+    iterator upper_bound( const key_type &k ) { return begin(); }
 
     /* -------------------------------- Allocator ------------------------------- */
 
@@ -332,6 +300,40 @@ private:
             u->p->right = v;
         }
         v->p = u->p;
+    }
+
+    size_type _remove( node_pointer z ) {
+        if ( z == &_nil ) { return 0; }
+        node_pointer y = z;
+        node_pointer x;
+        bool         y_orig_color = y->red;
+        if ( z->left == &_nil ) {
+            x = z->right;
+            _transplant( z, x );
+        } else if ( z->right == &_nil ) {
+            x = z->left;
+            _transplant( z, x );
+        } else {
+            y            = z->right->min_child();
+            y_orig_color = y->red;
+            x            = y->right;
+            if ( y->p == z ) {
+                x->p = y;
+            } else {
+                _transplant( y, y->right );
+                y->right    = z->right;
+                y->right->p = y;
+            }
+            _transplant( z, y );
+            y->left    = z->left;
+            y->left->p = y;
+            y->red     = z->red;
+        }
+        if ( !y_orig_color ) { _remove_fixup( x ); }
+        _allocator.destroy( z );
+        _allocator.deallocate( z, 1 );
+        _size--;
+        return 1;
     }
 
     void _remove_fixup( node_pointer x ) {
@@ -388,6 +390,7 @@ private:
         }
         x->red = false;
     }
+
     void _rotate_left( node_pointer x ) {
         node_pointer y = x->right;
         x->right       = y->left;
@@ -418,6 +421,39 @@ private:
         }
         y->right = x;
         x->p     = y;
+    }
+
+    node_pointer _insert( const value_type &data, node_pointer ancestor ) {
+        node_pointer p( 0 );
+        int          count = 0;
+        while ( ancestor != &_nil ) {
+            count++;
+            p = ancestor;
+            if ( _less( data.first, ancestor->data.first ) ) {
+                ancestor = ancestor->left;
+            } else if ( _less( ancestor->data.first, data.first ) ) {
+                ancestor = ancestor->right;
+            } else {
+                ancestor->data.second = data.second;
+                return ancestor;
+            }
+        }
+        node_pointer new_node = _allocator.allocate( 1 );
+        _allocator.construct( new_node, data );
+        new_node->red   = true;
+        new_node->left  = &_nil;
+        new_node->right = &_nil;
+        new_node->p     = p;
+        if ( !p ) {
+            _root = new_node;
+        } else if ( new_node->data < p->data ) {
+            p->left = new_node;
+        } else {
+            p->right = new_node;
+        }
+        _insert_fixup( new_node );
+        _size++;
+        return new_node;
     }
 
     void _insert_fixup( node_pointer z ) {

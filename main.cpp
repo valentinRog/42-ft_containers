@@ -72,13 +72,13 @@ int main() {
     srand( time( 0 ) );
 
     typedef typename ft::rb_tree< int, int > tree_type;
-    typedef typename std::map< int, int >    map_type;
+    typedef typename std::map< int, int > map_type;
 
-    tree_type tree;
-    map_type  map;
-
-    for ( int i = 0; i < 10000000; i++ ) {
-        tree.insert( tree_type::value_type( rand(), rand() ) );
-        // map.insert( tree_type::value_type( rand(), rand() ) );
+    tree_type t1;
+    map_type t2;
+    
+    for (int i = 0; i < 100000000; i++) {
+        t1.insert(tree_type::value_type(i, i));
+        //t2.insert(map_type::value_type(i, i));
     }
 }

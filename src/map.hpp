@@ -58,10 +58,16 @@ public:
             return *this;
         }
 
-        Iterator &operator++() { return ++_it; }
+        Iterator &operator++() {
+            _it++;
+            return *this;
+        }
         Iterator  operator++( int ) { return _it++; }
-        Iterator &operator--() { return --_it; }
-        Iterator  operator--( int ) { return _it--; }
+        Iterator &operator--() {
+            _it--;
+            return *this;
+        }
+        Iterator operator--( int ) { return _it--; }
 
         reference operator*() { return *_it; }
         pointer   operator->() const { return _it.operator->(); }
@@ -100,6 +106,20 @@ public:
                   const allocator_type &alloc = allocator_type() )
         : _tree( tree_type( comp, alloc ) ) {}
 
+    template < class InputIterator >
+    map( InputIterator         first,
+         InputIterator         last,
+         const key_compare &   comp  = key_compare(),
+         const allocator_type &alloc = allocator_type() )
+        : _tree( tree_type( comp, alloc ) ) {
+        insert( first, last );
+    }
+    map( const map &other ) : _tree( other._tree ) {}
+    map &operator=( const map &other ) {
+        _tree = other._tree;
+        return *this;
+    }
+
     /* -------------------------------- Iterators ------------------------------- */
 
     iterator               begin() { return _tree.begin(); }
@@ -126,8 +146,16 @@ public:
     mapped_type &operator[]( const key_type &k ) {
         return _tree.insert( value_type( k, mapped_type() ) )->second;
     }
-
-    mapped_type &find( const key_type &k ) { return _tree.find( k )->second; }
+    mapped_type &at( const key_type &k ) {
+        iterator it = _tree.find( k );
+        if ( it == end() ) { throw std::out_of_range( "nooooooon" ); }
+        return it->second;
+    }
+    const mapped_type &at( const key_type &k ) const {
+        const_iterator it = _tree.find( k );
+        if ( it == end() ) { throw std::out_of_range( "nooooooon" ); }
+        return it->second;
+    }
 
     /* -------------------------------- Modifiers ------------------------------- */
 
@@ -139,9 +167,41 @@ public:
         return std::make_pair( it, true );
     }
     iterator insert( iterator position, const value_type &val ) {
-        return _tree.insert( val, position );
+        return _tree.insert( position, val );
     }
     template < class InputIterator >
-    void insert( InputIterator first, InputIterator last );
+    void insert( InputIterator first, InputIterator last ) {
+        _tree.insert( first, last );
+    }
+
+    void      erase( iterator position ) { _tree.erase( position->first ); }
+    size_type erase( const key_type &k ) { return _tree.erase( k ); }
+    void erase( iterator first, iterator last ) { _tree.erase( first, last ); }
+
+    void clear() { _tree.clear(); }
+
+    /* -------------------------------- Observers ------------------------------- */
+
+    key_compare   key_comp() const;
+    value_compare value_comp() const;
+
+    /* ------------------------------- Operations ------------------------------- */
+
+    iterator       find( const key_type &k );
+    const_iterator find( const key_type &k ) const;
+    size_type      count( const key_type &k ) const;
+    iterator       lower_bound( const key_type &k );
+    const_iterator lower_bound( const key_type &k ) const;
+    iterator       upper_bound( const key_type &k );
+    const_iterator upper_bound( const key_type &k ) const;
+    std::pair< const_iterator, const_iterator >
+                                    equal_range( const key_type &k ) const;
+    std::pair< iterator, iterator > equal_range( const key_type &k );
+
+    /* -------------------------------- Allocator ------------------------------- */
+
+    allocator_type get_allocator() const { return _tree.get_allocator(); }
+
+    /* -------------------------------------------------------------------------- */
 };
 }
