@@ -69,6 +69,25 @@ private:
         }
     };
 
+    struct extended_key_compare {
+        Node *      _end;
+        key_compare _comp;
+        extended_key_compare( Node *             end  = 0,
+                              const key_compare &comp = key_compare() )
+            : _end( end ),
+              _comp( comp ) {}
+        bool operator()( const key_type &a, const key_type &b ) const {
+            if ( &a == &_end->data.first ) { return 0; }
+            if ( &b == &_end->data.first ) { return 1; }
+            return _comp( a, b );
+        }
+        extended_key_compare &operator=( const extended_key_compare &other ) {
+            _end  = other._end;
+            _comp = other._comp;
+            return *this;
+        }
+    };
+
     typedef Node node_type;
     typedef
         typename Allocator::template rebind< Node >::other node_allocator_type;
@@ -86,43 +105,26 @@ private:
 
     private:
         node_pointer _node;
-        bool         _overflow;
 
     public:
-        Iterator() : _node( &_nil ), _overflow( true ) {}
-        Iterator( node_pointer node, bool overflow = false )
-            : _node( node ),
-              _overflow( overflow ) {
-            _overflow |= _node == &_nil;
-        }
-        Iterator( const Iterator &other )
-            : _node( other._node ),
-              _overflow( other._overflow ) {}
+        Iterator() : _node( &_nil ) {}
+        Iterator( node_pointer node ) : _node( node ) {}
+        Iterator( const Iterator &other ) : _node( other._node ) {}
         Iterator &operator=( const Iterator &other ) {
-            _node     = other._node;
-            _overflow = other._overflow;
+            _node = other._node;
             return *this;
         }
 
         const node_pointer &get_node() const { return _node; }
-        bool                overflow() const { return _overflow; }
 
         Iterator &operator++() {
-            if ( _overflow ) {
-                if ( _node != &_nil ) { _overflow = false; }
+            if ( _node->right != &_nil ) {
+                _node = _node->right;
+                while ( _node->left != &_nil ) { _node = _node->left; }
             } else {
-                if ( _node->right != &_nil ) {
-                    _node = _node->right;
-                    while ( _node->left != &_nil ) { _node = _node->left; }
-                } else {
-                    node_pointer tmp = _node;
-                    while ( tmp->p && tmp == tmp->p->right ) { tmp = tmp->p; }
-                    if ( !tmp->p ) {
-                        _overflow = true;
-                    } else {
-                        _node = tmp->p;
-                    }
-                }
+                node_pointer tmp = _node;
+                while ( tmp->p && tmp == tmp->p->right ) { tmp = tmp->p; }
+                if ( tmp->p != &_nil ) { _node = tmp->p; }
             }
             return *this;
         }
@@ -134,21 +136,13 @@ private:
         }
 
         Iterator &operator--() {
-            if ( _overflow ) {
-                if ( _node != &_nil ) { _overflow = false; }
+            if ( _node->left != &_nil ) {
+                _node = _node->left;
+                while ( _node->right != &_nil ) { _node = _node->right; }
             } else {
-                if ( _node->left != &_nil ) {
-                    _node = _node->left;
-                    while ( _node->right != &_nil ) { _node = _node->right; }
-                } else {
-                    node_pointer tmp = _node;
-                    while ( tmp->p && tmp == tmp->p->left ) { tmp = tmp->p; }
-                    if ( !tmp->p ) {
-                        _overflow = true;
-                    } else {
-                        _node = tmp->p;
-                    }
-                }
+                node_pointer tmp = _node;
+                while ( tmp->p && tmp == tmp->p->left ) { tmp = tmp->p; }
+                _node = tmp->p;
             }
             return *this;
         }
@@ -161,9 +155,6 @@ private:
 
         template < typename U >
         bool operator==( const Iterator< U > &other ) const {
-            if ( _overflow || other.overflow() ) {
-                return _overflow == other.overflow();
-            }
             return _node == other.get_node();
         }
         template < typename U >
@@ -176,17 +167,18 @@ private:
         pointer         operator->() const { return &_node->data; }
 
         operator Iterator< const T >() const {
-            return Iterator< const T >( _node, _overflow );
+            return Iterator< const T >( _node );
         }
     };
 
     /* --------------------------------- Members -------------------------------- */
 
-    node_pointer        _root;
-    static node_type    _nil;
-    size_type           _size;
-    key_compare         _key_compare;
-    node_allocator_type _allocator;
+    node_pointer         _root;
+    node_pointer         _end;
+    static node_type     _nil;
+    size_type            _size;
+    extended_key_compare _key_compare;
+    node_allocator_type  _allocator;
 
 public:
     /* ------------------------------ Construction ------------------------------ */
@@ -194,15 +186,19 @@ public:
     rb_tree( const key_compare &   comp  = key_compare(),
              const allocator_type &alloc = allocator_type() )
         : _size( 0 ),
-          _key_compare( comp ),
           _allocator( alloc ) {
         _root = &_nil;
+        _end  = _insert( value_type(), _root );
+        _size--;
+        _key_compare = extended_key_compare( _end, comp );
     }
     rb_tree( const rb_tree &other )
         : _size( 0 ),
           _key_compare( other._key_compare ),
           _allocator( other._allocator ) {
         _root = &_nil;
+        _end  = _insert( value_type(), _root );
+        _size--;
         *this = other;
     }
     rb_tree &operator=( const rb_tree &other ) {
@@ -220,12 +216,10 @@ public:
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
     typedef typename iterator::difference_type     difference_type;
 
-    iterator       begin() { return _root->min_child(); }
-    const_iterator begin() const { return _root->min_child(); }
-    iterator       end() { return ++iterator( _root->max_child() ); }
-    const_iterator end() const {
-        return ++const_iterator( _root->max_child() );
-    }
+    iterator               begin() { return _root->min_child(); }
+    const_iterator         begin() const { return _root->min_child(); }
+    iterator               end() { return _end; }
+    const_iterator         end() const { return _end; }
     reverse_iterator       rbegin() { return end(); }
     const_reverse_iterator rbegin() const { return end(); };
     reverse_iterator       rend() { return begin(); }
