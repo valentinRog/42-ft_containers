@@ -139,7 +139,7 @@ public:
 
     bool      empty() const { return !size(); }
     size_type size() const { return _tree.size(); }
-    size_type max_size() const;
+    size_type max_size() const { return 5; }
 
     /* ----------------------------- Element access ----------------------------- */
 
@@ -182,8 +182,8 @@ public:
 
     /* -------------------------------- Observers ------------------------------- */
 
-    key_compare   key_comp() const;
-    value_compare value_comp() const;
+    key_compare   key_comp() const { return key_compare(); }
+    value_compare value_comp() const { return value_comp(); }
 
     /* ------------------------------- Operations ------------------------------- */
 
@@ -201,8 +201,14 @@ public:
         return _tree.upper_bound( k );
     }
     std::pair< const_iterator, const_iterator >
-                                    equal_range( const key_type &k ) const;
-    std::pair< iterator, iterator > equal_range( const key_type &k );
+    equal_range( const key_type &k ) const {
+        return std::pair< const_iterator, const_iterator >( lower_bound( k ),
+                                                            upper_bound( k ) );
+    }
+    std::pair< iterator, iterator > equal_range( const key_type &k ) {
+        return std::pair< iterator, iterator >( lower_bound( k ),
+                                                upper_bound( k ) );
+    }
 
     /* -------------------------------- Allocator ------------------------------- */
 
