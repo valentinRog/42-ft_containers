@@ -1,17 +1,17 @@
 #pragma once
 
 #include "iterator.hpp"
+#include "utility.hpp"
 #include <cstddef>
 #include <functional>
 #include <iostream>
-#include <utility>
 
 namespace ft {
 
 template < typename K,
            typename V,
            typename Comp      = std::less< K >,
-           typename Allocator = std::allocator< std::pair< const K, V > > >
+           typename Allocator = std::allocator< ft::pair< const K, V > > >
 class rb_tree {
 
 public:
@@ -19,7 +19,7 @@ public:
 
     typedef K                                        key_type;
     typedef V                                        mapped_type;
-    typedef std::pair< const key_type, mapped_type > value_type;
+    typedef ft::pair< const key_type, mapped_type >  value_type;
     typedef Comp                                     key_compare;
     typedef Allocator                                allocator_type;
     typedef typename allocator_type::reference       reference;
@@ -161,7 +161,10 @@ private:
 
         template < typename U >
         bool operator==( const Iterator< U > &other ) const {
-            return _node == other.get_node() && _overflow == other.overflow();
+            if ( _overflow || other.overflow() ) {
+                return _overflow == other.overflow();
+            }
+            return _node == other.get_node();
         }
         template < typename U >
         bool operator!=( const Iterator< U > &other ) const {

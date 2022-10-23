@@ -8,7 +8,7 @@ namespace ft {
 template < typename K,
            typename V,
            typename Comp      = std::less< K >,
-           typename Allocator = std::allocator< std::pair< const K, V > > >
+           typename Allocator = std::allocator< ft::pair< const K, V > > >
 class map {
 
     /* ------------------------------ Member types ------------------------------ */
@@ -158,12 +158,14 @@ public:
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    std::pair< iterator, bool > insert( const value_type &val ) {
+    ft::pair< iterator, bool > insert( const value_type &val ) {
         iterator it = _tree.find( val.first );
-        if ( it != _tree.end() ) { return std::make_pair( it, false ); }
+        if ( it != _tree.end() ) {
+            return ft::pair< iterator, bool >( it, false );
+        }
         _tree.insert( val );
         it = _tree.find( val.first );
-        return std::make_pair( it, true );
+        return ft::pair< iterator, bool >( it, true );
     }
     iterator insert( iterator position, const value_type &val ) {
         return _tree.insert( position, val );
@@ -201,14 +203,14 @@ public:
     const_iterator upper_bound( const key_type &k ) const {
         return _tree.upper_bound( k );
     }
-    std::pair< const_iterator, const_iterator >
+    ft::pair< const_iterator, const_iterator >
     equal_range( const key_type &k ) const {
-        return std::pair< const_iterator, const_iterator >( lower_bound( k ),
-                                                            upper_bound( k ) );
+        return ft::pair< const_iterator, const_iterator >( lower_bound( k ),
+                                                           upper_bound( k ) );
     }
-    std::pair< iterator, iterator > equal_range( const key_type &k ) {
-        return std::pair< iterator, iterator >( lower_bound( k ),
-                                                upper_bound( k ) );
+    ft::pair< iterator, iterator > equal_range( const key_type &k ) {
+        return ft::pair< iterator, iterator >( lower_bound( k ),
+                                               upper_bound( k ) );
     }
 
     /* -------------------------------- Allocator ------------------------------- */

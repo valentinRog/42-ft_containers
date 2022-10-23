@@ -44,7 +44,7 @@ std::ostream &operator<<( std::ostream &os, const std::vector< T > &v ) {
 }
 
 template < typename T, typename U >
-std::ostream &operator<<( std::ostream &os, const std::pair< T, U > &p ) {
+std::ostream &operator<<( std::ostream &os, const ft::pair< T, U > &p ) {
     os << p.first << " " << p.second;
     return os;
 }
@@ -54,12 +54,26 @@ template < typename K, typename V > struct getter {
     V         operator()( std::pair< K, V > p ) const { return p.second; }
 };
 
-#define TESTED_NAMESPACE ft
+int main( void ) {
 
-template < typename T > class Test {};
+    ft::map<int, std::string> mp;
 
-int main() {
-    ft::rb_tree< int, Test< std::string > > tree;
-    ft::rb_tree< int, Test< std::string > > t2(tree);
-    tree = ft::rb_tree< int, Test< std::string > >();
+    mp[42] = "fgzgxfn";
+    mp[25] = "funny";
+    mp[80] = "hey";
+    mp[12] = "no";
+    mp[27] = "bee";
+    mp[90] = "8";
+
+    auto it = mp.end();
+
+    auto it2 = mp.end();
+    it2--;
+
+    std::cout << (it == mp.find(35)) << std::endl;
+
+    // ft_find( 90 );
+    // ft_find( 100 );
+
+    return ( 0 );
 }
