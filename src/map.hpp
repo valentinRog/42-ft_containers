@@ -143,7 +143,10 @@ public:
     /* ----------------------------- Element access ----------------------------- */
 
     mapped_type &operator[]( const key_type &k ) {
-        return _tree.insert( value_type( k, mapped_type() ) )->second;
+        iterator it = _tree.find( k );
+        return it != end()
+                   ? it->second
+                   : _tree.insert( value_type( k, mapped_type() ) )->second;
     }
     mapped_type &at( const key_type &k ) {
         iterator it = _tree.find( k );

@@ -194,7 +194,7 @@ public:
     /* ------------------------------ Construction ------------------------------ */
 
     rb_tree( const key_compare &   comp  = key_compare(),
-             const allocator_type &alloc = allocator_type() )
+             const allocator_type &alloc = node_allocator_type() )
         : _end( node_type( &_nil, &_nil ) ),
           _root( &_end ),
           _key_compare( extended_key_compare( &_end, comp ) ),
@@ -203,8 +203,8 @@ public:
     rb_tree( const rb_tree &other )
         : _end( node_type( &_nil, &_nil ) ),
           _root( &_end ),
-          _key_compare( extended_key_compare( &_end, key_compare() ) ),
-          _allocator( allocator_type() ),
+          _key_compare( extended_key_compare( &_end, other.key_comp() ) ),
+          _allocator( other._allocator ),
           _size( 0 ) {
         insert( other.cbegin(), other.cend() );
     }
@@ -272,6 +272,10 @@ public:
     }
 
     void clear() { erase( begin(), end() ); }
+
+    /* -------------------------------- Observers ------------------------------- */
+
+    key_compare key_comp() const { return key_compare(); }
 
     /* ------------------------------- Operations ------------------------------- */
 
