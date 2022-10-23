@@ -50,6 +50,16 @@ private:
               p( 0 ),
               left( 0 ),
               right( 0 ) {}
+        Node( Node *            left,
+              Node *            right,
+              Node *            p   = 0,
+              bool              red = false,
+              const value_type &val = value_type() )
+            : data( val ),
+              red( false ),
+              p( 0 ),
+              left( left ),
+              right( right ) {}
         Node( const Node &other )
             : data( other.data ),
               red( other.red ),
@@ -173,33 +183,30 @@ private:
 
     /* --------------------------------- Members -------------------------------- */
 
-    node_pointer         _root;
-    node_pointer         _end;
     static node_type     _nil;
-    size_type            _size;
+    node_type            _end;
+    node_pointer         _root;
     extended_key_compare _key_compare;
     node_allocator_type  _allocator;
+    size_type            _size;
 
 public:
     /* ------------------------------ Construction ------------------------------ */
 
     rb_tree( const key_compare &   comp  = key_compare(),
              const allocator_type &alloc = allocator_type() )
-        : _size( 0 ),
-          _allocator( alloc ) {
-        _root = &_nil;
-        _end  = _insert( value_type(), _root );
-        _size--;
-        _key_compare = extended_key_compare( _end, comp );
-    }
+        : _end( node_type( &_nil, &_nil ) ),
+          _root( &_end ),
+          _key_compare( extended_key_compare( &_end, comp ) ),
+          _allocator( alloc ),
+          _size( 0 ) {}
     rb_tree( const rb_tree &other )
-        : _size( 0 ),
-          _key_compare( other._key_compare ),
-          _allocator( other._allocator ) {
-        _root = &_nil;
-        _end  = _insert( value_type(), _root );
-        _size--;
-        *this = other;
+        : _end( node_type( &_nil, &_nil ) ),
+          _root( &_end ),
+          _key_compare( extended_key_compare( &_end, key_compare() ) ),
+          _allocator( allocator_type() ),
+          _size( 0 ) {
+        insert( other.cbegin(), other.cend() );
     }
     rb_tree &operator=( const rb_tree &other ) {
         clear();
@@ -216,11 +223,11 @@ public:
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
     typedef typename iterator::difference_type     difference_type;
 
-    iterator               begin() { return _root->min_child(); }
-    const_iterator         begin() const { return _root->min_child(); }
-    iterator               end() { return _end; }
-    const_iterator         end() const { return _end; }
-    reverse_iterator       rbegin() { return end(); }
+    iterator         begin() { return _root->min_child(); }
+    const_iterator   begin() const { return _root->min_child(); }
+    iterator         end() { return &_end; }
+    const_iterator   end() const { return const_cast< node_pointer >( &_end ); }
+    reverse_iterator rbegin() { return end(); }
     const_reverse_iterator rbegin() const { return end(); };
     reverse_iterator       rend() { return begin(); }
     const_reverse_iterator rend() const { return begin(); }

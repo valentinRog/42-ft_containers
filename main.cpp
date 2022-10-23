@@ -56,18 +56,20 @@ template < typename K, typename V > struct getter {
 
 int main( void ) {
 
-    ft::map<int, int> t;
+    ft::map< int, int > t;
 
     auto yo = t.begin();
 
-    t.insert(ft::map<int, int>::value_type(76, 9));
-    t.insert(ft::map<int, int>::value_type(-76, 9));
+    t.insert( ft::map< int, int >::value_type( 76, 9 ) );
+    t.insert( ft::map< int, int >::value_type( -76, 9 ) );
+    t.insert( ft::map< int, int >::value_type( -75, 9 ) );
 
-    auto it = t.begin();
-    for (; it != t.end(); ++it) {
+    for ( auto it = t.begin(); it != t.end(); ++it ) {
         std::cout << *it << std::endl;
     }
-    ++it;
-
-    std::cout << (yo == t.end()) << std::endl;
+    std::cout << std::endl;
+    ft::map< int, int > t2(t);
+    for ( auto it = t2.begin(); it != t2.end(); ++it ) {
+        std::cout << *it << std::endl;
+    }
 }
