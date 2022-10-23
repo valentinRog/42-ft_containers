@@ -49,13 +49,6 @@ std::ostream &operator<<( std::ostream &os, const std::pair< T, U > &p ) {
     return os;
 }
 
-template < typename T, typename U > struct cmp {
-    bool operator()( const std::pair< T, U > &a,
-                     const std::pair< T, U > &b ) const {
-        return a.first < b.first;
-    }
-};
-
 template < typename K, typename V > struct getter {
     typedef V return_type;
     V         operator()( std::pair< K, V > p ) const { return p.second; }
@@ -63,16 +56,10 @@ template < typename K, typename V > struct getter {
 
 #define TESTED_NAMESPACE ft
 
-int main() {
-    srand( time( 0 ) );
+template < typename T > class Test {};
 
-    typedef typename TESTED_NAMESPACE::map< int, int > map_type;
-    
-    map_type m;
-    
-    m[4] = 8;
-    m[9] = 15;
-    
-    std::cout << *m.upper_bound(9) << std::endl;
-    std::cout << (m.upper_bound(9) == m.end()) << std::endl;
+int main() {
+    ft::rb_tree< int, Test< std::string > > tree;
+    ft::rb_tree< int, Test< std::string > > t2(tree);
+    tree = ft::rb_tree< int, Test< std::string > >();
 }

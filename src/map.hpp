@@ -1,5 +1,7 @@
 #pragma once
 
+#include "algorithm.hpp"
+#include "iterator.hpp"
 #include "rb_tree.hpp"
 
 namespace ft {
@@ -23,6 +25,7 @@ public:
     typedef typename tree_type::mapped_type     mapped_type;
     typedef typename tree_type::value_type      value_type;
     typedef typename tree_type::key_compare     key_compare;
+    typedef typename tree_type::value_compare   value_compare;
     typedef typename tree_type::allocator_type  allocator_type;
     typedef typename tree_type::reference       reference;
     typedef typename tree_type::const_reference const_reference;
@@ -31,17 +34,12 @@ public:
     typedef typename tree_type::difference_type difference_type;
     typedef typename tree_type::size_type       size_type;
 
-    struct value_compare {
-        bool operator()( const value_type &a, const value_type &b ) const {
-            return key_compare( a.first, b.first );
-        }
-    };
-
     /* -------------------------------- Iterator -------------------------------- */
 
     template < typename T > class Iterator {
     public:
         typedef typename T::reference         reference;
+        typedef typename T::const_reference   const_reference;
         typedef typename T::pointer           pointer;
         typedef typename T::difference_type   difference_type;
         typedef typename T::iterator_category iterator_category;
@@ -69,8 +67,9 @@ public:
         }
         Iterator operator--( int ) { return _it--; }
 
-        reference operator*() { return *_it; }
-        pointer   operator->() const { return _it.operator->(); }
+        reference       operator*() { return *_it; }
+        const_reference operator*() const { return *_it; }
+        pointer         operator->() const { return _it.operator->(); }
 
         template < typename U >
         bool operator==( const Iterator< U > &other ) const {
@@ -89,10 +88,10 @@ public:
         }
     };
 
-    typedef Iterator< tree_iterator >               iterator;
-    typedef Iterator< tree_const_iterator >         const_iterator;
-    typedef Iterator< tree_reverse_iterator >       reverse_iterator;
-    typedef Iterator< tree_const_reverse_iterator > const_reverse_iterator;
+    typedef Iterator< tree_iterator >              iterator;
+    typedef Iterator< tree_const_iterator >        const_iterator;
+    typedef ft::reverse_iterator< iterator >       reverse_iterator;
+    typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 
 private:
     /* --------------------------------- Members -------------------------------- */
@@ -178,23 +177,25 @@ public:
     size_type erase( const key_type &k ) { return _tree.erase( k ); }
     void erase( iterator first, iterator last ) { _tree.erase( first, last ); }
 
+    void swap( map &other ) { ft::swap( _tree, other._tree ); }
+
     void clear() { _tree.clear(); }
 
     /* -------------------------------- Observers ------------------------------- */
 
     key_compare   key_comp() const { return key_compare(); }
-    value_compare value_comp() const { return value_comp(); }
+    value_compare value_comp() const { return value_compare(); }
 
     /* ------------------------------- Operations ------------------------------- */
 
     iterator       find( const key_type &k ) { return _tree.find( k ); }
     const_iterator find( const key_type &k ) const { return _tree.find( k ); }
     size_type      count( const key_type &k ) const {
-        return _tree.find( k ) != end();
+        return _tree.find( k ) != _tree.end();
     }
     iterator lower_bound( const key_type &k ) { return _tree.lower_bound( k ); }
     const_iterator lower_bound( const key_type &k ) const {
-        return _tree.lower_bound();
+        return _tree.lower_bound( k );
     }
     iterator upper_bound( const key_type &k ) { return _tree.upper_bound( k ); }
     const_iterator upper_bound( const key_type &k ) const {
@@ -213,7 +214,59 @@ public:
     /* -------------------------------- Allocator ------------------------------- */
 
     allocator_type get_allocator() const { return _tree.get_allocator(); }
-
-    /* -------------------------------------------------------------------------- */
 };
+
+/* -------------------------- Relational operators -------------------------- */
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator==( const map< Key, T, Compare, Alloc > &lhs,
+                 const map< Key, T, Compare, Alloc > &rhs ) {
+    return lhs.size() == rhs.size()
+               ? ft::equal( lhs.begin(), lhs.end(), rhs.begin() )
+               : false;
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator!=( const map< Key, T, Compare, Alloc > &lhs,
+                 const map< Key, T, Compare, Alloc > &rhs ) {
+    return !( lhs == rhs );
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator<( const map< Key, T, Compare, Alloc > &lhs,
+                const map< Key, T, Compare, Alloc > &rhs ) {
+    return ft::lexicographical_compare( lhs.begin(),
+                                        lhs.end(),
+                                        rhs.begin(),
+                                        rhs.end() );
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator<=( const map< Key, T, Compare, Alloc > &lhs,
+                 const map< Key, T, Compare, Alloc > &rhs ) {
+    return lhs < rhs || lhs == rhs;
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator>( const map< Key, T, Compare, Alloc > &lhs,
+                const map< Key, T, Compare, Alloc > &rhs ) {
+    return !( lhs <= rhs );
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator>=( const map< Key, T, Compare, Alloc > &lhs,
+                 const map< Key, T, Compare, Alloc > &rhs ) {
+    return !( lhs < rhs );
+}
+
+/* ---------------------------------- Swap ---------------------------------- */
+
+template < class Key, class T, class Compare, class Alloc >
+void swap( map< Key, T, Compare, Alloc > &lhs,
+           map< Key, T, Compare, Alloc > &rhs ) {
+    lhs.swap( rhs );
+}
+
+/* -------------------------------------------------------------------------- */
+
 }

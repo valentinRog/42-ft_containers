@@ -30,7 +30,7 @@ public:
 
     struct value_compare {
         bool operator()( const value_type &a, const value_type &b ) const {
-            return key_compare( a.first, b.first );
+            return key_compare()( a.first, b.first );
         }
     };
 
@@ -79,6 +79,7 @@ private:
     template < typename T > class Iterator {
     public:
         typedef T &                             reference;
+        typedef const T &                       const_reference;
         typedef T *                             pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
@@ -167,8 +168,9 @@ private:
             return !( *this == other );
         }
 
-        reference operator*() { return _node->data; }
-        pointer   operator->() const { return &_node->data; }
+        reference       operator*() { return _node->data; }
+        const_reference operator*() const { return _node->data; }
+        pointer         operator->() const { return &_node->data; }
 
         operator Iterator< const T >() const {
             return Iterator< const T >( _node, _overflow );
@@ -239,7 +241,7 @@ public:
     iterator insert( const value_type &data ) { return _insert( data, _root ); }
     iterator insert( iterator hint, const value_type &data ) {
         iterator right = ++iterator( hint );
-        if ( hint->get_node == &_nil || hint == end()
+        if ( hint.get_node() == &_nil || hint == end()
              || _key_compare( data.first, hint->first )
              || ( right != end()
                   && _key_compare( right->first, data.first ) ) ) {
@@ -270,6 +272,10 @@ public:
     /* ------------------------------- Operations ------------------------------- */
 
     iterator find( const key_type &k ) {
+        node_pointer node = _find_node( k );
+        return node != &_nil ? node : end();
+    }
+    const_iterator find( const key_type &k ) const {
         node_pointer node = _find_node( k );
         return node != &_nil ? node : end();
     }
@@ -308,6 +314,40 @@ public:
         }
         return end();
     }
+    const_iterator lower_bound( const key_type &k ) const {
+        node_pointer current( _root );
+        while ( current != &_nil ) {
+            if ( _key_compare( current->data.first, k ) ) {
+                current = current->right;
+            } else if ( _key_compare( k, current->data.first ) ) {
+                if ( current->left != &_nil
+                     && _key_compare( current->left->data.first, k ) ) {
+                    return current;
+                }
+                current = current->left;
+            } else {
+                return current;
+            }
+        }
+        return end();
+    }
+    const_iterator upper_bound( const key_type &k ) const {
+        node_pointer current( _root );
+        while ( current != &_nil ) {
+            if ( _key_compare( current->data.first, k ) ) {
+                current = current->right;
+            } else if ( _key_compare( k, current->data.first ) ) {
+                if ( current->left != &_nil
+                     && _key_compare( current->left->data.first, k ) ) {
+                    return current;
+                }
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+        }
+        return end();
+    }
 
     /* -------------------------------- Allocator ------------------------------- */
 
@@ -316,7 +356,7 @@ public:
     /* --------------------------------- Helper --------------------------------- */
 
 private:
-    node_pointer _find_node( const key_type &k ) {
+    node_pointer _find_node( const key_type &k ) const {
         node_pointer current = _root;
         while ( current != &_nil
                 && ( _key_compare( k, current->data.first )
@@ -485,7 +525,7 @@ private:
         new_node->p     = p;
         if ( !p ) {
             _root = new_node;
-        } else if ( new_node->data < p->data ) {
+        } else if ( _key_compare( new_node->data.first, p->data.first ) ) {
             p->left = new_node;
         } else {
             p->right = new_node;
@@ -541,4 +581,5 @@ typename ft::rb_tree< K, V, Comp, Allocator >::node_type
     = rb_tree< K, V, Comp, Allocator >::node_type();
 
 /* -------------------------------------------------------------------------- */
+
 }
