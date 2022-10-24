@@ -184,7 +184,7 @@ private:
     /* --------------------------------- Members -------------------------------- */
 
     static node_type     _nil;
-    node_type            _end;
+    node_pointer         _end;
     node_pointer         _root;
     extended_key_compare _key_compare;
     node_allocator_type  _allocator;
@@ -195,17 +195,22 @@ public:
 
     rb_tree( const key_compare &   comp  = key_compare(),
              const allocator_type &alloc = node_allocator_type() )
-        : _end( node_type( &_nil, &_nil ) ),
-          _root( &_end ),
-          _key_compare( extended_key_compare( &_end, comp ) ),
+        : _root( &_nil ),
+          _key_compare( extended_key_compare( &_nil, comp ) ),
           _allocator( alloc ),
-          _size( 0 ) {}
+          _size( 0 ) {
+        _end = _insert( value_type(), _root );
+        _size--;
+        _key_compare._end = _end;
+    }
     rb_tree( const rb_tree &other )
-        : _end( node_type( &_nil, &_nil ) ),
-          _root( &_end ),
-          _key_compare( extended_key_compare( &_end, other.key_comp() ) ),
+        : _root( &_nil ),
+          _key_compare( extended_key_compare( &_nil, other.key_comp() ) ),
           _allocator( other._allocator ),
           _size( 0 ) {
+        _end = _insert( value_type(), _root );
+        _size--;
+        _key_compare._end = _end;
         insert( other.cbegin(), other.cend() );
     }
     rb_tree &operator=( const rb_tree &other ) {
@@ -225,8 +230,8 @@ public:
 
     iterator         begin() { return _root->min_child(); }
     const_iterator   begin() const { return _root->min_child(); }
-    iterator         end() { return &_end; }
-    const_iterator   end() const { return const_cast< node_pointer >( &_end ); }
+    iterator         end() { return _end; }
+    const_iterator   end() const { return const_cast< node_pointer >( _end ); }
     reverse_iterator rbegin() { return end(); }
     const_reverse_iterator rbegin() const { return end(); };
     reverse_iterator       rend() { return begin(); }
@@ -269,6 +274,14 @@ public:
             erase( first );
             first = tmp;
         }
+    }
+
+    void swap( rb_tree &other ) {
+        ft::swap( _end, other._end );
+        ft::swap( _root, other._root );
+        ft::swap( _key_compare, other._key_compare );
+        ft::swap( _allocator, other._allocator );
+        ft::swap( _size, other._size );
     }
 
     void clear() { erase( begin(), end() ); }
@@ -587,6 +600,14 @@ template < class K, class V, class Comp, class Allocator >
 typename ft::rb_tree< K, V, Comp, Allocator >::node_type
     ft::rb_tree< K, V, Comp, Allocator >::_nil
     = rb_tree< K, V, Comp, Allocator >::node_type();
+
+/* ---------------------------------- Swap ---------------------------------- */
+
+template < class Key, class T, class Compare, class Alloc >
+void swap( rb_tree< Key, T, Compare, Alloc > &lhs,
+           rb_tree< Key, T, Compare, Alloc > &rhs ) {
+    lhs.swap( rhs );
+}
 
 /* -------------------------------------------------------------------------- */
 

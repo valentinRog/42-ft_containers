@@ -18,9 +18,8 @@ template < typename T, typename V > struct pair {
           second( second ){};
 
     pair &operator=( const pair &other ) {
-        if ( this == &other ) return ( *this );
-        this->first  = other.first;
-        this->second = other.second;
+        first  = other.first;
+        second = other.second;
         return ( *this );
     }
 };

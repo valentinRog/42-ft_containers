@@ -48,28 +48,33 @@ std::ostream &operator<<( std::ostream &os, const ft::pair< T, U > &p ) {
     os << p.first << " " << p.second;
     return os;
 }
+template < typename T, typename U >
+std::ostream &operator<<( std::ostream &os, const std::pair< T, U > &p ) {
+    os << p.first << " " << p.second;
+    return os;
+}
 
 template < typename K, typename V > struct getter {
     typedef V return_type;
     V         operator()( std::pair< K, V > p ) const { return p.second; }
 };
 
+#define TESTED_NAMESPACE std
+
 int main( void ) {
 
-    ft::map< int, int > t;
+    TESTED_NAMESPACE::map< int, int > t1;
+    TESTED_NAMESPACE::map< int, int > t2;
 
-    auto yo = t.begin();
 
-    t.insert( ft::map< int, int >::value_type( 76, 9 ) );
-    t.insert( ft::map< int, int >::value_type( -76, 9 ) );
-    t.insert( ft::map< int, int >::value_type( -75, 9 ) );
+    t1[4] = 19;
+    t2[2] = 9;
 
-    for ( auto it = t.begin(); it != t.end(); ++it ) {
-        std::cout << *it << std::endl;
-    }
-    std::cout << std::endl;
-    ft::map< int, int > t2(t);
-    for ( auto it = t2.begin(); it != t2.end(); ++it ) {
-        std::cout << *it << std::endl;
-    }
+    auto it1 = t1.begin();
+    auto it2 = t2.begin();
+
+    t1.swap(t2);
+
+    std::cout << *t1.begin() << std::endl;
+
 }
