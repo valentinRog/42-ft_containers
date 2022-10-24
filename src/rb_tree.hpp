@@ -41,9 +41,9 @@ private:
 
         value_type data;
         bool       red;
-        Node *     p;
-        Node *     left;
-        Node *     right;
+        Node      *p;
+        Node      *left;
+        Node      *right;
 
         Node( const value_type &val = value_type() )
             : data( val ),
@@ -51,9 +51,9 @@ private:
               p( 0 ),
               left( 0 ),
               right( 0 ) {}
-        Node( Node *            left,
-              Node *            right,
-              Node *            p   = 0,
+        Node( Node             *left,
+              Node             *right,
+              Node             *p   = 0,
               bool              red = false,
               const value_type &val = value_type() )
             : data( val ),
@@ -81,9 +81,9 @@ private:
     };
 
     struct extended_key_compare {
-        Node *      _end;
+        Node       *_end;
         key_compare _comp;
-        extended_key_compare( Node *             end  = 0,
+        extended_key_compare( Node              *end  = 0,
                               const key_compare &comp = key_compare() )
             : _end( end ),
               _comp( comp ) {}
@@ -108,9 +108,9 @@ private:
 
     template < typename T > class Iterator {
     public:
-        typedef T &                             reference;
-        typedef const T &                       const_reference;
-        typedef T *                             pointer;
+        typedef T                              &reference;
+        typedef const T                        &const_reference;
+        typedef T                              *pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
 
@@ -194,7 +194,7 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    rb_tree( const key_compare &   comp  = key_compare(),
+    rb_tree( const key_compare    &comp  = key_compare(),
              const allocator_type &alloc = node_allocator_type() )
         : _allocator( alloc ),
           _end( _node_dup( node_type( &_nil, &_nil ) ) ),
@@ -257,7 +257,7 @@ public:
     template < class InputIterator >
     void insert( InputIterator first, InputIterator last ) {
         while ( first != last ) {
-            insert( *first );
+            if ( find( first->first ) == end() ) { insert( *first ); }
             first++;
         }
     }
