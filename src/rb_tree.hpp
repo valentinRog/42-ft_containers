@@ -38,6 +38,7 @@ private:
     /* ---------------------------------- Node ---------------------------------- */
 
     struct Node {
+
         value_type data;
         bool       red;
         Node *     p;
@@ -184,10 +185,10 @@ private:
     /* --------------------------------- Members -------------------------------- */
 
     static node_type     _nil;
+    node_allocator_type  _allocator;
     node_pointer         _end;
     node_pointer         _root;
     extended_key_compare _key_compare;
-    node_allocator_type  _allocator;
     size_type            _size;
 
 public:
@@ -195,22 +196,17 @@ public:
 
     rb_tree( const key_compare &   comp  = key_compare(),
              const allocator_type &alloc = node_allocator_type() )
-        : _root( &_nil ),
-          _key_compare( extended_key_compare( &_nil, comp ) ),
-          _allocator( alloc ),
-          _size( 0 ) {
-        _end = _insert( value_type(), _root );
-        _size--;
-        _key_compare._end = _end;
-    }
+        : _allocator( alloc ),
+          _end( _node_dup( node_type( &_nil, &_nil ) ) ),
+          _root( _end ),
+          _key_compare( extended_key_compare( _end, comp ) ),
+          _size( 0 ) {}
     rb_tree( const rb_tree &other )
-        : _root( &_nil ),
-          _key_compare( extended_key_compare( &_nil, other.key_comp() ) ),
-          _allocator( other._allocator ),
+        : _allocator( other._allocator ),
+          _end( _node_dup( node_type( &_nil, &_nil ) ) ),
+          _root( _end ),
+          _key_compare( extended_key_compare( _end, other.key_comp() ) ),
           _size( 0 ) {
-        _end = _insert( value_type(), _root );
-        _size--;
-        _key_compare._end = _end;
         insert( other.cbegin(), other.cend() );
     }
     rb_tree &operator=( const rb_tree &other ) {
@@ -377,6 +373,12 @@ public:
     /* --------------------------------- Helper --------------------------------- */
 
 private:
+    node_pointer _node_dup( const node_type &other ) {
+        node_pointer new_node = _allocator.allocate( 1 );
+        _allocator.construct( new_node, other );
+        return new_node;
+    }
+
     node_pointer _find_node( const key_type &k ) const {
         node_pointer current = _root;
         while ( current != &_nil
