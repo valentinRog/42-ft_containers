@@ -74,5 +74,5 @@ int		main(void)
   m[6] = 1;
   m[-5] = 1;
   
-  std::cout << m.lower_bound(1)->first << std::endl;
+  std::cout << m.lower_bound(7)->first << std::endl;
 }

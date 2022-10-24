@@ -288,14 +288,8 @@ public:
 
     /* ------------------------------- Operations ------------------------------- */
 
-    iterator find( const key_type &k ) {
-        node_pointer node = _find_node( k );
-        return node != &_nil ? node : end();
-    }
-    const_iterator find( const key_type &k ) const {
-        node_pointer node = _find_node( k );
-        return node != &_nil ? node : end();
-    }
+    iterator       find( const key_type &k ) { return _find_node( k ); }
+    const_iterator find( const key_type &k ) const { return _find_node( k ); }
 
     iterator lower_bound( const key_type &k ) { return _lower_bound( k ); }
     const_iterator lower_bound( const key_type &k ) const {
@@ -321,33 +315,63 @@ private:
 
     node_pointer _find_node( const key_type &k ) const {
         node_pointer current = _root;
-        while ( current != &_nil
-                && ( _key_compare( k, current->data.first )
-                     || _key_compare( current->data.first, k ) ) ) {
+        while ( current != &_nil ) {
+            if ( _key_compare( k, current->data.first ) ) {
+                current = current->left;
+            } else if ( _key_compare( current->data.first, k ) ) {
+                current = current->right;
+            } else {
+                break;
+            }
+        }
+        return current == &_nil ? _end : current;
+    }
+
+    node_pointer _lower_bound( const key_type &k ) const {
+        /*node_pointer current( _root );
+        while ( !_is_lower_bound( current, k ) ) {
             if ( _key_compare( k, current->data.first ) ) {
                 current = current->left;
             } else {
                 current = current->right;
             }
         }
-        return current;
-    }
-
-    node_pointer _lower_bound( const key_type &k ) const {
+        return current;*/
         const_iterator it = begin();
         while ( it != end() ) {
-            if ( _key_compare( k, it->first ) || (!_key_compare(it->first, k))) { break; }
+            if (_is_lower_bound(it.get_node(), k)) { break; }
             it++;
         }
         return it.get_node();
     }
     node_pointer _upper_bound( const key_type &k ) const {
+        /*node_pointer current( _root );
+        while ( !_is_upper_bound( current, k ) ) {
+            if ( _key_compare( current->data.first, k ) ) {
+                current = current->right;
+            } else {
+                current = current->left;
+            }
+        }
+        return current;*/
+        
         const_iterator it = begin();
         while ( it != end() ) {
-            if ( _key_compare( k, it->first ) ) { break; }
+            if ( _is_upper_bound(it.get_node(), k) ) { break; }
             it++;
         }
         return it.get_node();
+    }
+
+    bool _is_lower_bound( node_pointer current, const key_type &k ) const {
+        return ( current->left == &_nil
+                 || _key_compare( current->left->data.first, k ) )
+               && !_key_compare( current->data.first, k );
+    }
+    bool _is_upper_bound( node_pointer current, const key_type &k ) const {
+        return ( current->left == &_nil
+                 || !_key_compare( k, current->left->data.first ) )
+               && _key_compare( k, current->data.first );
     }
 
     void _transplant( node_pointer u, node_pointer v ) {
@@ -362,7 +386,7 @@ private:
     }
 
     size_type _remove( node_pointer z ) {
-        if ( z == &_nil ) { return 0; }
+        if ( z == _end ) { return 0; }
         node_pointer y = z;
         node_pointer x;
         bool         y_orig_color = y->red;
