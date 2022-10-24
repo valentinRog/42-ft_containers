@@ -338,7 +338,7 @@ private:
         }
         return current;*/
         const_iterator it = begin();
-        while ( it != end() ) {
+        while ( true ) {
             if (_is_lower_bound(it.get_node(), k)) { break; }
             it++;
         }
