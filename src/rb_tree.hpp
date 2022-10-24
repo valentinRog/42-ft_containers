@@ -297,73 +297,13 @@ public:
         return node != &_nil ? node : end();
     }
 
-    iterator lower_bound( const key_type &k ) {
-        node_pointer current( _root );
-        while ( current != &_nil ) {
-            if ( _key_compare( current->data.first, k ) ) {
-                current = current->right;
-            } else if ( _key_compare( k, current->data.first ) ) {
-                if ( current->left != &_nil
-                     && _key_compare( current->left->data.first, k ) ) {
-                    return current;
-                }
-                current = current->left;
-            } else {
-                return current;
-            }
-        }
-        return end();
-    }
-    iterator upper_bound( const key_type &k ) {
-        node_pointer current( _root );
-        while ( current != &_nil ) {
-            if ( _key_compare( current->data.first, k ) ) {
-                current = current->right;
-            } else if ( _key_compare( k, current->data.first ) ) {
-                if ( current->left != &_nil
-                     && _key_compare( current->left->data.first, k ) ) {
-                    return current;
-                }
-                current = current->left;
-            } else {
-                current = current->right;
-            }
-        }
-        return end();
-    }
+    iterator lower_bound( const key_type &k ) { return _lower_bound( k ); }
     const_iterator lower_bound( const key_type &k ) const {
-        node_pointer current( _root );
-        while ( current != &_nil ) {
-            if ( _key_compare( current->data.first, k ) ) {
-                current = current->right;
-            } else if ( _key_compare( k, current->data.first ) ) {
-                if ( current->left != &_nil
-                     && _key_compare( current->left->data.first, k ) ) {
-                    return current;
-                }
-                current = current->left;
-            } else {
-                return current;
-            }
-        }
-        return end();
+        return _lower_bound( k );
     }
+    iterator upper_bound( const key_type &k ) { return _upper_bound( k ); }
     const_iterator upper_bound( const key_type &k ) const {
-        node_pointer current( _root );
-        while ( current != &_nil ) {
-            if ( _key_compare( current->data.first, k ) ) {
-                current = current->right;
-            } else if ( _key_compare( k, current->data.first ) ) {
-                if ( current->left != &_nil
-                     && _key_compare( current->left->data.first, k ) ) {
-                    return current;
-                }
-                current = current->left;
-            } else {
-                current = current->right;
-            }
-        }
-        return end();
+        return _upper_bound( k );
     }
 
     /* -------------------------------- Allocator ------------------------------- */
@@ -391,6 +331,23 @@ private:
             }
         }
         return current;
+    }
+
+    node_pointer _lower_bound( const key_type &k ) const {
+        const_iterator it = begin();
+        while ( it != end() ) {
+            if ( _key_compare( k, it->first ) || (!_key_compare(it->first, k))) { break; }
+            it++;
+        }
+        return it.get_node();
+    }
+    node_pointer _upper_bound( const key_type &k ) const {
+        const_iterator it = begin();
+        while ( it != end() ) {
+            if ( _key_compare( k, it->first ) ) { break; }
+            it++;
+        }
+        return it.get_node();
     }
 
     void _transplant( node_pointer u, node_pointer v ) {

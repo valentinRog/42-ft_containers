@@ -9,7 +9,6 @@
 #include <set>
 #include <sstream>
 #include <string>
-//#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -59,40 +58,21 @@ template < typename K, typename V > struct getter {
     V         operator()( std::pair< K, V > p ) const { return p.second; }
 };
 
-#include <list>
 
 #define TESTED_NAMESPACE ft
 
-#define T1 int
-#define T2 std::string
-typedef TESTED_NAMESPACE::map<T1, T2>::value_type T3;
-
 int		main(void)
 {
-	std::list<T3> lst;
-	std::list<T3>::iterator itlst;
-
-	lst.push_back(T3(42, "lol"));
-	lst.push_back(T3(50, "mdr"));
-	lst.push_back(T3(35, "funny"));
-	lst.push_back(T3(45, "bunny"));
-	lst.push_back(T3(21, "fizz"));
-	lst.push_back(T3(35, "this key is already inside"));
-	lst.push_back(T3(55, "fuzzy"));
-	lst.push_back(T3(38, "buzz"));
-	lst.push_back(T3(55, "inside too"));
-
-	std::cout << "List contains: " << lst.size() << " elements." << std::endl;
-	for (itlst = lst.begin(); itlst != lst.end(); ++itlst)
-		std::cout << *itlst << std::endl;
-	std::cout << "---------------------------------------------" << std::endl;
-
-	TESTED_NAMESPACE::map<T1, T2> mp(lst.begin(), lst.end());
-	lst.clear();
-
-    for (auto it = mp.begin(); it != mp.end(); it++) {
-        std::cout << *it << std::endl;
-    }
-
-	return (0);
+  typedef TESTED_NAMESPACE::map<int, int> map_type;
+  
+  map_type m;
+  
+  m[4] = 1;
+  m[3] = 1;
+  m[9] = 1;
+  m[7] = 1;
+  m[6] = 1;
+  m[-5] = 1;
+  
+  std::cout << m.lower_bound(1)->first << std::endl;
 }
