@@ -328,7 +328,7 @@ private:
     }
 
     node_pointer _lower_bound( const key_type &k ) const {
-        /*node_pointer current( _root );
+        node_pointer current( _root );
         while ( !_is_lower_bound( current, k ) ) {
             if ( _key_compare( k, current->data.first ) ) {
                 current = current->left;
@@ -336,41 +336,35 @@ private:
                 current = current->right;
             }
         }
-        return current;*/
-        const_iterator it = begin();
-        while ( true ) {
-            if (_is_lower_bound(it.get_node(), k)) { break; }
-            it++;
-        }
-        return it.get_node();
+        return current;
     }
     node_pointer _upper_bound( const key_type &k ) const {
-        /*node_pointer current( _root );
+
+        node_pointer current( _root );
         while ( !_is_upper_bound( current, k ) ) {
-            if ( _key_compare( current->data.first, k ) ) {
-                current = current->right;
-            } else {
+            if ( _key_compare( k, current->data.first ) ) {
                 current = current->left;
+            } else {
+                current = current->right;
             }
         }
-        return current;*/
-        
-        const_iterator it = begin();
-        while ( it != end() ) {
-            if ( _is_upper_bound(it.get_node(), k) ) { break; }
-            it++;
+        return current;
+        const_iterator it = end();
+        while ( true ) {
+            if ( _is_upper_bound( it.get_node(), k ) ) { break; }
+            it--;
         }
         return it.get_node();
     }
 
     bool _is_lower_bound( node_pointer current, const key_type &k ) const {
-        return ( current->left == &_nil
-                 || _key_compare( current->left->data.first, k ) )
+        return ( current == begin().get_node()
+                 || _key_compare( ( --const_iterator( current ) )->first, k ) )
                && !_key_compare( current->data.first, k );
     }
     bool _is_upper_bound( node_pointer current, const key_type &k ) const {
-        return ( current->left == &_nil
-                 || !_key_compare( k, current->left->data.first ) )
+        return ( current == begin().get_node()
+                 || !_key_compare( k, ( --const_iterator( current ) )->first ) )
                && _key_compare( k, current->data.first );
     }
 
