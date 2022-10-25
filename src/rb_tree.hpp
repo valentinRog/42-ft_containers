@@ -53,8 +53,6 @@ private:
               right( 0 ) {}
         Node( Node             *left,
               Node             *right,
-              Node             *p   = 0,
-              bool              red = false,
               const value_type &val = value_type() )
             : data( val ),
               red( false ),
