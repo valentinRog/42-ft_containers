@@ -51,9 +51,7 @@ private:
               p( 0 ),
               left( 0 ),
               right( 0 ) {}
-        Node( Node             *left,
-              Node             *right,
-              const value_type &val = value_type() )
+        Node( Node *left, Node *right, const value_type &val = value_type() )
             : data( val ),
               red( false ),
               p( 0 ),
@@ -575,6 +573,48 @@ template < class K, class V, class Comp, class Allocator >
 typename ft::rb_tree< K, V, Comp, Allocator >::node_type
     ft::rb_tree< K, V, Comp, Allocator >::_nil
     = rb_tree< K, V, Comp, Allocator >::node_type();
+
+/* -------------------------- Relational operators -------------------------- */
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator==( const rb_tree< Key, T, Compare, Alloc > &lhs,
+                 const rb_tree< Key, T, Compare, Alloc > &rhs ) {
+    return lhs.size() == rhs.size()
+           && equal( lhs.begin(), lhs.end(), rhs.begin() );
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator!=( const rb_tree< Key, T, Compare, Alloc > &lhs,
+                 const rb_tree< Key, T, Compare, Alloc > &rhs ) {
+    return !( lhs == rhs );
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator<( const rb_tree< Key, T, Compare, Alloc > &lhs,
+                const rb_tree< Key, T, Compare, Alloc > &rhs ) {
+    return lexicographical_compare( lhs.begin(),
+                                    lhs.end(),
+                                    rhs.begin(),
+                                    rhs.end() );
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator<=( const rb_tree< Key, T, Compare, Alloc > &lhs,
+                 const rb_tree< Key, T, Compare, Alloc > &rhs ) {
+    return lhs < rhs || lhs == rhs;
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator>( const rb_tree< Key, T, Compare, Alloc > &lhs,
+                const rb_tree< Key, T, Compare, Alloc > &rhs ) {
+    return !( lhs <= rhs );
+}
+
+template < class Key, class T, class Compare, class Alloc >
+bool operator>=( const rb_tree< Key, T, Compare, Alloc > &lhs,
+                 const rb_tree< Key, T, Compare, Alloc > &rhs ) {
+    return !( lhs < rhs );
+}
 
 /* ---------------------------------- Swap ---------------------------------- */
 

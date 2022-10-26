@@ -101,14 +101,14 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    explicit map( const key_compare &   comp  = key_compare(),
+    explicit map( const key_compare    &comp  = key_compare(),
                   const allocator_type &alloc = allocator_type() )
         : _tree( tree_type( comp, alloc ) ) {}
 
     template < class InputIterator >
     map( InputIterator         first,
          InputIterator         last,
-         const key_compare &   comp  = key_compare(),
+         const key_compare    &comp  = key_compare(),
          const allocator_type &alloc = allocator_type() )
         : _tree( tree_type( comp, alloc ) ) {
         insert( first, last );
@@ -219,50 +219,18 @@ public:
     /* -------------------------------- Allocator ------------------------------- */
 
     allocator_type get_allocator() const { return _tree.get_allocator(); }
+
+    /* -------------------------- Relational operators -------------------------- */
+
+    bool operator==( const map &other ) const { return _tree == other._tree; }
+    bool operator!=( const map &other ) const { return _tree != other._tree; }
+    bool operator<( const map &other ) const { return _tree < other._tree; }
+    bool operator<=( const map &other ) const { return _tree <= other._tree; }
+    bool operator>( const map &other ) const { return _tree > other._tree; }
+    bool operator>=( const map &other ) const { return _tree >= other._tree; }
+
+    /* -------------------------------------------------------------------------- */
 };
-
-/* -------------------------- Relational operators -------------------------- */
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator==( const map< Key, T, Compare, Alloc > &lhs,
-                 const map< Key, T, Compare, Alloc > &rhs ) {
-    return lhs.size() == rhs.size()
-               ? ft::equal( lhs.begin(), lhs.end(), rhs.begin() )
-               : false;
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator!=( const map< Key, T, Compare, Alloc > &lhs,
-                 const map< Key, T, Compare, Alloc > &rhs ) {
-    return !( lhs == rhs );
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator<( const map< Key, T, Compare, Alloc > &lhs,
-                const map< Key, T, Compare, Alloc > &rhs ) {
-    return ft::lexicographical_compare( lhs.begin(),
-                                        lhs.end(),
-                                        rhs.begin(),
-                                        rhs.end() );
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator<=( const map< Key, T, Compare, Alloc > &lhs,
-                 const map< Key, T, Compare, Alloc > &rhs ) {
-    return lhs < rhs || lhs == rhs;
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator>( const map< Key, T, Compare, Alloc > &lhs,
-                const map< Key, T, Compare, Alloc > &rhs ) {
-    return !( lhs <= rhs );
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator>=( const map< Key, T, Compare, Alloc > &lhs,
-                 const map< Key, T, Compare, Alloc > &rhs ) {
-    return !( lhs < rhs );
-}
 
 /* ---------------------------------- Swap ---------------------------------- */
 
