@@ -13,9 +13,9 @@ class set {
 
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef rb_tree< T, T, Compare, Alloc >      tree_type;
-    typedef typename tree_type::iterator         tree_iterator;
-    typedef typename tree_type::const_iterator   tree_const_iterator;
+    typedef rb_tree< T, T >                    tree_type;
+    typedef typename tree_type::iterator       tree_iterator;
+    typedef typename tree_type::const_iterator tree_const_iterator;
 
 public:
     typedef typename tree_type::key_type             key_type;
@@ -62,14 +62,23 @@ public:
         bool operator==( const Iterator &other ) const {
             return _it == other._it;
         }
+        bool operator==( const tree_const_iterator &other ) const {
+            return _it == other;
+        }
+        bool operator==( const tree_iterator &other ) const {
+            return _it == other;
+        }
         bool operator!=( const Iterator &other ) const {
             return _it != other._it;
         }
+        bool operator!=( const tree_const_iterator &other ) const {
+            return _it != other;
+        }
+        bool operator!=( const tree_iterator &other ) const {
+            return _it != other;
+        }
 
         operator tree_const_iterator() const { return _it; }
-        //operator Iterator< tree_const_iterator >() const {
-        //return Iterator< tree_const_iterator >( _it );
-        //}
     };
 
     typedef Iterator                               iterator;
@@ -93,9 +102,12 @@ public:
     set( InputIterator         first,
          InputIterator         last,
          const key_compare    &comp  = key_compare(),
-         const allocator_type &alloc = allocator_type() );
+         const allocator_type &alloc = allocator_type() )
+        : _tree( comp, alloc ) {
+        insert( first, last );
+    }
 
-    set( const set &x );
+    set( const set &other ) : _tree( other._tree ) {}
 
     /* -------------------------------- Iterators ------------------------------- */
 
@@ -130,7 +142,7 @@ public:
     }
 
     iterator insert( iterator position, const value_type &val ) {
-        return _tree.insert( position,
+        return _tree.insert( tree_const_iterator( position ).get_node(),
                              typename tree_type::value_type( val, val ) );
     }
 
@@ -160,7 +172,7 @@ public:
 
     iterator  find( const value_type &val ) const { return _tree.find( val ); }
     size_type count( const value_type &val ) const {
-        return _tree.find( val ) != end();
+        return _tree.find( val ) != cend();
     }
     iterator lower_bound( const value_type &val ) const {
         return _tree.lower_bound( val );
@@ -191,7 +203,7 @@ public:
 
 /* ---------------------------------- Swap ---------------------------------- */
 
-template < typename T, class Compare, class Alloc >
+template < typename T, typename Compare, typename Alloc >
 void swap( set< T, Compare, Alloc > &lhs, set< T, Compare, Alloc > &rhs ) {
     lhs.swap( rhs );
 }
