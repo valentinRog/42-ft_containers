@@ -78,9 +78,14 @@ public:
         return ( _it >= other.base() );
     };
 
-    reference operator*() { return *( --T( _it ) ); }
-    reference operator[]( difference_type i ) { return *operator+( i ); }
-    pointer   operator->() const { return ( --T( _it ) ).operator->(); };
+    reference       operator*() { return *( --T( _it ) ); }
+    const reference operator*() const { return *( --T( _it ) ); }
+    reference       operator[]( difference_type i ) { return *operator+( i ); }
+    const reference operator[]( difference_type i ) const {
+        return *operator+( i );
+    }
+    pointer       operator->() { return ( --T( _it ) ).operator->(); };
+    const pointer operator->() const { return ( --T( _it ) ).operator->(); };
 };
 
 }
