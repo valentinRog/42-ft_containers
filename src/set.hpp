@@ -32,6 +32,15 @@ public:
     /* -------------------------------- Iterator -------------------------------- */
 
     class Iterator {
+    public:
+        typedef typename allocator_type::const_reference      reference;
+        typedef typename allocator_type::const_reference      const_reference;
+        typedef typename allocator_type::const_pointer        pointer;
+        typedef typename allocator_type::const_pointer        const_pointer;
+        typedef typename tree_const_iterator::difference_type difference_type;
+        typedef
+            typename tree_const_iterator::iterator_category iterator_category;
+
     private:
         tree_const_iterator _it;
 
@@ -56,8 +65,8 @@ public:
         }
         Iterator operator--( int ) { return _it--; }
 
-        const_reference operator*() const { return _it->first; }
-        const_pointer   operator->() const { return _it.operator->(); }
+        const_reference operator*() const { return _it->second; }
+        const_pointer   operator->() const { return &_it->second; }
 
         bool operator==( const Iterator &other ) const {
             return _it == other._it;
@@ -94,14 +103,14 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    explicit set( const key_compare    &comp  = key_compare(),
+    explicit set( const key_compare &   comp  = key_compare(),
                   const allocator_type &alloc = allocator_type() )
         : _tree( comp, alloc ) {}
 
     template < class InputIterator >
     set( InputIterator         first,
          InputIterator         last,
-         const key_compare    &comp  = key_compare(),
+         const key_compare &   comp  = key_compare(),
          const allocator_type &alloc = allocator_type() )
         : _tree( comp, alloc ) {
         insert( first, last );
@@ -172,7 +181,7 @@ public:
 
     iterator  find( const value_type &val ) const { return _tree.find( val ); }
     size_type count( const value_type &val ) const {
-        return _tree.find( val ) != cend();
+        return _tree.find( val ) != _tree.end();
     }
     iterator lower_bound( const value_type &val ) const {
         return _tree.lower_bound( val );

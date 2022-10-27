@@ -71,7 +71,7 @@ int main( void ) {
     t.insert( -8 );
     t.insert( t.begin(), 7 );
     t.erase( 5 );
-    for ( set_type::const_iterator it = t.begin(); it != t.end(); it++ ) {
+    for ( set_type::reverse_iterator it = t.rbegin(); it != t.rend(); it++ ) {
         std::cout << *it << std::endl;
     }
     std::cout << t.count( 5 ) << std::endl;
