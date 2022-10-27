@@ -69,7 +69,14 @@ int main( void ) {
     t.insert( 5 );
     t.insert( 50 );
     t.insert( -8 );
-    for (set_type::iterator it = t.begin(); it != t.end(); it++) {
+    t.insert(t.begin(), 6);
+    t.erase(5);
+    for (set_type::const_iterator it = t.begin(); it != t.end(); it++) {
         std::cout << *it << std::endl;
+        std::cout << *t.lower_bound(*it) << std::endl;
     }
+    
+    
+    std::cout << (typeid(std::map<int, int>::iterator) == typeid(std::map<int, int>::const_iterator))<< std::endl;
+    
 }

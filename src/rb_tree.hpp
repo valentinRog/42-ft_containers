@@ -252,9 +252,8 @@ public:
     }
     template < class InputIterator >
     void insert( InputIterator first, InputIterator last ) {
-        while ( first != last ) {
+        for ( ; first != last; first++ ) {
             if ( find( first->first ) == end() ) { insert( *first ); }
-            first++;
         }
     }
 
@@ -269,11 +268,11 @@ public:
     }
 
     void swap( rb_tree &other ) {
-        ft::swap( _end, other._end );
-        ft::swap( _root, other._root );
-        ft::swap( _key_compare, other._key_compare );
-        ft::swap( _allocator, other._allocator );
-        ft::swap( _size, other._size );
+        std::swap( _end, other._end );
+        std::swap( _root, other._root );
+        std::swap( _key_compare, other._key_compare );
+        std::swap( _allocator, other._allocator );
+        std::swap( _size, other._size );
     }
 
     void clear() { erase( begin(), end() ); }
