@@ -13,7 +13,7 @@ class set {
 
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef rb_tree< T, T >                    tree_type;
+    typedef rb_tree< T, T, Compare >                    tree_type;
     typedef typename tree_type::iterator       tree_iterator;
     typedef typename tree_type::const_iterator tree_const_iterator;
 
@@ -165,7 +165,12 @@ public:
     void      erase( iterator position ) { _tree.erase( *position ); }
     size_type erase( const value_type &val ) { return _tree.erase( val ); }
     void      erase( iterator first, iterator last ) {
-        for ( ; first != last; first++ ) { erase( first ); }
+        while ( first != last ) {
+            iterator next( first );
+            next++;
+            erase( first );
+            first = next;
+        }
     }
 
     void swap( set &other ) { ft::swap( _tree, other._tree ); }
