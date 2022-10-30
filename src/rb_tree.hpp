@@ -220,11 +220,11 @@ public:
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
     typedef typename iterator::difference_type     difference_type;
 
-    iterator         begin() { return _root->min_child(); }
-    const_iterator   begin() const { return _root->min_child(); }
-    iterator         end() { return _end; }
-    const_iterator   end() const { return const_cast< node_pointer >( _end ); }
-    reverse_iterator rbegin() { return end(); }
+    iterator               begin() { return _root->min_child(); }
+    const_iterator         begin() const { return _root->min_child(); }
+    iterator               end() { return _end; }
+    const_iterator         end() const { return _end; }
+    reverse_iterator       rbegin() { return end(); }
     const_reverse_iterator rbegin() const { return end(); };
     reverse_iterator       rend() { return begin(); }
     const_reverse_iterator rend() const { return begin(); }
@@ -304,19 +304,17 @@ public:
     bool operator==( const rb_tree &other ) const {
         return size() == other.size() && equal( begin(), end(), other.begin() );
     }
-    bool operator!=( const rb_tree &other ) const {
-        return !( *this == other );
-    }
     bool operator<( const rb_tree &other ) const {
         return lexicographical_compare( begin(),
                                         end(),
                                         other.begin(),
                                         other.end() );
     }
-    bool operator<=( const rb_tree &other ) const {
-        return *this == other || *this < other;
+    bool operator!=( const rb_tree &other ) const {
+        return !( *this == other );
     }
-    bool operator>( const rb_tree &other ) const { return !( *this <= other ); }
+    bool operator>( const rb_tree &other ) const { return other < *this; }
+    bool operator<=( const rb_tree &other ) const { return !( *this > other ); }
     bool operator>=( const rb_tree &other ) const { return !( *this < other ); }
 
     /* --------------------------------- Helper --------------------------------- */

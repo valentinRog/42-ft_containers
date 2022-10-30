@@ -22,38 +22,19 @@ template < typename T, typename V > struct pair {
         second = other.second;
         return ( *this );
     }
+
+    bool operator==( const pair &other ) const {
+        return ( first == other.first && second == other.second );
+    }
+    bool operator<( const pair &other ) const {
+        return first < other.first
+               || ( !( first < other.first ) && second < other.second );
+    }
+    bool operator!=( const pair &other ) const { return !( *this == other ); }
+    bool operator<=( const pair &other ) const { return !( *this < other ); }
+    bool operator>( const pair &other ) const { return ( other < *this ); }
+    bool operator>=( const pair &other ) const { return !( *this < other ); }
 };
-
-template < typename T, typename U >
-bool operator==( const pair< T, U > &lhs, const pair< T, U > &rhs ) {
-    return ( lhs.first == rhs.first && lhs.second == rhs.second );
-}
-
-template < typename T, typename U >
-bool operator!=( const pair< T, U > &lhs, const pair< T, U > &rhs ) {
-    return !( lhs == rhs );
-}
-
-template < typename T, typename U >
-bool operator<( const pair< T, U > &lhs, const pair< T, U > &rhs ) {
-    return lhs.first < rhs.first
-           || ( !( rhs.first < lhs.first ) && lhs.second < rhs.second );
-}
-
-template < typename T, typename U >
-bool operator<=( const pair< T, U > &lhs, const pair< T, U > &rhs ) {
-    return !( rhs < lhs );
-}
-
-template < typename T, typename U >
-bool operator>( const pair< T, U > &lhs, const pair< T, U > &rhs ) {
-    return ( rhs < lhs );
-}
-
-template < typename T, typename U >
-bool operator>=( const pair< T, U > &lhs, const pair< T, U > &rhs ) {
-    return !( lhs < rhs );
-}
 
 template < class T1, class T2 > pair< T1, T2 > make_pair( T1 x, T2 y ) {
     return ( pair< T1, T2 >( x, y ) );
