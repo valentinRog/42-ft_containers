@@ -13,7 +13,12 @@ class set {
 
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef rb_tree< T, T, Compare >                    tree_type;
+    typedef rb_tree<
+        T,
+        T,
+        Compare,
+        typename Alloc::template rebind< ft::pair< const T, T > >::other >
+                                               tree_type;
     typedef typename tree_type::iterator       tree_iterator;
     typedef typename tree_type::const_iterator tree_const_iterator;
 

@@ -41,9 +41,9 @@ private:
 
         value_type data;
         bool       red;
-        Node      *p;
-        Node      *left;
-        Node      *right;
+        Node *     p;
+        Node *     left;
+        Node *     right;
 
         Node( const value_type &val = value_type() )
             : data( val ),
@@ -77,15 +77,15 @@ private:
     };
 
     struct extended_key_compare {
-        Node       *_end;
+        Node *      _end;
         key_compare _comp;
-        extended_key_compare( Node              *end  = 0,
+        extended_key_compare( Node *             end  = 0,
                               const key_compare &comp = key_compare() )
             : _end( end ),
               _comp( comp ) {}
         bool operator()( const key_type &a, const key_type &b ) const {
-            if ( &a == &_end->data.first ) { return 0; }
-            if ( &b == &_end->data.first ) { return 1; }
+            if ( &a == &_end->data.first ) { return false; }
+            if ( &b == &_end->data.first ) { return true; }
             return _comp( a, b );
         }
         extended_key_compare &operator=( const extended_key_compare &other ) {
@@ -104,9 +104,9 @@ private:
 
     template < typename T > class Iterator {
     public:
-        typedef T                              &reference;
-        typedef const T                        &const_reference;
-        typedef T                              *pointer;
+        typedef T &                             reference;
+        typedef const T &                       const_reference;
+        typedef T *                             pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
 
@@ -190,7 +190,7 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    rb_tree( const key_compare    &comp  = key_compare(),
+    rb_tree( const key_compare &   comp  = key_compare(),
              const allocator_type &alloc = node_allocator_type() )
         : _allocator( alloc ),
           _end( _node_dup( node_type( &_nil, &_nil ) ) ),
@@ -298,6 +298,26 @@ public:
     /* -------------------------------- Allocator ------------------------------- */
 
     allocator_type get_allocator() { return _allocator; }
+
+    /* -------------------------- Relational operators -------------------------- */
+
+    bool operator==( const rb_tree &other ) const {
+        return size() == other.size() && equal( begin(), end(), other.begin() );
+    }
+    bool operator!=( const rb_tree &other ) const {
+        return !( *this == other );
+    }
+    bool operator<( const rb_tree &other ) const {
+        return lexicographical_compare( begin(),
+                                        end(),
+                                        other.begin(),
+                                        other.end() );
+    }
+    bool operator<=( const rb_tree &other ) const {
+        return *this == other || *this < other;
+    }
+    bool operator>( const rb_tree &other ) const { return !( *this <= other ); }
+    bool operator>=( const rb_tree &other ) const { return !( *this < other ); }
 
     /* --------------------------------- Helper --------------------------------- */
 
@@ -572,48 +592,6 @@ template < class K, class V, class Comp, class Allocator >
 typename ft::rb_tree< K, V, Comp, Allocator >::node_type
     ft::rb_tree< K, V, Comp, Allocator >::_nil
     = rb_tree< K, V, Comp, Allocator >::node_type();
-
-/* -------------------------- Relational operators -------------------------- */
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator==( const rb_tree< Key, T, Compare, Alloc > &lhs,
-                 const rb_tree< Key, T, Compare, Alloc > &rhs ) {
-    return lhs.size() == rhs.size()
-           && equal( lhs.begin(), lhs.end(), rhs.begin() );
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator!=( const rb_tree< Key, T, Compare, Alloc > &lhs,
-                 const rb_tree< Key, T, Compare, Alloc > &rhs ) {
-    return !( lhs == rhs );
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator<( const rb_tree< Key, T, Compare, Alloc > &lhs,
-                const rb_tree< Key, T, Compare, Alloc > &rhs ) {
-    return lexicographical_compare( lhs.begin(),
-                                    lhs.end(),
-                                    rhs.begin(),
-                                    rhs.end() );
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator<=( const rb_tree< Key, T, Compare, Alloc > &lhs,
-                 const rb_tree< Key, T, Compare, Alloc > &rhs ) {
-    return lhs < rhs || lhs == rhs;
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator>( const rb_tree< Key, T, Compare, Alloc > &lhs,
-                const rb_tree< Key, T, Compare, Alloc > &rhs ) {
-    return !( lhs <= rhs );
-}
-
-template < class Key, class T, class Compare, class Alloc >
-bool operator>=( const rb_tree< Key, T, Compare, Alloc > &lhs,
-                 const rb_tree< Key, T, Compare, Alloc > &rhs ) {
-    return !( lhs < rhs );
-}
 
 /* ---------------------------------- Swap ---------------------------------- */
 

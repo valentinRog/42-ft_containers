@@ -59,33 +59,13 @@ template < typename K, typename V > struct getter {
     V         operator()( std::pair< K, V > p ) const { return p.second; }
 };
 
-#define T1 int
-#define TESTED_NAMESPACE std
-
-struct ft_more {
-    bool operator()( const T1 &first, const T1 &second ) const {
-        return ( first > second );
-    }
-};
-
-typedef TESTED_NAMESPACE::set< T1, ft_more >           ft_st;
-typedef TESTED_NAMESPACE::set< T1, ft_more >::iterator ft_st_it;
+void cmp(const ft::stack<int>& s1, const ft::stack<int>& s2) {
+    std::cout << (s1 == s2) << std::endl;
+}
 
 int main( void ) {
-    ft_st st;
-
-    st.insert( 42 );
-    st.insert( 25 );
-    st.insert( 80 );
-    st.insert( 12 );
-    st.insert( 12 );
-    st.insert( 27 );
-    st.insert( 90 );
-    st.insert( 25 );
-
-    for ( ft_st::const_iterator it = st.begin(); it != st.end(); it++ ) {
-        std::cout << *it << std::endl;
-    }
-
-    return ( 0 );
+    ft::stack<int> s;
+    
+    s.push(5);
+    std::cout << (s < ft::stack<int>()) << std::endl;
 }

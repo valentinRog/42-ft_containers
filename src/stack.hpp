@@ -13,49 +13,25 @@ public:
     typedef typename container_type::reference       reference;
     typedef typename container_type::const_reference const_reference;
 
-private:
-    container_type _c;
+protected:
+    container_type c;
 
 public:
-    explicit stack( const container_type &c = container_type() ) : _c( c ) {}
+    explicit stack( const container_type &c = container_type() ) : c( c ) {}
 
-    bool            empty() const { return _c.empty(); }
-    size_type       size() const { return _c.size(); }
-    reference       top() { return _c.back(); }
-    const_reference top() const { return _c.back(); }
-    void            push( const value_type &val ) { _c.push_back( val ); }
-    void            pop() { _c.pop_back(); }
+    bool            empty() const { return c.empty(); }
+    size_type       size() const { return c.size(); }
+    reference       top() { return c.back(); }
+    const_reference top() const { return c.back(); }
+    void            push( const value_type &val ) { c.push_back( val ); }
+    void            pop() { c.pop_back(); }
 
-    template < typename U >
-    friend bool operator==( const stack< U, Container > &lhs,
-                            const stack< U, Container > &rhs ) {
-        return lhs._c == rhs._c;
-    }
-    template < typename U >
-    friend bool operator!=( const stack< U, Container > &lhs,
-                            const stack< U, Container > &rhs ) {
-        return lhs._c != rhs._c;
-    }
-    template < typename U >
-    friend bool operator<( const stack< U, Container > &lhs,
-                           const stack< U, Container > &rhs ) {
-        return lhs._c < rhs._c;
-    }
-    template < typename U >
-    friend bool operator<=( const stack< U, Container > &lhs,
-                            const stack< U, Container > &rhs ) {
-        return lhs._c <= rhs._c;
-    }
-    template < typename U >
-    friend bool operator>( const stack< U, Container > &lhs,
-                           const stack< U, Container > &rhs ) {
-        return lhs._c > rhs._c;
-    }
-    template < typename U >
-    friend bool operator>=( const stack< U, Container > &lhs,
-                            const stack< U, Container > &rhs ) {
-        return lhs._c >= rhs._c;
-    }
+    bool operator==( const stack &other ) const { return c == other.c; }
+    bool operator!=( const stack &other ) const { return c != other.c; }
+    bool operator<( const stack &other ) const { return c < other.c; }
+    bool operator<=( const stack &other ) const { return c <= other.c; }
+    bool operator>( const stack &other ) const { return c > other.c; }
+    bool operator>=( const stack &other ) const { return c >= other.c; }
 };
 
 }

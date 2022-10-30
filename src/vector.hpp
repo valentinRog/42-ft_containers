@@ -341,44 +341,26 @@ public:
 
     allocator_type get_allocator() const { return _allocator; }
 
+    /* -------------------------- Relational operators -------------------------- */
+
+    bool operator==( const vector &other ) const {
+        return size() == other.size() && equal( begin(), end(), other.begin() );
+    }
+    bool operator!=( const vector &other ) const { return !( *this == other ); }
+    bool operator<( const vector &other ) const {
+        return lexicographical_compare( begin(),
+                                        end(),
+                                        other.begin(),
+                                        other.end() );
+    }
+    bool operator<=( const vector &other ) const {
+        return *this == other || *this < other;
+    }
+    bool operator>( const vector &other ) const { return !( *this <= other ); }
+    bool operator>=( const vector &other ) const { return !( *this < other ); }
+
     /* -------------------------------------------------------------------------- */
 };
-
-/* -------------------------- Relational operators -------------------------- */
-
-template < class T, class Alloc >
-bool operator==( const vector< T, Alloc > &lhs,
-                 const vector< T, Alloc > &rhs ) {
-    return lhs.size() == rhs.size()
-               ? ft::equal( lhs.begin(), lhs.end(), rhs.begin() )
-               : false;
-}
-template < class T, class Alloc >
-bool operator!=( const vector< T, Alloc > &lhs,
-                 const vector< T, Alloc > &rhs ) {
-    return lhs.size() < rhs.size() ? true : !( lhs == rhs );
-}
-template < class T, class Alloc >
-bool operator<( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
-    return ft::lexicographical_compare( lhs.begin(),
-                                        lhs.end(),
-                                        rhs.begin(),
-                                        rhs.end() );
-}
-template < class T, class Alloc >
-bool operator<=( const vector< T, Alloc > &lhs,
-                 const vector< T, Alloc > &rhs ) {
-    return lhs < rhs || lhs == rhs;
-}
-template < class T, class Alloc >
-bool operator>( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
-    return !( lhs <= rhs );
-}
-template < class T, class Alloc >
-bool operator>=( const vector< T, Alloc > &lhs,
-                 const vector< T, Alloc > &rhs ) {
-    return !( lhs < rhs );
-}
 
 /* ---------------------------------- Swap ---------------------------------- */
 
