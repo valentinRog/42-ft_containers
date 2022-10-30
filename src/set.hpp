@@ -147,24 +147,17 @@ public:
     /* -------------------------------- Modifiers ------------------------------- */
 
     ft::pair< iterator, bool > insert( const value_type &val ) {
-        iterator it = _tree.find( val );
-        if ( it != _tree.end() ) {
-            return ft::pair< iterator, bool >( it, false );
-        }
-        _tree.insert( typename tree_type::value_type( val, val ) );
-        return ft::pair< iterator, bool >( _tree.find( val ), true );
+        return _tree.insert( ft::make_pair( val, val ) );
     }
-
     iterator insert( iterator position, const value_type &val ) {
-        return _tree.insert( tree_const_iterator( position ).get_node(),
-                             typename tree_type::value_type( val, val ) );
+        return _tree
+            .insert( tree_const_iterator( position ).get_node(),
+                     ft::make_pair( val, val ) )
+            .first;
     }
-
     template < class InputIterator >
     void insert( InputIterator first, InputIterator last ) {
-        for ( ; first != last; first++ ) {
-            _tree.insert( typename tree_type::value_type( *first, *first ) );
-        }
+        for ( ; first != last; first++ ) { insert( *first ); }
     }
 
     void      erase( iterator position ) { _tree.erase( *position ); }

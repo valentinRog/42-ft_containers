@@ -237,8 +237,10 @@ public:
 
     /* -------------------------------- Modifiers ------------------------------- */
 
-    iterator insert( const value_type &data ) { return _insert( data, _root ); }
-    iterator insert( iterator hint, const value_type &data ) {
+    ft::pair< iterator, bool > insert( const value_type &data ) {
+        return _insert( data, _root );
+    }
+    ft::pair< iterator, bool > insert( iterator hint, const value_type &data ) {
         iterator right = ++iterator( hint );
         if ( hint.get_node() == &_nil || hint == end()
              || _key_compare( data.first, hint->first )
@@ -250,12 +252,7 @@ public:
     }
     template < class InputIterator >
     void insert( InputIterator first, InputIterator last ) {
-        for ( ; first != last; first++ ) {
-            iterator bound = lower_bound( first->first );
-            if ( _key_compare( first->first, bound->first ) ) {
-                insert( bound, *first );
-            }
-        }
+        for ( ; first != last; first++ ) { insert( *first ); }
     }
 
     size_type erase( const key_type &k ) { return _remove( _find_node( k ) ); }
@@ -504,7 +501,8 @@ private:
         x->p     = y;
     }
 
-    node_pointer _insert( const value_type &data, node_pointer ancestor ) {
+    ft::pair< node_pointer, bool > _insert( const value_type &data,
+                                            node_pointer      ancestor ) {
         node_pointer p( 0 );
         int          count = 0;
         while ( ancestor != &_nil ) {
@@ -515,8 +513,7 @@ private:
             } else if ( _key_compare( ancestor->data.first, data.first ) ) {
                 ancestor = ancestor->right;
             } else {
-                ancestor->data.second = data.second;
-                return ancestor;
+                return ft::make_pair( ancestor, false );
             }
         }
         node_pointer new_node = _node_dup( Node( &_nil, &_nil, data ) );
@@ -531,7 +528,7 @@ private:
         }
         _insert_fixup( new_node );
         _size++;
-        return new_node;
+        return ft::make_pair( new_node, true );
     }
 
     void _insert_fixup( node_pointer z ) {

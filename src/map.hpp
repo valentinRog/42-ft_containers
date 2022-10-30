@@ -148,10 +148,7 @@ public:
     /* ----------------------------- Element access ----------------------------- */
 
     mapped_type &operator[]( const key_type &k ) {
-        iterator it = _tree.find( k );
-        return it != end()
-                   ? it->second
-                   : _tree.insert( value_type( k, mapped_type() ) )->second;
+        return _tree.insert( value_type( k, mapped_type() ) ).first->second;
     }
     mapped_type &at( const key_type &k ) {
         iterator it = _tree.find( k );
@@ -167,16 +164,10 @@ public:
     /* -------------------------------- Modifiers ------------------------------- */
 
     ft::pair< iterator, bool > insert( const value_type &val ) {
-        iterator it = _tree.find( val.first );
-        if ( it != _tree.end() ) {
-            return ft::pair< iterator, bool >( it, false );
-        }
-        _tree.insert( val );
-        it = _tree.find( val.first );
-        return ft::pair< iterator, bool >( it, true );
+        return _tree.insert( val );
     }
     iterator insert( iterator position, const value_type &val ) {
-        return _tree.insert( position, val );
+        return _tree.insert( position, val ).first;
     }
     template < class InputIterator >
     void insert( InputIterator first, InputIterator last ) {

@@ -59,11 +59,15 @@ template < typename K, typename V > struct getter {
     V         operator()( std::pair< K, V > p ) const { return p.second; }
 };
 
-void cmp(const ft::stack<int>& s1, const ft::stack<int>& s2) {
-    std::cout << (s1 == s2) << std::endl;
+void cmp( const ft::stack< int > &s1, const ft::stack< int > &s2 ) {
+    std::cout << ( s1 == s2 ) << std::endl;
 }
 
-int main( void ) {
-    ft::map<int, int> m;
-    m[8] = 9;    
+int main(  ) {
+    typedef ft::map<int, int> map_type;
+    map_type m;
+    
+    m.insert(m.begin(), map_type::value_type(4, 5));
+    m.insert(m.begin(), map_type::value_type(-4, 5));
+    m[5]  = 9;
 }
