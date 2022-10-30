@@ -64,8 +64,6 @@ void cmp(const ft::stack<int>& s1, const ft::stack<int>& s2) {
 }
 
 int main( void ) {
-    ft::stack<int> s;
-    
-    s.push(5);
-    std::cout << (s < ft::stack<int>()) << std::endl;
+    ft::map<int, int> m;
+    m[8] = 9;    
 }

@@ -25,7 +25,6 @@ public:
     typedef typename tree_type::mapped_type     mapped_type;
     typedef typename tree_type::value_type      value_type;
     typedef typename tree_type::key_compare     key_compare;
-    typedef typename tree_type::value_compare   value_compare;
     typedef typename tree_type::allocator_type  allocator_type;
     typedef typename tree_type::reference       reference;
     typedef typename tree_type::const_reference const_reference;
@@ -33,6 +32,12 @@ public:
     typedef typename tree_type::const_pointer   const_pointer;
     typedef typename tree_type::difference_type difference_type;
     typedef typename tree_type::size_type       size_type;
+
+    struct value_compare {
+        bool operator()( const value_type &a, const value_type &b ) const {
+            return key_compare()( a.first, b.first );
+        }
+    };
 
     /* -------------------------------- Iterator -------------------------------- */
 
@@ -101,14 +106,14 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    explicit map( const key_compare    &comp  = key_compare(),
+    explicit map( const key_compare &   comp  = key_compare(),
                   const allocator_type &alloc = allocator_type() )
         : _tree( tree_type( comp, alloc ) ) {}
 
     template < class InputIterator >
     map( InputIterator         first,
          InputIterator         last,
-         const key_compare    &comp  = key_compare(),
+         const key_compare &   comp  = key_compare(),
          const allocator_type &alloc = allocator_type() )
         : _tree( tree_type( comp, alloc ) ) {
         insert( first, last );

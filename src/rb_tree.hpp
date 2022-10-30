@@ -28,12 +28,6 @@ public:
     typedef typename allocator_type::const_pointer   const_pointer;
     typedef std::size_t                              size_type;
 
-    struct value_compare {
-        bool operator()( const value_type &a, const value_type &b ) const {
-            return key_compare()( a.first, b.first );
-        }
-    };
-
 private:
     /* ---------------------------------- Node ---------------------------------- */
 
@@ -76,9 +70,11 @@ private:
         }
     };
 
-    struct extended_key_compare {
+    class extended_key_compare {
         Node *      _end;
         key_compare _comp;
+
+    public:
         extended_key_compare( Node *             end  = 0,
                               const key_compare &comp = key_compare() )
             : _end( end ),
@@ -93,6 +89,7 @@ private:
             _comp = other._comp;
             return *this;
         }
+        const key_compare &key_comp() const { return _comp; }
     };
 
     typedef Node node_type;
@@ -201,7 +198,8 @@ public:
         : _allocator( other._allocator ),
           _end( _node_dup( node_type( &_nil, &_nil ) ) ),
           _root( _end ),
-          _key_compare( extended_key_compare( _end, other.key_comp() ) ),
+          _key_compare(
+              extended_key_compare( _end, other._key_compare.key_comp() ) ),
           _size( 0 ) {
         insert( other.cbegin(), other.cend() );
     }
@@ -253,7 +251,10 @@ public:
     template < class InputIterator >
     void insert( InputIterator first, InputIterator last ) {
         for ( ; first != last; first++ ) {
-            if ( find( first->first ) == end() ) { insert( *first ); }
+            iterator bound = lower_bound( first->first );
+            if ( _key_compare( first->first, bound->first ) ) {
+                insert( bound, *first );
+            }
         }
     }
 
@@ -276,10 +277,6 @@ public:
     }
 
     void clear() { erase( begin(), end() ); }
-
-    /* -------------------------------- Observers ------------------------------- */
-
-    key_compare key_comp() const { return key_compare(); }
 
     /* ------------------------------- Operations ------------------------------- */
 
