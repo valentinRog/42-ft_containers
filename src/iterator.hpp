@@ -1,6 +1,7 @@
 #pragma once
 
 namespace ft {
+
 /* ---------------------------- Reverse iterator ---------------------------- */
 
 template < typename T > class reverse_iterator {

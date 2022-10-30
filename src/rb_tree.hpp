@@ -359,12 +359,6 @@ private:
             }
         }
         return current;
-        const_iterator it = end();
-        while ( true ) {
-            if ( _is_upper_bound( it.get_node(), k ) ) { break; }
-            it--;
-        }
-        return it.get_node();
     }
 
     bool _is_lower_bound( node_pointer current, const key_type &k ) const {
@@ -525,12 +519,9 @@ private:
                 return ancestor;
             }
         }
-        node_pointer new_node = _allocator.allocate( 1 );
-        _allocator.construct( new_node, data );
-        new_node->red   = true;
-        new_node->left  = &_nil;
-        new_node->right = &_nil;
-        new_node->p     = p;
+        node_pointer new_node = _node_dup( Node( &_nil, &_nil, data ) );
+        new_node->red         = true;
+        new_node->p           = p;
         if ( !p ) {
             _root = new_node;
         } else if ( _key_compare( new_node->data.first, p->data.first ) ) {
