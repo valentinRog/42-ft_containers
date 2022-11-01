@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <typeinfo>
 
 namespace ft {
 
@@ -197,13 +198,8 @@ public:
             size_type len( 1 );
             while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
-            for ( size_type i( 0 ); i < len; i++ ) {
-                _allocator.construct( tmp + i, i < _size ? _data[i] : T() );
-            }
-            size_type size = _size;
-            clear();
+            _uninitialized_move( _data, tmp, _size );
             _allocator.deallocate( _data, _capacity );
-            _size     = size;
             _capacity = len;
             _data     = tmp;
         }
@@ -266,7 +262,10 @@ public:
         insert( begin(), n, val );
     }
 
-    void push_back( const value_type &val ) { insert( end(), val ); }
+    void push_back( const value_type &val ) {
+        reserve( _size + 1 );
+        _allocator.construct( _data + _size++, val );
+    }
 
     void pop_back() {
         if ( _size ) {
@@ -284,12 +283,9 @@ public:
     void insert( iterator position, size_type n, const value_type &val ) {
         typename iterator::difference_type i = position - begin();
         reserve( _size + n );
+        _uninitialized_move( _data + i, _data + i + n, _size - i );
+        _uninitialized_fill_n( _data + i, n, val );
         _size += n;
-        position = begin() + i;
-        for ( reverse_iterator rit = rbegin(); rit != rend() - i - n; rit++ ) {
-            *rit = rit[n];
-        }
-        for ( iterator it = position; it < position + n; it++ ) { *it = val; }
     }
 
     template < typename U >
@@ -302,12 +298,9 @@ public:
         size_type                          n( 0 );
         for ( U it = first; it != last; it++ ) { n++; }
         reserve( _size + n );
+        _uninitialized_move( _data + i, _data + i + n, _size - i );
+        _uninitialized_copy( first, last, _data + i );
         _size += n;
-        position = begin() + i;
-        for ( reverse_iterator rit = rbegin(); rit != rend() - i - n; rit++ ) {
-            *rit = rit[n];
-        }
-        for ( U it = first; it != last; it++, position++ ) { *position = *it; }
     }
 
     iterator erase( iterator position ) {
@@ -358,6 +351,34 @@ public:
     }
     bool operator>( const vector &other ) const { return !( *this <= other ); }
     bool operator>=( const vector &other ) const { return !( *this < other ); }
+
+    /* --------------------------------- Helpers -------------------------------- */
+
+    template < typename U >
+    void _uninitialized_copy( U first, U last, pointer dst ) {
+        for ( ; first != last; first++, dst++ ) {
+            _allocator.construct( dst, *first );
+        }
+    }
+
+    void
+    _uninitialized_fill_n( pointer dst, size_type n, const value_type &val ) {
+        while ( n-- ) { _allocator.construct( dst + n, val ); }
+    }
+
+    void _uninitialized_move( pointer src, pointer dst, size_type n ) {
+        if ( dst < src ) {
+            for ( size_type i( 0 ); i < n; i++ ) {
+                _allocator.construct( dst + i, src[i] );
+                _allocator.destroy( src + i );
+            }
+        } else {
+            while ( n-- ) {
+                _allocator.construct( dst + n, src[n] );
+                _allocator.destroy( src + n );
+            }
+        }
+    }
 
     /* -------------------------------------------------------------------------- */
 };

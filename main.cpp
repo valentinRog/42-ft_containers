@@ -63,11 +63,13 @@ void cmp( const ft::stack< int > &s1, const ft::stack< int > &s2 ) {
     std::cout << ( s1 == s2 ) << std::endl;
 }
 
-int main(  ) {
-    typedef ft::map<int, int> map_type;
-    map_type m;
-    
-    m.insert(m.begin(), map_type::value_type(4, 5));
-    m.insert(m.begin(), map_type::value_type(-4, 5));
-    m[5]  = 9;
+int main() {
+        ft::vector< int > v;
+
+
+        v.assign(10, 19);
+
+        v.insert(v.end(), 4, 42);
+
+       std::cout << v << std::endl;
 }
