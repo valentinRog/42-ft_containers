@@ -17,6 +17,7 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
 
     template < typename U > class Iterator {
     public:
+        typedef T                               value_type;
         typedef U &                             reference;
         typedef U *                             pointer;
         typedef std::ptrdiff_t                  difference_type;
@@ -198,7 +199,7 @@ public:
             size_type len( 1 );
             while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
-            _uninitialized_move( _data, tmp, _size );
+            std::uninitialized_copy( _data, _data + _size, tmp );
             _allocator.deallocate( _data, _capacity );
             _capacity = len;
             _data     = tmp;
@@ -283,8 +284,15 @@ public:
     void insert( iterator position, size_type n, const value_type &val ) {
         typename iterator::difference_type i = position - begin();
         reserve( _size + n );
-        _uninitialized_move( _data + i, _data + i + n, _size - i );
-        _uninitialized_fill_n( _data + i, n, val );
+        size_type x = std::min( n, _size - i );
+        std::uninitialized_copy( _data + _size - x,
+                                 _data + _size,
+                                 _data + _size - x + n );
+        std::copy_backward( _data + i,
+                            _data + _size - x,
+                            _data + _size - x + n );
+        std::uninitialized_fill( _data + _size, _data + _size - x + n, val );
+        std::fill( _data + i, _data + i + x, val );
         _size += n;
     }
 
@@ -298,8 +306,17 @@ public:
         size_type                          n( 0 );
         for ( U it = first; it != last; it++ ) { n++; }
         reserve( _size + n );
-        _uninitialized_move( _data + i, _data + i + n, _size - i );
-        _uninitialized_copy( first, last, _data + i );
+        size_type x = std::min( n, _size - i );
+        std::uninitialized_copy( _data + _size - x,
+                                 _data + _size,
+                                 _data + _size - x + n );
+        std::copy_backward( _data + i,
+                            _data + _size - x,
+                            _data + _size - x + n );
+        U tmp( last );
+        std::advance( tmp, x - n );
+        std::copy( first, tmp, _data + i );
+        std::uninitialized_copy( tmp, last, _data + _size );
         _size += n;
     }
 

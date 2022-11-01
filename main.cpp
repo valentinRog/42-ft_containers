@@ -64,12 +64,14 @@ void cmp( const ft::stack< int > &s1, const ft::stack< int > &s2 ) {
 }
 
 int main() {
-        ft::vector< int > v;
 
+    ft::vector<int> v;
+    v.push_back(8);
 
-        v.assign(10, 19);
+    std::vector<int> v2(20, 6);
 
-        v.insert(v.end(), 4, 42);
+    v.insert(v.end(), v2.begin(), v2.end());
 
-       std::cout << v << std::endl;
+    std::cout << v << std::endl;
+
 }
