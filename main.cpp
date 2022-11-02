@@ -65,10 +65,14 @@ void cmp( const ft::stack< int > &s1, const ft::stack< int > &s2 ) {
 
 int main() {
 
-    ft::vector<int> v;
-    
-    for (std::size_t i(0); i < 100000000; i++) {
-        v.push_back(i);
-    }
+    std::vector< std::string > v(10);
 
+    for (unsigned long int i = 0; i < v.size(); ++i)
+		v[i] = std::string((v.size() - i), i + 65);
+
+    std::cout << v << std::endl;
+
+    v.erase(v.begin() + 2, v.begin() + 4);
+
+    std::cout << v << std::endl;
 }

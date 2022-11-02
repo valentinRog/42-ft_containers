@@ -201,7 +201,7 @@ public:
             while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
             ft::_uninitialized_copy_a( _data, _data + _size, tmp, _allocator );
-            ft::_destroy(_data, _data + _size, _allocator);
+            ft::_destroy( _data, _data + _size, _allocator );
             _allocator.deallocate( _data, _capacity );
             _capacity = len;
             _data     = tmp;
@@ -266,8 +266,8 @@ public:
     }
 
     void push_back( const value_type &val ) {
-        reserve(_size + 1);
-        _allocator.construct(_data + _size, val);
+        reserve( _size + 1 );
+        _allocator.construct( _data + _size, val );
         _size++;
     }
 
@@ -329,12 +329,9 @@ public:
     }
 
     iterator erase( iterator first, iterator last ) {
-        size_type i = last - first;
-        for ( iterator it = first; it != end(); it++ ) {
-            if ( it >= last ) { it[-i] = *it; }
-            _allocator.destroy( it.operator->() );
-        }
-        _size -= i;
+        std::copy( last, end(), first );
+        ft::_destroy( last, end(), _allocator );
+        _size -= last - first;
         return first;
     }
 
@@ -345,9 +342,7 @@ public:
     }
 
     void clear() {
-        for ( size_type i = 0; i < _size; i++ ) {
-            _allocator.destroy( _data + i );
-        }
+        ft::_destroy( begin(), end(), _allocator );
         _size = 0;
     }
 
