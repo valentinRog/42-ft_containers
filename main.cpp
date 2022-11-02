@@ -66,12 +66,9 @@ void cmp( const ft::stack< int > &s1, const ft::stack< int > &s2 ) {
 int main() {
 
     ft::vector<int> v;
-    v.push_back(8);
-
-    std::vector<int> v2(20, 6);
-
-    v.insert(v.end(), v2.begin(), v2.end());
-
-    std::cout << v << std::endl;
+    
+    for (std::size_t i(0); i < 100000000; i++) {
+        v.push_back(i);
+    }
 
 }
