@@ -1,5 +1,6 @@
 #pragma once
 
+#include "_uninitialized.hpp"
 #include "algorithm.hpp"
 #include "iterator.hpp"
 #include "type_traits.hpp"
@@ -17,7 +18,7 @@ template < typename T, class Allocator = std::allocator< T > > class vector {
 
     template < typename U > class Iterator {
     public:
-        typedef T                               value_type;
+        typedef U                               value_type;
         typedef U &                             reference;
         typedef U *                             pointer;
         typedef std::ptrdiff_t                  difference_type;
@@ -199,7 +200,7 @@ public:
             size_type len( 1 );
             while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
-            std::uninitialized_copy( _data, _data + _size, tmp );
+            ft::_uninitialized_copy_a( _data, _data + _size, tmp, _allocator );
             _allocator.deallocate( _data, _capacity );
             _capacity = len;
             _data     = tmp;
@@ -285,9 +286,10 @@ public:
         typename iterator::difference_type i = position - begin();
         reserve( _size + n );
         size_type x = std::min( n, _size - i );
-        std::uninitialized_copy( _data + _size - x,
-                                 _data + _size,
-                                 _data + _size - x + n );
+        ft::_uninitialized_copy_a( _data + _size - x,
+                                   _data + _size,
+                                   _data + _size - x + n,
+                                   _allocator );
         std::copy_backward( _data + i,
                             _data + _size - x,
                             _data + _size - x + n );
@@ -302,21 +304,21 @@ public:
                  U        last,
                  typename ft::enable_if< !ft::is_integral< U >::value, U >::type
                      * = 0 ) {
-        typename iterator::difference_type i = position - begin();
-        size_type                          n( 0 );
-        for ( U it = first; it != last; it++ ) { n++; }
+        size_type i = position - begin();
+        size_type n = std::distance( first, last );
         reserve( _size + n );
         size_type x = std::min( n, _size - i );
-        std::uninitialized_copy( _data + _size - x,
-                                 _data + _size,
-                                 _data + _size - x + n );
+        ft::_uninitialized_copy_a( _data + _size - x,
+                                   _data + _size,
+                                   _data + _size - x + n,
+                                   _allocator );
         std::copy_backward( _data + i,
                             _data + _size - x,
                             _data + _size - x + n );
         U tmp( last );
         std::advance( tmp, x - n );
         std::copy( first, tmp, _data + i );
-        std::uninitialized_copy( tmp, last, _data + _size );
+        ft::_uninitialized_copy_a( tmp, last, _data + _size, _allocator );
         _size += n;
     }
 
@@ -368,34 +370,6 @@ public:
     }
     bool operator>( const vector &other ) const { return !( *this <= other ); }
     bool operator>=( const vector &other ) const { return !( *this < other ); }
-
-    /* --------------------------------- Helpers -------------------------------- */
-
-    template < typename U >
-    void _uninitialized_copy( U first, U last, pointer dst ) {
-        for ( ; first != last; first++, dst++ ) {
-            _allocator.construct( dst, *first );
-        }
-    }
-
-    void
-    _uninitialized_fill_n( pointer dst, size_type n, const value_type &val ) {
-        while ( n-- ) { _allocator.construct( dst + n, val ); }
-    }
-
-    void _uninitialized_move( pointer src, pointer dst, size_type n ) {
-        if ( dst < src ) {
-            for ( size_type i( 0 ); i < n; i++ ) {
-                _allocator.construct( dst + i, src[i] );
-                _allocator.destroy( src + i );
-            }
-        } else {
-            while ( n-- ) {
-                _allocator.construct( dst + n, src[n] );
-                _allocator.destroy( src + n );
-            }
-        }
-    }
 
     /* -------------------------------------------------------------------------- */
 };
