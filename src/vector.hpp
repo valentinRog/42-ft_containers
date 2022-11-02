@@ -201,6 +201,7 @@ public:
             while ( len < n ) { len <<= 1; }
             pointer tmp = _allocator.allocate( len );
             ft::_uninitialized_copy_a( _data, _data + _size, tmp, _allocator );
+            ft::_destroy(_data, _data + _size, _allocator);
             _allocator.deallocate( _data, _capacity );
             _capacity = len;
             _data     = tmp;
@@ -265,8 +266,9 @@ public:
     }
 
     void push_back( const value_type &val ) {
-        reserve( _size + 1 );
-        _allocator.construct( _data + _size++, val );
+        reserve(_size + 1);
+        _allocator.construct(_data + _size, val);
+        _size++;
     }
 
     void pop_back() {
