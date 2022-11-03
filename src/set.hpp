@@ -1,7 +1,7 @@
 #pragma once
 
 #include "algorithm.hpp"
-#include "rb_tree.hpp"
+#include "_rb_tree.hpp"
 #include "utility.hpp"
 
 namespace ft {
@@ -13,7 +13,7 @@ class set {
 
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef rb_tree<
+    typedef _rb_tree<
         T,
         T,
         Compare,

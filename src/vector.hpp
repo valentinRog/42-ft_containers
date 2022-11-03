@@ -8,11 +8,10 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
-#include <typeinfo>
 
 namespace ft {
 
-template < typename T, class Allocator = std::allocator< T > > class vector {
+template < typename T, typename Allocator = std::allocator< T > > class vector {
 
     /* -------------------------------- Iterator -------------------------------- */
 

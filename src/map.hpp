@@ -2,7 +2,7 @@
 
 #include "algorithm.hpp"
 #include "iterator.hpp"
-#include "rb_tree.hpp"
+#include "_rb_tree.hpp"
 
 namespace ft {
 template < typename K,
@@ -13,7 +13,7 @@ class map {
 
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef typename ft::rb_tree< K, V, Comp, Allocator > tree_type;
+    typedef typename ft::_rb_tree< K, V, Comp, Allocator > tree_type;
     typedef typename tree_type::iterator                  tree_iterator;
     typedef typename tree_type::const_iterator            tree_const_iterator;
     typedef typename tree_type::reverse_iterator          tree_reverse_iterator;
