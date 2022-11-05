@@ -163,7 +163,6 @@ public:
           _data( 0 ),
           _capacity( 0 ),
           _size( 0 ) {
-        reserve( std::distance( first, last ) );
         assign( first, last );
     }
 
@@ -203,9 +202,15 @@ public:
 
     bool empty() const { return !_size; }
 
+    // void _reserve( size_type n ) {
+    //     if ( n > _capacity ) {
+    //         if ( _size << 1 > n ) { n = _size << 1; }
+    //         reserve(n);
+    //     }
+    // }
+
     void reserve( size_type n ) {
         if ( n > _capacity ) {
-            if ( _size << 1 > n ) { n = _size << 1; }
             pointer tmp = _allocator.allocate( n );
             ft::_uninitialized_copy_a( _data, _data + _size, tmp, _allocator );
             ft::_destroy( _data, _data + _size, _allocator );
@@ -268,7 +273,7 @@ public:
     }
 
     void push_back( const value_type &val ) {
-        reserve( _size + 1 );
+        if ( _size == _capacity ) { reserve( ( _size << 1 ) | !_size ); }
         _allocator.construct( _data + _size, val );
         _size++;
     }
@@ -288,7 +293,9 @@ public:
 
     void insert( iterator position, size_type n, const value_type &val ) {
         typename iterator::difference_type i = position - begin();
-        reserve( _size + n );
+        if ( _size + n > _capacity ) {
+            reserve( std::max( _size << 1, _size + n ) );
+        }
         size_type x = std::min( n, _size - i );
         ft::_uninitialized_copy_a( _data + _size - x,
                                    _data + _size,
@@ -310,7 +317,9 @@ public:
                      * = 0 ) {
         size_type i = position - begin();
         size_type n = std::distance( first, last );
-        reserve( _size + n );
+        if ( _size + n > _capacity ) {
+            reserve( std::max( _size << 1, _size + n ) );
+        }
         size_type x = std::min( n, _size - i );
         ft::_uninitialized_copy_a( _data + _size - x,
                                    _data + _size,

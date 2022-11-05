@@ -61,20 +61,28 @@ std::ostream &operator<<( std::ostream &os, const NS::set< T > s ) {
 /* -------------------------------------------------------------------------- */
 
 int main() {
-    /* --------------------------------- Vector --------------------------------- */
-    {
-        /* ------------------------------ Construction ------------------------------ */
-
-        NS::vector< int > s1(47);
-        s1.insert(s1.end(), 800, 5);
-        std::cout << s1.capacity() << std::endl;
-
-        /* -------------------------------- Iterator -------------------------------- */
-    }
-    /* ----------------------------------- Map ---------------------------------- */
-    {
-
-    }
-    /* ----------------------------------- Set ---------------------------------- */
-    {}
+        #define VECTYPE char
+        //CONSTRUCTORS
+        NS::vector<VECTYPE> v1;
+        NS::vector<VECTYPE> v2(4, 97);
+        v1 = v2;
+        NS::vector<VECTYPE> v3(v1.begin(),v1.end());
+        NS::vector<VECTYPE> v4(v3);
+        //ELEMENT ACCESS
+        v4[1] = 65 + 1;
+        v4.at(2) = 65 + 2;
+        v4.front() = 65 + 0;
+        v4.back() = 65 + 3;
+        //ITERATORS
+        for (NS::vector<VECTYPE>::reverse_iterator it = v4.rbegin(); it != v4.rend(); it++)
+                *it += 2;
+        //CAPACITY
+        v4.resize(6, 70);
+        v4.reserve(9);
+        std::cout << v4.capacity() << std::endl;
+        v4.push_back(72);
+        v4.push_back(72);
+        v4.push_back(72);
+        v4.push_back(72);
+        std::cout << v4.capacity() << std::endl;
 }
