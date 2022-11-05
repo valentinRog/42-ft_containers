@@ -64,24 +64,12 @@ int main() {
     /* --------------------------------- Vector --------------------------------- */
     {
         /* ------------------------------ Construction ------------------------------ */
-        NS::vector< int > v1;
-        NS::vector< int > v2( 15 );
-        NS::vector< int > v3( 8, 42 );
-        int               arr[] = { 1, 2, 3 };
-        NS::vector< int > v4( arr, arr + sizeof( arr ) / sizeof( int ) );
-        NS::vector< int > v5( 4 );
 
-        std::cout << v1 << std::endl;
-        std::cout << v2 << std::endl;
-        std::cout << v3 << std::endl;
-        std::cout << v4 << std::endl;
-        std::cout << v5 << std::endl;
+        NS::vector< int > s1(47);
+        s1.insert(s1.end(), 800, 5);
+        std::cout << s1.capacity() << std::endl;
 
-        v1 = v3;
-        v2 = v1;
-
-        std::cout << v1 << std::endl;
-        std::cout << v2 << std::endl;
+        /* -------------------------------- Iterator -------------------------------- */
     }
     /* ----------------------------------- Map ---------------------------------- */
     {

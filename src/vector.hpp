@@ -20,6 +20,7 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
         typedef U                               value_type;
         typedef value_type &                    reference;
         typedef value_type *                    pointer;
+        typedef const pointer                   const_pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::random_access_iterator_tag iterator_category;
 
@@ -98,9 +99,10 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
             return ( _p <= other.operator->() );
         };
 
-        reference operator*() { return *_p; }
-        reference operator[]( difference_type i ) { return _p[i]; }
-        pointer   operator->() const { return ( _p ); };
+        reference     operator*() { return *_p; }
+        reference     operator[]( difference_type i ) { return _p[i]; }
+        pointer       operator->() { return ( _p ); };
+        const_pointer operator->() const { return ( _p ); };
 
         operator Iterator< const U >() const {
             return ( Iterator< const U >( _p ) );
@@ -147,15 +149,21 @@ public:
           _data( 0 ),
           _capacity( 0 ),
           _size( 0 ) {
+        reserve( n );
         assign( n, val );
     }
 
     template < class U >
-    vector( U first, U last, const allocator_type &alloc = allocator_type() )
+    vector(
+        U                     first,
+        U                     last,
+        const allocator_type &alloc = allocator_type(),
+        typename ft::enable_if< !ft::is_integral< U >::value, U >::type * = 0 )
         : _allocator( alloc ),
           _data( 0 ),
           _capacity( 0 ),
           _size( 0 ) {
+        reserve( std::distance( first, last ) );
         assign( first, last );
     }
 
@@ -197,13 +205,12 @@ public:
 
     void reserve( size_type n ) {
         if ( n > _capacity ) {
-            size_type len( 1 );
-            while ( len < n ) { len <<= 1; }
-            pointer tmp = _allocator.allocate( len );
+            if ( _size << 1 > n ) { n = _size << 1; }
+            pointer tmp = _allocator.allocate( n );
             ft::_uninitialized_copy_a( _data, _data + _size, tmp, _allocator );
             ft::_destroy( _data, _data + _size, _allocator );
             _allocator.deallocate( _data, _capacity );
-            _capacity = len;
+            _capacity = n;
             _data     = tmp;
         }
     }

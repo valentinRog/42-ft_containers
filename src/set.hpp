@@ -123,6 +123,13 @@ public:
 
     set( const set &other ) : _tree( other._tree ) {}
 
+    ~set() {}
+
+    set &operator=( const set &other ) {
+        _tree = other._tree;
+        return *this;
+    }
+
     /* -------------------------------- Iterators ------------------------------- */
 
     iterator               begin() { return _tree.begin(); }

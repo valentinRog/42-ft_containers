@@ -92,11 +92,6 @@ private:
             if ( &b == &_end->data.first ) { return true; }
             return _comp( a, b );
         }
-        extended_key_compare &operator=( const extended_key_compare &other ) {
-            _end  = other._end;
-            _comp = other._comp;
-            return *this;
-        }
         const key_compare &key_comp() const { return _comp; }
     };
 
@@ -236,7 +231,7 @@ public:
     /* -------------------------------- Capacity -------------------------------- */
 
     size_type size() const { return _size; }
-    size_type max_size() const { return _allocator.max_size() - 1; }
+    size_type max_size() const { return _allocator.max_size(); }
 
     /* -------------------------------- Modifiers ------------------------------- */
 
