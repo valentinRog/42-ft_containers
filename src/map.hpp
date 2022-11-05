@@ -1,8 +1,8 @@
 #pragma once
 
+#include "_Rb_tree.hpp"
 #include "algorithm.hpp"
 #include "iterator.hpp"
-#include "_rb_tree.hpp"
 
 namespace ft {
 template < typename K,
@@ -13,12 +13,9 @@ class map {
 
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef typename ft::_rb_tree< K, V, Comp, Allocator > tree_type;
-    typedef typename tree_type::iterator                  tree_iterator;
-    typedef typename tree_type::const_iterator            tree_const_iterator;
-    typedef typename tree_type::reverse_iterator          tree_reverse_iterator;
-    typedef
-        typename tree_type::const_reverse_iterator tree_const_reverse_iterator;
+    typedef typename ft::_Rb_tree< K, V, Comp, Allocator > tree_type;
+    typedef typename tree_type::iterator                   tree_iterator;
+    typedef typename tree_type::const_iterator             tree_const_iterator;
 
 public:
     typedef typename tree_type::key_type        key_type;
@@ -119,6 +116,7 @@ public:
         insert( first, last );
     }
     map( const map &other ) : _tree( other._tree ) {}
+    ~map() {}
     map &operator=( const map &other ) {
         _tree = other._tree;
         return *this;
@@ -143,7 +141,7 @@ public:
 
     bool      empty() const { return !size(); }
     size_type size() const { return _tree.size(); }
-    size_type max_size() const { return 5; }
+    size_type max_size() const { return _tree.max_size(); }
 
     /* ----------------------------- Element access ----------------------------- */
 

@@ -18,8 +18,8 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
     template < typename U > class Iterator {
     public:
         typedef U                               value_type;
-        typedef U &                             reference;
-        typedef U *                             pointer;
+        typedef value_type &                    reference;
+        typedef value_type *                    pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::random_access_iterator_tag iterator_category;
 
@@ -120,6 +120,7 @@ public:
     typedef Iterator< const value_type >             const_iterator;
     typedef ft::reverse_iterator< iterator >         reverse_iterator;
     typedef ft::reverse_iterator< const_iterator >   const_reverse_iterator;
+    typedef std::ptrdiff_t                           difference_type;
     typedef std::size_t                              size_type;
 
     /* ------------------------------- Attributes ------------------------------- */
@@ -224,29 +225,24 @@ public:
 
     /* ----------------------------- Element access ----------------------------- */
 
-    reference operator[]( size_type i ) {
-        return i >= _size ? *end() : _data[i];
-    }
-    const_reference operator[]( size_type i ) const {
-        return i >= _size ? *end() : _data[i];
-    }
+    reference       operator[]( size_type i ) { return _data[i]; }
+    const_reference operator[]( size_type i ) const { return _data[i]; }
 
     reference at( size_type i ) {
         if ( i >= _size ) { throw std::out_of_range( "Trop grand frere" ); }
         return operator[]( i );
     }
-
     const_reference at( size_type i ) const {
         if ( i >= _size ) { throw std::out_of_range( "Trop grand frere" ); }
         return operator[]( i );
     }
 
-    reference         front() { return *begin(); }
-    const_reference   front() const { return *begin(); }
-    reference         back() { return *rbegin(); }
-    const_reference   back() const { return *rbegin(); }
-    value_type *      data() { return _data; }
-    const value_type *data() const { return _data; }
+    reference       front() { return *begin(); }
+    const_reference front() const { return *begin(); }
+    reference       back() { return *rbegin(); }
+    const_reference back() const { return *rbegin(); }
+    pointer         data() { return _data; }
+    const_pointer   data() const { return _data; }
 
     /* -------------------------------- Modifiers ------------------------------- */
 
@@ -323,9 +319,7 @@ public:
         _size += n;
     }
 
-    iterator erase( iterator position ) {
-        return erase( position, position + 1 );
-    }
+    iterator erase( iterator i ) { return erase( i, i + 1 ); }
 
     iterator erase( iterator first, iterator last ) {
         std::copy( last, end(), first );

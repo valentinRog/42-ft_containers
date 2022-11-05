@@ -12,7 +12,7 @@ template < typename K,
            typename V,
            typename Comp      = std::less< K >,
            typename Allocator = std::allocator< ft::pair< const K, V > > >
-class _rb_tree {
+class _Rb_tree {
 
 public:
     /* ------------------------------ Member types ------------------------------ */
@@ -26,6 +26,7 @@ public:
     typedef typename allocator_type::const_reference const_reference;
     typedef typename allocator_type::pointer         pointer;
     typedef typename allocator_type::const_pointer   const_pointer;
+    typedef std::ptrdiff_t                           difference_type;
     typedef std::size_t                              size_type;
 
 private:
@@ -189,14 +190,14 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    _rb_tree( const key_compare &   comp  = key_compare(),
+    _Rb_tree( const key_compare &   comp  = key_compare(),
               const allocator_type &alloc = node_allocator_type() )
         : _allocator( alloc ),
           _end( _node_dup( node_type( &_nil, &_nil ) ) ),
           _root( _end ),
           _key_compare( extended_key_compare( _end, comp ) ),
           _size( 0 ) {}
-    _rb_tree( const _rb_tree &other )
+    _Rb_tree( const _Rb_tree &other )
         : _allocator( other._allocator ),
           _end( _node_dup( node_type( &_nil, &_nil ) ) ),
           _root( _end ),
@@ -205,12 +206,12 @@ public:
           _size( 0 ) {
         insert( other.cbegin(), other.cend() );
     }
-    _rb_tree &operator=( const _rb_tree &other ) {
+    _Rb_tree &operator=( const _Rb_tree &other ) {
         clear();
         insert( other.cbegin(), other.cend() );
         return *this;
     }
-    ~_rb_tree() { clear(); }
+    ~_Rb_tree() { clear(); }
 
     /* -------------------------------- Iterators ------------------------------- */
 
@@ -218,7 +219,6 @@ public:
     typedef Iterator< const value_type >           const_iterator;
     typedef ft::reverse_iterator< iterator >       reverse_iterator;
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
-    typedef typename iterator::difference_type     difference_type;
 
     iterator               begin() { return _root->min_child(); }
     const_iterator         begin() const { return _root->min_child(); }
@@ -236,6 +236,7 @@ public:
     /* -------------------------------- Capacity -------------------------------- */
 
     size_type size() const { return _size; }
+    size_type max_size() const { return _allocator.max_size() - 1; }
 
     /* -------------------------------- Modifiers ------------------------------- */
 
@@ -267,7 +268,7 @@ public:
         }
     }
 
-    void swap( _rb_tree &other ) {
+    void swap( _Rb_tree &other ) {
         std::swap( _end, other._end );
         std::swap( _root, other._root );
         std::swap( _key_compare, other._key_compare );
@@ -297,23 +298,23 @@ public:
 
     /* -------------------------- Relational operators -------------------------- */
 
-    bool operator==( const _rb_tree &other ) const {
+    bool operator==( const _Rb_tree &other ) const {
         return size() == other.size() && equal( begin(), end(), other.begin() );
     }
-    bool operator<( const _rb_tree &other ) const {
+    bool operator<( const _Rb_tree &other ) const {
         return lexicographical_compare( begin(),
                                         end(),
                                         other.begin(),
                                         other.end() );
     }
-    bool operator!=( const _rb_tree &other ) const {
+    bool operator!=( const _Rb_tree &other ) const {
         return !( *this == other );
     }
-    bool operator>( const _rb_tree &other ) const { return other < *this; }
-    bool operator<=( const _rb_tree &other ) const {
+    bool operator>( const _Rb_tree &other ) const { return other < *this; }
+    bool operator<=( const _Rb_tree &other ) const {
         return !( *this > other );
     }
-    bool operator>=( const _rb_tree &other ) const {
+    bool operator>=( const _Rb_tree &other ) const {
         return !( *this < other );
     }
 
@@ -578,15 +579,15 @@ private:
 /* --------------------------- nil initialization --------------------------- */
 
 template < class K, class V, class Comp, class Allocator >
-typename ft::_rb_tree< K, V, Comp, Allocator >::node_type
-    ft::_rb_tree< K, V, Comp, Allocator >::_nil
-    = _rb_tree< K, V, Comp, Allocator >::node_type();
+typename ft::_Rb_tree< K, V, Comp, Allocator >::node_type
+    ft::_Rb_tree< K, V, Comp, Allocator >::_nil
+    = _Rb_tree< K, V, Comp, Allocator >::node_type();
 
 /* ---------------------------------- Swap ---------------------------------- */
 
 template < class Key, class T, class Compare, class Alloc >
-void swap( _rb_tree< Key, T, Compare, Alloc > &lhs,
-           _rb_tree< Key, T, Compare, Alloc > &rhs ) {
+void swap( _Rb_tree< Key, T, Compare, Alloc > &lhs,
+           _Rb_tree< Key, T, Compare, Alloc > &rhs ) {
     lhs.swap( rhs );
 }
 

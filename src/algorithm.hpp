@@ -11,6 +11,7 @@ template < typename T > void swap( T &a, T &b ) {
 }
 
 /* ---------------------------------- Equal --------------------------------- */
+
 template < typename T1, typename T2 >
 bool equal( T1 first1, T1 last1, T2 first2 ) {
     for ( ; first1 != last1; first1++, first2++ ) {

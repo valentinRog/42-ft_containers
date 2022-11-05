@@ -1,7 +1,7 @@
 #pragma once
 
+#include "_Rb_tree.hpp"
 #include "algorithm.hpp"
-#include "_rb_tree.hpp"
 #include "utility.hpp"
 
 namespace ft {
@@ -13,7 +13,7 @@ class set {
 
     /* ------------------------------ Member types ------------------------------ */
 
-    typedef _rb_tree<
+    typedef _Rb_tree<
         T,
         T,
         Compare,
@@ -142,7 +142,7 @@ public:
 
     bool      empty() const { return !size(); }
     size_type size() const { return _tree.size(); }
-    size_type max_size() const { return 5; }
+    size_type max_size() const { return _tree.max_size(); }
 
     /* -------------------------------- Modifiers ------------------------------- */
 
@@ -209,8 +209,6 @@ public:
     bool operator<=( const set &other ) const { return _tree <= other._tree; }
     bool operator>( const set &other ) const { return _tree > other._tree; }
     bool operator>=( const set &other ) const { return _tree >= other._tree; }
-
-    /* -------------------------------------------------------------------------- */
 };
 
 /* ---------------------------------- Swap ---------------------------------- */

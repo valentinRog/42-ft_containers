@@ -3,21 +3,21 @@
 #include "src/stack.hpp"
 #include "src/vector.hpp"
 
-#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <set>
-#include <sstream>
-#include <string>
-#include <utility>
 #include <vector>
 
+#ifndef NS
+#define NS std
+#endif
+
+/* ------------------------ ostream operator overload ----------------------- */
+
 template < typename T >
-std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
-    os << "size: " << v.size() << std::endl;
-    os << "capacity: " << v.capacity() << std::endl;
+std::ostream &operator<<( std::ostream &os, const NS::vector< T > &v ) {
     os << "[";
-    for ( typename ft::vector< T >::const_iterator it = v.begin();
+    for ( typename NS::vector< T >::const_iterator it = v.begin();
           it != v.end();
           it++ ) {
         if ( it != v.begin() ) { os << ", "; }
@@ -27,51 +27,66 @@ std::ostream &operator<<( std::ostream &os, const ft::vector< T > &v ) {
     return os;
 }
 
-template < typename T >
-std::ostream &operator<<( std::ostream &os, const std::vector< T > &v ) {
-    os << "size: " << v.size() << std::endl;
-    os << "capacity: " << v.capacity() << std::endl;
-    os << "[";
-    for ( typename std::vector< T >::const_iterator it = v.begin();
-          it != v.end();
+template < typename T1, typename T2 >
+std::ostream &operator<<( std::ostream &os, const NS::pair< T1, T2 > &p ) {
+    os << p.first << ": " << p.second;
+    return os;
+}
+
+template < typename K, typename V >
+std::ostream &operator<<( std::ostream &os, const NS::map< K, V > &m ) {
+    os << "{";
+    for ( typename NS::map< K, V >::const_iterator it = m.begin();
+          it != m.end();
           it++ ) {
-        if ( it != v.begin() ) { os << ", "; }
+        if ( it != m.begin() ) { os << ", "; }
         os << *it;
     }
-    os << "]";
+    os << "}";
     return os;
 }
 
-template < typename T, typename U >
-std::ostream &operator<<( std::ostream &os, const ft::pair< T, U > &p ) {
-    os << p.first << " " << p.second;
-    return os;
-}
-template < typename T, typename U >
-std::ostream &operator<<( std::ostream &os, const std::pair< T, U > &p ) {
-    os << p.first << " " << p.second;
+template < typename T >
+std::ostream &operator<<( std::ostream &os, const NS::set< T > s ) {
+    os << "{";
+    for ( typename NS::set< T >::const_iterator it = s.begin(); it != s.end();
+          it++ ) {
+        if ( it != s.begin() ) { os << ", "; }
+        os << *it;
+    }
+    os << "}";
     return os;
 }
 
-template < typename K, typename V > struct getter {
-    typedef V return_type;
-    V         operator()( std::pair< K, V > p ) const { return p.second; }
-};
-
-void cmp( const ft::stack< int > &s1, const ft::stack< int > &s2 ) {
-    std::cout << ( s1 == s2 ) << std::endl;
-}
+/* -------------------------------------------------------------------------- */
 
 int main() {
+    /* --------------------------------- Vector --------------------------------- */
+    {
+        /* ------------------------------ Construction ------------------------------ */
+        NS::vector< int > v1;
+        NS::vector< int > v2( 15 );
+        NS::vector< int > v3( 8, 42 );
+        int               arr[] = { 1, 2, 3 };
+        NS::vector< int > v4( arr, arr + sizeof( arr ) / sizeof( int ) );
+        NS::vector< int > v5( 4 );
 
-    std::vector< std::string > v(10);
+        std::cout << v1 << std::endl;
+        std::cout << v2 << std::endl;
+        std::cout << v3 << std::endl;
+        std::cout << v4 << std::endl;
+        std::cout << v5 << std::endl;
 
-    for (unsigned long int i = 0; i < v.size(); ++i)
-		v[i] = std::string((v.size() - i), i + 65);
+        v1 = v3;
+        v2 = v1;
 
-    std::cout << v << std::endl;
+        std::cout << v1 << std::endl;
+        std::cout << v2 << std::endl;
+    }
+    /* ----------------------------------- Map ---------------------------------- */
+    {
 
-    v.erase(v.begin() + 2, v.begin() + 4);
-
-    std::cout << v << std::endl;
+    }
+    /* ----------------------------------- Set ---------------------------------- */
+    {}
 }

@@ -10,6 +10,8 @@ public:
     typedef Container                                container_type;
     typedef typename container_type::value_type      value_type;
     typedef typename container_type::size_type       size_type;
+
+private:
     typedef typename container_type::reference       reference;
     typedef typename container_type::const_reference const_reference;
 
@@ -33,5 +35,4 @@ public:
     bool operator>( const stack &other ) const { return c > other.c; }
     bool operator>=( const stack &other ) const { return c >= other.c; }
 };
-
 }

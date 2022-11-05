@@ -29,14 +29,14 @@ inline ForwardIterator _uninitialized_copy_a( InputIterator   first,
 
 template < typename T > inline void _destroy( T *p ) { p->~T(); }
 
-template < bool > struct _destroy_aux {
+template < bool > struct _Destroy_aux {
     template < typename ForwardIterator >
     static void _destroy( ForwardIterator first, ForwardIterator last ) {
         for ( ; first != last; first++ ) ft::_destroy( &( *first ) );
     }
 };
 
-template <> struct _destroy_aux< true > {
+template <> struct _Destroy_aux< true > {
     template < typename ForwardIterator >
     static void _destroy( ForwardIterator, ForwardIterator ) {}
 };
@@ -44,11 +44,11 @@ template <> struct _destroy_aux< true > {
 template < typename ForwardIterator >
 inline void _destroy( ForwardIterator first, ForwardIterator last ) {
 #ifdef __GNUG__
-    _destroy_aux< __has_trivial_destructor(
+    _Destroy_aux< __has_trivial_destructor(
         typename std::iterator_traits< ForwardIterator >::value_type ) >::
         _destroy( first, last );
 #else
-    _destroy_aux< false >::_destroy( first, last );
+    _Destroy_aux< false >::_destroy( first, last );
 #endif
 }
 
