@@ -338,18 +338,9 @@ public:
     }
 
     void swap( vector &other ) {
-        {
-            vector v( *this );
-            ft::swap( _data, v._data );
-            ft::swap( _capacity, v._capacity );
-            ft::swap( _size, v._size );
-        }
-        {
-            vector v( other );
-            ft::swap( other._data, v._data );
-            ft::swap( other._capacity, v._capacity );
-            ft::swap( other._size, v._size );
-        }
+        ft::swap( _data, other._data );
+        ft::swap( _capacity, other._capacity );
+        ft::swap( _size, other._size );
     }
 
     void clear() {
@@ -384,7 +375,8 @@ public:
 
 /* ---------------------------------- Swap ---------------------------------- */
 
-template < typename T > void swap( vector< T > &x, vector< T > &y ) {
+template < typename T, typename A >
+void swap( vector< T, A > &x, vector< T, A > &y ) {
     x.swap( y );
 }
 

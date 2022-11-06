@@ -668,6 +668,7 @@ int main() {
         vector_type v1( 10 );
         std::generate( v1.begin(), v1.end(), f );
         vector_type v2( 4, f() );
+
         NS::swap( v1, v2 );
 
         STREAM << v1 << std::endl;
