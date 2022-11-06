@@ -450,21 +450,15 @@ int main() {
         {
             vector_type v;
 
-            STREAM << v.max_size() << std::endl;
             STREAM << v.empty() << std::endl;
-            STREAM << v << std::endl;
 
             v.reserve( 10 );
 
-            STREAM << v.max_size() << std::endl;
             STREAM << v.empty() << std::endl;
-            STREAM << v << std::endl;
 
             std::generate( v.begin(), v.end(), f );
 
-            STREAM << v.max_size() << std::endl;
             STREAM << v.empty() << std::endl;
-            STREAM << v << std::endl;
 
             v.resize( 11 );
 
