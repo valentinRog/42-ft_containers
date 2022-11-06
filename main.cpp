@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <set>
 #include <vector>
@@ -49,18 +50,74 @@ private:
     A< int > _a;
 };
 
+/* ---------------------------- Custom allocator ---------------------------- */
+
+template < typename T > struct Vallocator;
+
+template <> struct Vallocator< void > {
+    typedef void              value_type;
+    typedef value_type *      pointer;
+    typedef const value_type *const_pointer;
+    typedef std::size_t       size_type;
+    typedef std::ptrdiff_t    difference_type;
+
+    template < class U > struct rebind { typedef Vallocator< U > other; };
+};
+
+template < typename T > struct Vallocator {
+    typedef T                 value_type;
+    typedef value_type &      reference;
+    typedef const value_type &const_reference;
+    typedef value_type *      pointer;
+    typedef const value_type *const_pointer;
+    typedef std::size_t       size_type;
+    typedef std::ptrdiff_t    difference_type;
+
+    template < typename U > struct rebind { typedef Vallocator< U > other; };
+
+    Vallocator() throw() {}
+    template < typename U > Vallocator( Vallocator< U > const & ) throw() {}
+
+    pointer allocate( const size_type &n,
+                      Vallocator< void >::const_pointer = 0 ) {
+        return static_cast< pointer >(
+            ::operator new( n * sizeof( value_type ) ) );
+    }
+    void deallocate( pointer p, const size_type & ) { ::operator delete( p ); }
+    void construct( pointer p, value_type const &val ) {
+        ::new ( p ) value_type( val );
+    }
+    void destroy( pointer p ) { p->~value_type(); }
+
+    size_type max_size() const throw() {
+        return std::numeric_limits< size_type >::max() / sizeof( value_type );
+    }
+    pointer       address( reference x ) const { return &x; }
+    const_pointer address( const_reference x ) const { return &x; }
+};
+
+template < typename T, typename U >
+bool operator==( Vallocator< T > const &, Vallocator< U > const & ) {
+    return true;
+}
+template < typename T, typename U >
+bool operator!=( Vallocator< T > const &x, Vallocator< U > const &y ) {
+    return !( x == y );
+}
+
 /* ------------------------ ostream operator overload ----------------------- */
 
-template < typename T >
-std::ostream &operator<<( std::ostream &os, const NS::vector< T > &v ) {
-    os << "[";
-    for ( typename NS::vector< T >::const_iterator it = v.begin();
+template < typename T, typename A >
+std::ostream &operator<<( std::ostream &os, const NS::vector< T, A > &v ) {
+    os << "{size: " << v.size() << ", capacity: " << v.capacity() << ", data: "
+       << "[";
+    for ( typename NS::vector< T, A >::const_iterator it = v.begin();
           it != v.end();
           it++ ) {
         if ( it != v.begin() ) { os << ", "; }
         os << *it;
     }
-    os << "]";
+    os << "]}";
     return os;
 }
 
@@ -106,8 +163,8 @@ std::ostream &operator<<( std::ostream &os, const A< T > &a ) {
 int main() {
     /* --------------------------------- Vector --------------------------------- */
     {
-        F                              f;
-        typedef NS::vector< A< int > > vector_type;
+        F                                                      f;
+        typedef NS::vector< A< int >, Vallocator< A< int > > > vector_type;
 
         /* ------------------------------ Construction ------------------------------ */
         {
@@ -430,8 +487,6 @@ int main() {
             STREAM << v << std::endl;
 
             v.reserve( 41 );
-
-            STREAM << v << std::endl;
         }
         /* ----------------------------- Element access ----------------------------- */
         {
@@ -553,7 +608,15 @@ int main() {
 
         /* -------------------------------- Allocator ------------------------------- */
         {
+            vector_type                           v1;
+            NS::vector< vector_type::value_type > v2;
 
+            STREAM << ( v1.get_allocator()
+                        == Vallocator< vector_type::value_type >() )
+                   << std::endl;
+            STREAM << ( v2.get_allocator()
+                        == std::allocator< vector_type::value_type >() )
+                   << std::endl;
         }
         /* -------------------------- Relational operators -------------------------- */
         {
@@ -610,7 +673,7 @@ int main() {
 
         vector_type v1( 10 );
         std::generate( v1.begin(), v1.end(), f );
-        vector_type v2(4, f());
+        vector_type v2( 4, f() );
         NS::swap( v1, v2 );
 
         STREAM << v1 << std::endl;
