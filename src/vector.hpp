@@ -202,13 +202,6 @@ public:
 
     bool empty() const { return !_size; }
 
-    // void _reserve( size_type n ) {
-    //     if ( n > _capacity ) {
-    //         if ( _size << 1 > n ) { n = _size << 1; }
-    //         reserve(n);
-    //     }
-    // }
-
     void reserve( size_type n ) {
         if ( n > _capacity ) {
             pointer tmp = _allocator.allocate( n );

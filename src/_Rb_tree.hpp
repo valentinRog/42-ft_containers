@@ -206,7 +206,11 @@ public:
         insert( other.cbegin(), other.cend() );
         return *this;
     }
-    ~_Rb_tree() { clear(); }
+    ~_Rb_tree() {
+        clear();
+        _allocator.destroy( _end );
+        _allocator.deallocate( _end, 1 );
+    }
 
     /* -------------------------------- Iterators ------------------------------- */
 
