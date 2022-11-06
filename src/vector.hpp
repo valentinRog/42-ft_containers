@@ -204,6 +204,7 @@ public:
     bool empty() const { return !_size; }
 
     void reserve( size_type n ) {
+        if ( n > max_size() ) { throw std::length_error( "" ); }
         if ( n > _capacity ) {
             pointer tmp = _allocator.allocate( n );
             ft::_uninitialized_copy_a( _data, _data + _size, tmp, _allocator );

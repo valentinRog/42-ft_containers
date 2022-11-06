@@ -59,6 +59,7 @@ typedef A< int >         mapped_type;
 
 template < typename T > struct F {
     typename T::value_type operator()() {
+        _n++;
         std::stringstream ss;
         ss << _n;
         typename T::value_type res;
@@ -159,10 +160,10 @@ std::ostream &operator<<( std::ostream &os, const NS::pair< T1, T2 > &p ) {
     return os;
 }
 
-template < typename K, typename V >
-std::ostream &operator<<( std::ostream &os, const NS::map< K, V > &m ) {
+template < typename K, typename V, typename C, typename A >
+std::ostream &operator<<( std::ostream &os, const NS::map< K, V, C, A > &m ) {
     os << "{";
-    for ( typename NS::map< K, V >::const_iterator it = m.begin();
+    for ( typename NS::map< K, V, C, A >::const_iterator it = m.begin();
           it != m.end();
           it++ ) {
         if ( it != m.begin() ) { os << ", "; }
@@ -194,7 +195,7 @@ std::ostream &operator<<( std::ostream &os, const A< T > &a ) {
 
 int main() {
     F< mapped_type > f;
-    // F< key_type >    g;
+    F< key_type >    g;
 
     /* --------------------------------- Vector --------------------------------- */
     {
@@ -204,21 +205,22 @@ int main() {
 
         /* ------------------------------ Construction ------------------------------ */
         {
-
             const int arr[] = { f(), f(), f(), f(), f() };
 
-            vector_type v1;
-            vector_type v2( 7, f() );
-            vector_type v3( arr, arr + sizeof( arr ) / sizeof( int ) );
-            vector_type v4( v3 );
+            vector_type       v1;
+            vector_type       v2( 7, f() );
+            vector_type       v3( arr, arr + sizeof( arr ) / sizeof( int ) );
+            vector_type       v4( v3 );
+            const_vector_type cv( v2 );
 
             STREAM << v1 << std::endl;
             STREAM << v2 << std::endl;
             STREAM << v3 << std::endl;
             STREAM << v4 << std::endl;
+            STREAM << cv << std::endl;
 
             v4 = v2;
-            v2 = vector_type(3);
+            v2 = vector_type( 3 );
 
             STREAM << v4 << std::endl;
             STREAM << v2 << std::endl;
@@ -520,7 +522,11 @@ int main() {
 
             STREAM << v << std::endl;
 
-            v.reserve( 41 );
+            try {
+                v.reserve( v.max_size() + 1 );
+            } catch ( const std::length_error & ) {
+                STREAM << "caught \"length_error\" exception" << std::endl;
+            }
         }
         /* ----------------------------- Element access ----------------------------- */
         {
@@ -642,11 +648,13 @@ int main() {
         /* -------------------------------- Allocator ------------------------------- */
         {
             vector_type               v1;
-            NS::vector< mapped_type > v2;
+            vector_type               v2( ( vector_type::allocator_type() ) );
+            NS::vector< mapped_type > v3;
 
             STREAM << ( v1.get_allocator() == Vallocator< mapped_type >() )
                    << std::endl;
-            STREAM << ( v2.get_allocator() == std::allocator< mapped_type >() )
+            STREAM << ( v1.get_allocator() == v2.get_allocator() ) << std::endl;
+            STREAM << ( v3.get_allocator() == std::allocator< mapped_type >() )
                    << std::endl;
         }
         /* -------------------------- Relational operators -------------------------- */
@@ -715,13 +723,40 @@ int main() {
     }
 
     /* ---------------------------------- Stack --------------------------------- */
-    {
-    }
+    {}
     /* ----------------------------------- Map ---------------------------------- */
     {
+        typedef NS::map< key_type,
+                         mapped_type,
+                         std::less< key_type >,
+                         Vallocator< NS::pair< const key_type, mapped_type > > >
+                               map_type;
+        typedef const map_type const_map_type;
+
         /* ------------------------------ Construction ------------------------------ */
         {
+            const map_type::value_type arr[]
+                = { map_type::value_type( g(), f() ),
+                    map_type::value_type( g(), f() ),
+                    map_type::value_type( g(), f() ),
+                    map_type::value_type( g(), f() ) };
 
+            map_type m1;
+            map_type m2( arr,
+                         arr + sizeof( arr ) / sizeof( map_type::value_type ) );
+            map_type m3( m2 );
+            const_map_type cm(m3);
+
+            STREAM << m1 << std::endl;
+            STREAM << m2 << std::endl;
+            STREAM << m3 << std::endl;
+            STREAM << cm << std::endl;
+
+            m3 = m1;
+            m1 = m2;
+
+            STREAM << m3 << std::endl;
+            STREAM << m1 << std::endl;
         }
         /* -------------------------------- Iterators ------------------------------- */
         {
@@ -781,8 +816,9 @@ int main() {
         }
         /* -------------------------------- Allocator ------------------------------- */
         {
-            
+
         }
+        /* -------------------------------------------------------------------------- */
     }
     /* -------------------------------------------------------------------------- */
 }
