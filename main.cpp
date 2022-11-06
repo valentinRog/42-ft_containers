@@ -8,6 +8,7 @@
 #include <limits>
 #include <map>
 #include <set>
+#include <sstream>
 #include <vector>
 
 #ifndef NS
@@ -19,19 +20,27 @@
 /* ---------------------------------- Data ---------------------------------- */
 
 template < typename T > class A {
-    T *_data;
+    static std::size_t global_count;
+    T *                _data;
 
 public:
-    A( T val = T() ) : _data( new T( val ) ) {}
-    A( const A &other ) : _data( new T( *other._data ) ) {}
+    typedef T value_type;
+
+    A( T val = T() ) : _data( new T( val ) ) { global_count++; }
+    A( const A &other ) : _data( new T( *other._data ) ) { global_count++; }
     A &operator=( const A &other ) {
         *_data = *other._data;
         return *this;
     }
-    virtual ~A() { delete _data; }
+    virtual ~A() {
+        delete _data;
+        global_count--;
+    }
 
     T &      data() { return *_data; }
     const T &data() const { return *_data; }
+
+    static std::size_t get_global_count() { return global_count; }
 
     bool operator==( const A &other ) const { return *_data == *other._data; }
     bool operator!=( const A &other ) const { return *_data != *other._data; }
@@ -41,13 +50,24 @@ public:
     bool operator>=( const A &other ) const { return *_data >= *other._data; }
 };
 
+template < typename T > std::size_t A< T >::global_count;
+
+typedef A< std::string > key_type;
+typedef A< int >         mapped_type;
+
 /* --------------------------------- Functor -------------------------------- */
 
-struct F {
-    int operator()() { return ++_a.data(); }
+template < typename T > struct F {
+    typename T::value_type operator()() {
+        std::stringstream ss;
+        ss << _n;
+        typename T::value_type res;
+        ss >> res;
+        return res;
+    }
 
 private:
-    A< int > _a;
+    int _n;
 };
 
 /* ---------------------------- Custom allocator ---------------------------- */
@@ -80,10 +100,14 @@ template < typename T > struct Vallocator {
 
     pointer allocate( const size_type &n,
                       Vallocator< void >::const_pointer = 0 ) {
+        if ( n ) { _n_allocation++; }
         return static_cast< pointer >(
             ::operator new( n * sizeof( value_type ) ) );
     }
-    void deallocate( pointer p, const size_type & ) { ::operator delete( p ); }
+    void deallocate( pointer p, const size_type &n ) {
+        if ( n ) { _n_allocation--; }
+        ::operator delete( p );
+    }
     void construct( pointer p, value_type const &val ) {
         ::new ( p ) value_type( val );
     }
@@ -94,7 +118,15 @@ template < typename T > struct Vallocator {
     }
     pointer       address( reference x ) const { return &x; }
     const_pointer address( const_reference x ) const { return &x; }
+
+    static size_type get_n_allocation() { return _n_allocation; }
+
+private:
+    static size_type _n_allocation;
 };
+
+template < typename T >
+typename Vallocator< T >::size_type Vallocator< T >::_n_allocation;
 
 template < typename T, typename U >
 bool operator==( Vallocator< T > const &, Vallocator< U > const & ) {
@@ -161,10 +193,14 @@ std::ostream &operator<<( std::ostream &os, const A< T > &a ) {
 /* -------------------------------------------------------------------------- */
 
 int main() {
+    F< mapped_type > f;
+    // F< key_type >    g;
+
     /* --------------------------------- Vector --------------------------------- */
     {
-        F                                                      f;
-        typedef NS::vector< A< int >, Vallocator< A< int > > > vector_type;
+        typedef NS::vector< mapped_type, Vallocator< mapped_type > >
+                                  vector_type;
+        typedef const vector_type const_vector_type;
 
         /* ------------------------------ Construction ------------------------------ */
         {
@@ -182,7 +218,7 @@ int main() {
             STREAM << v4 << std::endl;
 
             v4 = v2;
-            v2 = v1;
+            v2 = vector_type(3);
 
             STREAM << v4 << std::endl;
             STREAM << v2 << std::endl;
@@ -424,7 +460,7 @@ int main() {
                 STREAM << ( rit + 1 >= crit ) << std::endl;
                 STREAM << ( crit + 1 >= rit ) << std::endl;
 
-                const vector_type cv( v );
+                const_vector_type cv( v );
 
                 STREAM << *cv.begin() << std::endl;
                 STREAM << *--cv.end() << std::endl;
@@ -444,6 +480,10 @@ int main() {
 
                 STREAM << v << std::endl;
                 STREAM << std::distance( v.begin(), v.end() ) << std::endl;
+
+                const_vector_type cv( v );
+
+                STREAM << std::count( cv.begin(), cv.end(), v[0] ) << std::endl;
             }
         }
         /* -------------------------------- Capacity -------------------------------- */
@@ -507,7 +547,7 @@ int main() {
             STREAM << v.front() << std::endl;
             STREAM << v.back() << std::endl;
 
-            const vector_type cv( v );
+            const_vector_type cv( v );
 
             STREAM << cv[3] << std::endl;
             STREAM << cv.at( 3 ) << std::endl;
@@ -599,24 +639,21 @@ int main() {
             STREAM << v1 << std::endl;
             STREAM << v2 << std::endl;
         }
-
         /* -------------------------------- Allocator ------------------------------- */
         {
-            vector_type                           v1;
-            NS::vector< vector_type::value_type > v2;
+            vector_type               v1;
+            NS::vector< mapped_type > v2;
 
-            STREAM << ( v1.get_allocator()
-                        == Vallocator< vector_type::value_type >() )
+            STREAM << ( v1.get_allocator() == Vallocator< mapped_type >() )
                    << std::endl;
-            STREAM << ( v2.get_allocator()
-                        == std::allocator< vector_type::value_type >() )
+            STREAM << ( v2.get_allocator() == std::allocator< mapped_type >() )
                    << std::endl;
         }
         /* -------------------------- Relational operators -------------------------- */
         {
             vector_type v( 10 );
             std::generate( v.begin(), v.end(), f );
-            const vector_type v1( v );
+            const_vector_type v1( v );
             vector_type       v2( v1 );
             vector_type       v3( v1 );
             vector_type       v4( v1 );
@@ -664,27 +701,88 @@ int main() {
             STREAM << ( v >= v5 ) << std::endl;
         }
         /* ---------------------------------- Swap ---------------------------------- */
+        {
+            vector_type v1( 10 );
+            std::generate( v1.begin(), v1.end(), f );
+            vector_type v2( 4, f() );
 
-        vector_type v1( 10 );
-        std::generate( v1.begin(), v1.end(), f );
-        vector_type v2( 4, f() );
+            NS::swap( v1, v2 );
 
-        NS::swap( v1, v2 );
-
-        STREAM << v1 << std::endl;
-        STREAM << v2 << std::endl;
-
+            STREAM << v1 << std::endl;
+            STREAM << v2 << std::endl;
+        }
         /* -------------------------------------------------------------------------- */
     }
+
     /* ---------------------------------- Stack --------------------------------- */
     {
-
     }
     /* ----------------------------------- Map ---------------------------------- */
     {
+        /* ------------------------------ Construction ------------------------------ */
+        {
 
+        }
+        /* -------------------------------- Iterators ------------------------------- */
+        {
+
+        }
+        /* -------------------------------- Capacity -------------------------------- */
+        {
+
+        }
+        /* ----------------------------- Element access ----------------------------- */
+        {
+
+        }
+        /* -------------------------------- Modifiers ------------------------------- */
+        {
+
+        }
+        /* -------------------------------- Observers ------------------------------- */
+        {
+
+        }
+        /* ------------------------------- Operations ------------------------------- */
+        {
+
+        }
+        /* -------------------------------- Allocator ------------------------------- */
+        {
+
+        }
+        /* -------------------------------------------------------------------------- */
     }
     /* ----------------------------------- Set ---------------------------------- */
-    {}
+    {
+        /* ------------------------------ Construction ------------------------------ */
+        {
+
+        }
+        /* -------------------------------- Iterators ------------------------------- */
+        {
+
+        }
+        /* -------------------------------- Capacity -------------------------------- */
+        {
+
+        }
+        /* -------------------------------- Modifiers ------------------------------- */
+        {
+
+        }
+        /* -------------------------------- Observers ------------------------------- */
+        {
+
+        }
+        /* ------------------------------- Operations ------------------------------- */
+        {
+
+        }
+        /* -------------------------------- Allocator ------------------------------- */
+        {
+            
+        }
+    }
     /* -------------------------------------------------------------------------- */
 }

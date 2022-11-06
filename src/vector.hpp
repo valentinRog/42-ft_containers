@@ -171,7 +171,7 @@ public:
           _data( 0 ),
           _capacity( 0 ),
           _size( 0 ) {
-        *this = other;
+        assign( other.begin(), other.end() );
     }
 
     virtual ~vector() {
@@ -180,7 +180,8 @@ public:
     }
 
     vector &operator=( const vector &other ) {
-        assign( other.begin(), other.end() );
+        vector v( other );
+        swap( v );
         return *this;
     }
 
