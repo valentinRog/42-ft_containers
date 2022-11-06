@@ -366,25 +366,255 @@ int main() {
                 STREAM << ( rit + 1 >= rit ) << std::endl;
                 STREAM << ( rit + 1 >= crit ) << std::endl;
                 STREAM << ( crit + 1 >= rit ) << std::endl;
+
+                const vector_type cv( v );
+
+                STREAM << *cv.begin() << std::endl;
+                STREAM << *--cv.end() << std::endl;
             }
             {
                 std::rotate( v.begin(),
                              v.end() - ( v.end() - v.begin() ) / 2,
                              v.end() );
+
                 STREAM << v << std::endl;
 
                 std::sort( v.rbegin(), v.rend() );
+
                 STREAM << v << std::endl;
 
                 std::fill( v.begin(), v.end(), f() );
+
                 STREAM << v << std::endl;
+                STREAM << std::distance( v.begin(), v.end() ) << std::endl;
             }
         }
         /* -------------------------------- Capacity -------------------------------- */
+        {
+            vector_type v;
 
+            STREAM << v.max_size() << std::endl;
+            STREAM << v.empty() << std::endl;
+            STREAM << v << std::endl;
+
+            v.reserve( 10 );
+
+            STREAM << v.max_size() << std::endl;
+            STREAM << v.empty() << std::endl;
+            STREAM << v << std::endl;
+
+            std::generate( v.begin(), v.end(), f );
+
+            STREAM << v.max_size() << std::endl;
+            STREAM << v.empty() << std::endl;
+            STREAM << v << std::endl;
+
+            v.resize( 11 );
+
+            STREAM << v << std::endl;
+
+            v.resize( 6 );
+
+            STREAM << v << std::endl;
+
+            v.reserve( 40 );
+
+            STREAM << v << std::endl;
+
+            v.resize( 40 );
+
+            STREAM << v << std::endl;
+
+            v.reserve( 20 );
+
+            STREAM << v << std::endl;
+
+            v.reserve( 41 );
+
+            STREAM << v << std::endl;
+        }
         /* ----------------------------- Element access ----------------------------- */
+        {
+            vector_type v( 10 );
+            std::generate( v.begin(), v.end(), f );
 
+            for ( vector_type::size_type i( 0 ); i < v.size(); i++ ) {
+                STREAM << v[i] << std::endl;
+                STREAM << v.at( i ) << std::endl;
+                STREAM << v.data()[i] << std::endl;
+            }
+
+            try {
+                v.at( v.size() );
+            } catch ( const std::out_of_range &e ) {
+                STREAM << "caught \"out_of_range\" exception" << std::endl;
+            }
+            try {
+                v.at( -1 );
+            } catch ( const std::out_of_range &e ) {
+                STREAM << "caught \"out_of_range\" exception" << std::endl;
+            }
+
+            STREAM << v.front() << std::endl;
+            STREAM << v.back() << std::endl;
+
+            const vector_type cv( v );
+
+            STREAM << cv[3] << std::endl;
+            STREAM << cv.at( 3 ) << std::endl;
+            STREAM << cv.front() << std::endl;
+            STREAM << cv.back() << std::endl;
+        }
         /* -------------------------------- Modifiers ------------------------------- */
+        {
+            vector_type v1;
+            vector_type v2;
+
+            v1.assign( 5, f() );
+            v2.assign( v1.begin(), v1.end() - 1 );
+
+            STREAM << v1 << std::endl;
+            STREAM << v2 << std::endl;
+
+            v1.assign( 4, f() );
+            v2.assign( v1.rbegin(), v1.rend() - 2 );
+
+            STREAM << v1 << std::endl;
+            STREAM << v2 << std::endl;
+
+            v1.push_back( f() );
+
+            STREAM << v1 << std::endl;
+
+            v1.push_back( f() );
+            v1.push_back( f() );
+
+            STREAM << v1 << std::endl;
+
+            for ( vector_type::size_type i( 0 ); v1.size(); i++ ) {
+                v1.pop_back();
+
+                STREAM << v1 << std::endl;
+            }
+
+            v2 = vector_type( 3 );
+            std::generate( v2.begin(), v2.end(), f );
+            v1.insert( v1.begin(), 10, f() );
+
+            STREAM << v1 << std::endl;
+
+            v1.insert( v1.begin(), f() );
+            v1.insert( v1.begin() + 3, f() );
+            v1.insert( v1.end(), f() );
+
+            STREAM << v1 << std::endl;
+
+            v1.insert( v1.begin(), 2, f() );
+            v1.insert( v1.begin() + 3, 2, f() );
+            v1.insert( v1.end(), 2, f() );
+
+            STREAM << v1 << std::endl;
+
+            v1.insert( v1.begin(), v2.begin(), v2.end() );
+            v1.insert( v1.begin() + 2, v2.begin(), v2.end() );
+            v1.insert( v1.end(), v2.begin(), v2.end() );
+
+            STREAM << v1 << std::endl;
+
+            v1.erase( v1.begin() );
+            v1.erase( v1.begin() + 5 );
+            v1.erase( v1.end() );
+
+            STREAM << v1 << std::endl;
+
+            v1.erase( v1.begin(), v1.begin() + 4 );
+            v1.erase( v1.begin() + 3, v1.begin() + 4 );
+            v1.erase( v1.end() - 2, v1.end() );
+
+            STREAM << v1 << std::endl;
+
+            v1.swap( v2 );
+
+            STREAM << v1 << std::endl;
+            STREAM << v2 << std::endl;
+
+            vector_type( v1 ).swap( v1 );
+            vector_type( v2 ).swap( v2 );
+
+            STREAM << v1 << std::endl;
+            STREAM << v2 << std::endl;
+
+            v1.clear();
+            v2.clear();
+
+            STREAM << v1 << std::endl;
+            STREAM << v2 << std::endl;
+        }
+
+        /* -------------------------------- Allocator ------------------------------- */
+        {
+
+        }
+        /* -------------------------- Relational operators -------------------------- */
+        {
+            vector_type v( 10 );
+            std::generate( v.begin(), v.end(), f );
+            const vector_type v1( v );
+            vector_type       v2( v1 );
+            vector_type       v3( v1 );
+            vector_type       v4( v1 );
+            vector_type       v5( v1 );
+
+            v2.back().data()--;
+            v3.back().data()++;
+            v4.pop_back();
+            v5.push_back( f() );
+
+            STREAM << ( v == v1 ) << std::endl;
+            STREAM << ( v == v2 ) << std::endl;
+            STREAM << ( v == v3 ) << std::endl;
+            STREAM << ( v == v4 ) << std::endl;
+            STREAM << ( v == v5 ) << std::endl;
+
+            STREAM << ( v != v1 ) << std::endl;
+            STREAM << ( v != v2 ) << std::endl;
+            STREAM << ( v != v3 ) << std::endl;
+            STREAM << ( v != v4 ) << std::endl;
+            STREAM << ( v != v5 ) << std::endl;
+
+            STREAM << ( v < v1 ) << std::endl;
+            STREAM << ( v < v2 ) << std::endl;
+            STREAM << ( v < v3 ) << std::endl;
+            STREAM << ( v < v4 ) << std::endl;
+            STREAM << ( v < v5 ) << std::endl;
+
+            STREAM << ( v > v1 ) << std::endl;
+            STREAM << ( v > v2 ) << std::endl;
+            STREAM << ( v > v3 ) << std::endl;
+            STREAM << ( v > v4 ) << std::endl;
+            STREAM << ( v > v5 ) << std::endl;
+
+            STREAM << ( v <= v1 ) << std::endl;
+            STREAM << ( v <= v2 ) << std::endl;
+            STREAM << ( v <= v3 ) << std::endl;
+            STREAM << ( v <= v4 ) << std::endl;
+            STREAM << ( v <= v5 ) << std::endl;
+
+            STREAM << ( v >= v1 ) << std::endl;
+            STREAM << ( v >= v2 ) << std::endl;
+            STREAM << ( v >= v3 ) << std::endl;
+            STREAM << ( v >= v4 ) << std::endl;
+            STREAM << ( v >= v5 ) << std::endl;
+        }
+        /* ---------------------------------- Swap ---------------------------------- */
+
+        vector_type v1( 10 );
+        std::generate( v1.begin(), v1.end(), f );
+        vector_type v2(4, f());
+        NS::swap( v1, v2 );
+
+        STREAM << v1 << std::endl;
+        STREAM << v2 << std::endl;
 
         /* -------------------------------------------------------------------------- */
     }

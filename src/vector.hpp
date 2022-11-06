@@ -332,7 +332,7 @@ public:
 
     iterator erase( iterator first, iterator last ) {
         std::copy( last, end(), first );
-        ft::_destroy( last, end(), _allocator );
+        ft::_destroy( first + ( end() - last ), end(), _allocator );
         _size -= last - first;
         return first;
     }
