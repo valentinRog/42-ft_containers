@@ -189,8 +189,9 @@ std::ostream &operator<<( std::ostream &os, const A< T > &a ) {
     return os;
 }
 
-typedef A< std::string > key_type;
-typedef A< int >         mapped_type;
+typedef A< std::string >                        key_type;
+typedef A< int >                                mapped_type;
+typedef NS::pair< const key_type, mapped_type > value_type;
 
 /* -------------------------------------------------------------------------- */
 
@@ -207,12 +208,12 @@ int main() {
 
         /* ------------------------------ Construction ------------------------------ */
         {
-            const int arr[] = { f(), f(), f(), f(), f() };
+            const mapped_type arr[] = { f(), f(), f(), f(), f() };
 
-            vector_type       v1;
-            vector_type       v2( 7, f() );
-            vector_type       v3( arr, arr + sizeof( arr ) / sizeof( int ) );
-            vector_type       v4( v3 );
+            vector_type v1;
+            vector_type v2( 7, f() );
+            vector_type v3( arr, arr + sizeof( arr ) / sizeof( mapped_type ) );
+            vector_type v4( v3 );
             const_vector_type cv( v2 );
 
             STREAM << v1 << std::endl;
@@ -761,16 +762,14 @@ int main() {
 
         /* ------------------------------ Construction ------------------------------ */
         {
-            const map_type::value_type arr[]
-                = { map_type::value_type( g(), f() ),
-                    map_type::value_type( g(), f() ),
-                    map_type::value_type( g(), f() ),
-                    map_type::value_type( g(), f() ) };
+            const value_type arr[] = { value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ) };
 
-            map_type       m1;
-            map_type       m2( arr,
-                         arr + sizeof( arr ) / sizeof( map_type::value_type ) );
-            map_type       m3( m2 );
+            map_type m1;
+            map_type m2( arr, arr + sizeof( arr ) / sizeof( value_type ) );
+            map_type m3( m2 );
             const_map_type cm( m3 );
 
             STREAM << m1 << std::endl;
@@ -946,15 +945,99 @@ int main() {
         }
         /* -------------------------------- Capacity -------------------------------- */
         {
-            
+
         }
         /* ----------------------------- Element access ----------------------------- */
         {
+            const value_type arr[] = { value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ) };
+            map_type m( arr, arr + sizeof( arr ) / sizeof( value_type ) );
 
+            for ( map_type::size_type i( 0 ); i < m.size(); i++ ) {
+                STREAM << m[arr[i].first] << std::endl;
+                STREAM << m.at( arr[i].first ) << std::endl;
+            }
+
+            m[arr[1].first]      = f();
+            m.at( arr[2].first ) = f();
+            m[g()]               = f();
+
+            STREAM << m << std::endl;
+
+            try {
+                m.at( g() );
+            } catch ( const std::out_of_range &e ) {
+                STREAM << "caught \"out_of_range\" exception" << std::endl;
+            }
+
+            const_map_type cm( m );
+
+            STREAM << cm.at( arr[3].first ) << std::endl;
         }
         /* -------------------------------- Modifiers ------------------------------- */
         {
+            const value_type arr[] = { value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ) };
+            map_type m( arr, arr + sizeof( arr ) / sizeof( value_type ) );
+            NS::pair< map_type::iterator, bool > res;
 
+            res = m.insert( value_type( g(), f() ) );
+
+            STREAM << res.second << std::endl;
+            STREAM << *res.first << std::endl;
+
+            res = m.insert( arr[2] );
+
+            STREAM << res.second << std::endl;
+            STREAM << *res.first << std::endl;
+            STREAM << m << std::endl;
+            STREAM << *m.insert( m.begin(), value_type( g(), f() ) )
+                   << std::endl;
+            STREAM << *m.insert( m.end(), value_type( g(), f() ) ) << std::endl;
+            STREAM << *m.insert( m.begin(), arr[1] ) << std::endl;
+            STREAM << *m.insert( m.end(), arr[1] ) << std::endl;
+            STREAM << m << std::endl;
+
+            m.erase( m.begin() );
+            m.erase( ft::next( m.begin() ) );
+
+            STREAM << m << std::endl;
+            STREAM << m.erase( arr[4].first ) << std::endl;
+            STREAM << m.erase( arr[4].first ) << std::endl;
+            STREAM << m << std::endl;
+
+            m.erase( ft::next( ft::next( m.begin() ) ) );
+
+            STREAM << m << std::endl;
+
+            m.clear();
+
+            STREAM << m << std::endl;
+
+            m.clear();
+            m.insert( arr, arr + sizeof( arr ) / sizeof( value_type ) );
+
+            STREAM << m << std::endl;
+
+            map_type m2;
+            m2.insert( value_type( g(), f() ) );
+            m2.insert( value_type( g(), f() ) );
+
+            m.swap( m2 );
+
+            STREAM << m << std::endl;
+            STREAM << m2 << std::endl;
+
+            m.swap( m );
+            m2.swap( m2 );
+
+            STREAM << m << std::endl;
+            STREAM << m2 << std::endl;
         }
         /* -------------------------------- Observers ------------------------------- */
         {
@@ -965,9 +1048,7 @@ int main() {
 
         }
         /* -------------------------------- Allocator ------------------------------- */
-        {
-
-        }
+        {}
         /* -------------------------------------------------------------------------- */
     }
     /* ----------------------------------- Set ---------------------------------- */
@@ -980,7 +1061,21 @@ int main() {
 
         /* ------------------------------ Construction ------------------------------ */
         {
+            const mapped_type arr[] = { f(), f(), f(), f(), f() };
 
+            set_type s1;
+            set_type s2( arr, arr + sizeof( arr ) / sizeof( mapped_type ) );
+            set_type s3( s2 );
+            const_set_type cs( s2 );
+
+            STREAM << s1 << std::endl;
+            STREAM << s2 << std::endl;
+            STREAM << s3 << std::endl;
+            STREAM << cs << std::endl;
+
+            s3 = s2;
+
+            STREAM << s3 << std::endl;
         }
         /* -------------------------------- Iterators ------------------------------- */
         {
@@ -1073,7 +1168,61 @@ int main() {
         }
         /* -------------------------------- Modifiers ------------------------------- */
         {
+            const mapped_type arr[] = { f(), f(), f(), f(), f() };
+            set_type s( arr, arr + sizeof( arr ) / sizeof( mapped_type ) );
+            NS::pair< set_type::iterator, bool > res;
 
+            res = s.insert( f() );
+
+            STREAM << res.second << std::endl;
+            STREAM << *res.first << std::endl;
+
+            res = s.insert( arr[2] );
+
+            STREAM << res.second << std::endl;
+            STREAM << *res.first << std::endl;
+            STREAM << s << std::endl;
+            STREAM << *s.insert( s.begin(), f() ) << std::endl;
+            STREAM << *s.insert( s.end(), f() ) << std::endl;
+            STREAM << *s.insert( s.begin(), arr[1] ) << std::endl;
+            STREAM << *s.insert( s.end(), arr[1] ) << std::endl;
+            STREAM << s << std::endl;
+
+            s.erase( s.begin() );
+            s.erase( ft::next( s.begin() ) );
+
+            STREAM << s << std::endl;
+            STREAM << s.erase( arr[4] ) << std::endl;
+            STREAM << s.erase( arr[4] ) << std::endl;
+            STREAM << s << std::endl;
+
+            s.erase( ft::next( ft::next( s.begin() ) ) );
+
+            STREAM << s << std::endl;
+
+            s.clear();
+
+            STREAM << s << std::endl;
+
+            s.clear();
+            s.insert( arr, arr + sizeof( arr ) / sizeof( mapped_type ) );
+
+            STREAM << s << std::endl;
+
+            set_type s2;
+            s2.insert( f() );
+            s2.insert( f() );
+
+            s.swap( s2 );
+
+            STREAM << s << std::endl;
+            STREAM << s2 << std::endl;
+
+            s.swap( s );
+            s2.swap( s2 );
+
+            STREAM << s << std::endl;
+            STREAM << s2 << std::endl;
         }
         /* -------------------------------- Observers ------------------------------- */
         {

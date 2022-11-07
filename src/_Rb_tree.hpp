@@ -100,7 +100,7 @@ private:
 
     template < typename T > class Iterator {
     public:
-        typedef T value_type;
+        typedef T                               value_type;
         typedef T &                             reference;
         typedef const T &                       const_reference;
         typedef T *                             pointer;
@@ -246,13 +246,7 @@ public:
     }
     ft::pair< iterator, bool > insert( iterator hint, const value_type &data ) {
         iterator right = ++iterator( hint );
-        if ( hint.get_node() == &_nil || hint == end()
-             || _key_compare( data.first, hint->first )
-             || ( right != end()
-                  && _key_compare( right->first, data.first ) ) ) {
-            return insert( data );
-        }
-        return _insert( data, hint.get_node() );
+        return insert( data );
     }
     template < class InputIterator >
     void insert( InputIterator first, InputIterator last ) {
