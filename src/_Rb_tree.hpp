@@ -1,5 +1,6 @@
 #pragma once
 
+#include "algorithm.hpp"
 #include "iterator.hpp"
 #include "utility.hpp"
 #include <cstddef>
@@ -99,6 +100,7 @@ private:
 
     template < typename T > class Iterator {
     public:
+        typedef T value_type;
         typedef T &                             reference;
         typedef const T &                       const_reference;
         typedef T *                             pointer;
@@ -268,11 +270,11 @@ public:
     }
 
     void swap( _Rb_tree &other ) {
-        std::swap( _end, other._end );
-        std::swap( _root, other._root );
-        std::swap( _key_compare, other._key_compare );
-        std::swap( _allocator, other._allocator );
-        std::swap( _size, other._size );
+        ft::swap( _end, other._end );
+        ft::swap( _root, other._root );
+        ft::swap( _key_compare, other._key_compare );
+        ft::swap( _allocator, other._allocator );
+        ft::swap( _size, other._size );
     }
 
     void clear() { erase( begin(), end() ); }

@@ -40,6 +40,7 @@ public:
 
     template < typename T > class Iterator {
     public:
+        typedef typename T::value_type        value_type;
         typedef typename T::reference         reference;
         typedef typename T::const_reference   const_reference;
         typedef typename T::pointer           pointer;

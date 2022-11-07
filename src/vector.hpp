@@ -99,10 +99,10 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
             return ( _p <= other.operator->() );
         };
 
-        reference     operator*() { return *_p; }
-        reference     operator[]( difference_type i ) { return _p[i]; }
-        pointer       operator->() { return ( _p ); };
-        const_pointer operator->() const { return ( _p ); };
+        reference operator*() { return *_p; }
+        reference operator[]( difference_type i ) { return _p[i]; }
+        pointer   operator->() { return ( _p ); };
+        pointer   operator->() const { return ( _p ); };
 
         operator Iterator< const U >() const {
             return ( Iterator< const U >( _p ) );
@@ -171,7 +171,7 @@ public:
           _data( 0 ),
           _capacity( 0 ),
           _size( 0 ) {
-        assign( other.begin(), other.end() );
+        *this = other;
     }
 
     virtual ~vector() {
@@ -180,8 +180,7 @@ public:
     }
 
     vector &operator=( const vector &other ) {
-        vector v( other );
-        swap( v );
+        assign( other.begin(), other.end() );
         return *this;
     }
 

@@ -52,9 +52,6 @@ public:
 
 template < typename T > std::size_t A< T >::global_count;
 
-typedef A< std::string > key_type;
-typedef A< int >         mapped_type;
-
 /* --------------------------------- Functor -------------------------------- */
 
 template < typename T > struct F {
@@ -71,6 +68,13 @@ private:
     int _n;
 };
 
+/* ------------------------------- Algorithms ------------------------------- */
+
+namespace ft {
+
+template < typename T > T next( T it ) { return ++it; }
+
+}
 /* ---------------------------- Custom allocator ---------------------------- */
 
 template < typename T > struct Vallocator;
@@ -191,9 +195,13 @@ std::ostream &operator<<( std::ostream &os, const A< T > &a ) {
     return os;
 }
 
+typedef A< std::string > key_type;
+typedef A< int >         mapped_type;
+
 /* -------------------------------------------------------------------------- */
 
 int main() {
+
     F< mapped_type > f;
     F< key_type >    g;
 
@@ -259,18 +267,21 @@ int main() {
                 vector_type::reverse_iterator rit1;
                 vector_type::reverse_iterator rit2 = v.rbegin();
                 vector_type::reverse_iterator rit3( rit2 );
+                vector_type::reverse_iterator rit4( v.end() );
 
                 rit1 = rit2;
 
                 STREAM << *rit1 << std::endl;
                 STREAM << *rit2 << std::endl;
                 STREAM << *rit3 << std::endl;
+                STREAM << *rit4 << std::endl;
 
                 vector_type::const_reverse_iterator crit1;
                 vector_type::const_reverse_iterator crit2 = v.rbegin();
                 vector_type::const_reverse_iterator crit3( crit2 );
                 vector_type::const_reverse_iterator crit4( rit1 );
                 vector_type::const_reverse_iterator crit5;
+                vector_type::reverse_iterator       crit6( v.end() );
 
                 crit1 = crit2;
                 crit5 = rit1;
@@ -280,6 +291,7 @@ int main() {
                 STREAM << *crit3 << std::endl;
                 STREAM << *crit4 << std::endl;
                 STREAM << *crit5 << std::endl;
+                STREAM << *crit6 << std::endl;
             }
             {
                 vector_type::iterator it = v.begin();
@@ -353,12 +365,19 @@ int main() {
                 STREAM << *( crit += 3 ) << std::endl;
                 STREAM << *( crit -= 2 ) << std::endl;
                 STREAM << crit->data() << std::endl;
+
+                const_vector_type cv( v );
+
+                STREAM << *cv.begin() << std::endl;
+                STREAM << *--cv.end() << std::endl;
+                STREAM << *cv.rbegin() << std::endl;
+                STREAM << *--cv.rend() << std::endl;
             }
             {
                 vector_type::iterator               it( v.begin() + 2 );
                 vector_type::const_iterator         cit( it );
-                vector_type::reverse_iterator       rit( v.begin() + 2 );
-                vector_type::const_reverse_iterator crit( it );
+                vector_type::reverse_iterator       rit( v.rbegin() + 2 );
+                vector_type::const_reverse_iterator crit( rit );
 
                 STREAM << ( it == it ) << std::endl;
                 STREAM << ( it == cit ) << std::endl;
@@ -461,11 +480,6 @@ int main() {
                 STREAM << ( rit + 1 >= rit ) << std::endl;
                 STREAM << ( rit + 1 >= crit ) << std::endl;
                 STREAM << ( crit + 1 >= rit ) << std::endl;
-
-                const_vector_type cv( v );
-
-                STREAM << *cv.begin() << std::endl;
-                STREAM << *--cv.end() << std::endl;
             }
             {
                 std::rotate( v.begin(),
@@ -723,7 +737,9 @@ int main() {
     }
 
     /* ---------------------------------- Stack --------------------------------- */
-    {}
+    {
+
+    }
     /* ----------------------------------- Map ---------------------------------- */
     {
         typedef NS::map< key_type,
@@ -741,11 +757,11 @@ int main() {
                     map_type::value_type( g(), f() ),
                     map_type::value_type( g(), f() ) };
 
-            map_type m1;
-            map_type m2( arr,
+            map_type       m1;
+            map_type       m2( arr,
                          arr + sizeof( arr ) / sizeof( map_type::value_type ) );
-            map_type m3( m2 );
-            const_map_type cm(m3);
+            map_type       m3( m2 );
+            const_map_type cm( m3 );
 
             STREAM << m1 << std::endl;
             STREAM << m2 << std::endl;
@@ -760,7 +776,153 @@ int main() {
         }
         /* -------------------------------- Iterators ------------------------------- */
         {
+            const map_type::value_type arr[]
+                = { map_type::value_type( g(), f() ),
+                    map_type::value_type( g(), f() ),
+                    map_type::value_type( g(), f() ),
+                    map_type::value_type( g(), f() ) };
+            map_type m( arr,
+                        arr + sizeof( arr ) / sizeof( map_type::value_type ) );
 
+            {
+                map_type::iterator it1;
+                map_type::iterator it2 = m.begin();
+                map_type::iterator it3( it2 );
+
+                it1 = it2;
+
+                STREAM << *it1 << std::endl;
+                STREAM << *it2 << std::endl;
+                STREAM << *it3 << std::endl;
+
+                map_type::const_iterator cit1;
+                map_type::const_iterator cit2 = m.begin();
+                map_type::const_iterator cit3( cit2 );
+                map_type::const_iterator cit4( it1 );
+                map_type::const_iterator cit5;
+
+                cit1 = cit2;
+                cit5 = it1;
+
+                STREAM << *cit1 << std::endl;
+                STREAM << *cit2 << std::endl;
+                STREAM << *cit3 << std::endl;
+                STREAM << *cit4 << std::endl;
+                STREAM << *cit5 << std::endl;
+
+                map_type::reverse_iterator rit1;
+                map_type::reverse_iterator rit2 = m.rbegin();
+                map_type::reverse_iterator rit3( rit2 );
+                map_type::reverse_iterator rit4( m.end() );
+
+                rit1 = rit2;
+
+                STREAM << *rit1 << std::endl;
+                STREAM << *rit2 << std::endl;
+                STREAM << *rit3 << std::endl;
+                STREAM << *rit4 << std::endl;
+
+                map_type::const_reverse_iterator crit1;
+                map_type::const_reverse_iterator crit2 = m.rbegin();
+                map_type::const_reverse_iterator crit3( crit2 );
+                map_type::const_reverse_iterator crit4( rit1 );
+                map_type::const_reverse_iterator crit5;
+                map_type::reverse_iterator       crit6( m.end() );
+
+                crit1 = crit2;
+                crit5 = rit1;
+
+                STREAM << *crit1 << std::endl;
+                STREAM << *crit2 << std::endl;
+                STREAM << *crit3 << std::endl;
+                STREAM << *crit4 << std::endl;
+                STREAM << *crit5 << std::endl;
+                STREAM << *crit6 << std::endl;
+            }
+            {
+                map_type::iterator it = m.begin();
+
+                STREAM << *it << std::endl;
+                STREAM << *++it << std::endl;
+                STREAM << *it++ << std::endl;
+                STREAM << *it << std::endl;
+                STREAM << *--it << std::endl;
+                STREAM << *it-- << std::endl;
+                STREAM << *it << std::endl;
+                STREAM << it->first << std::endl;
+
+                map_type::const_iterator cit = m.begin();
+
+                STREAM << *cit << std::endl;
+                STREAM << *++cit << std::endl;
+                STREAM << *cit++ << std::endl;
+                STREAM << *cit << std::endl;
+                STREAM << *--cit << std::endl;
+                STREAM << *cit-- << std::endl;
+                STREAM << *cit << std::endl;
+                STREAM << cit->first << std::endl;
+
+                map_type::reverse_iterator rit = m.rbegin();
+
+                STREAM << *rit << std::endl;
+                STREAM << *++rit << std::endl;
+                STREAM << *rit++ << std::endl;
+                STREAM << *rit << std::endl;
+                STREAM << *--rit << std::endl;
+                STREAM << *rit-- << std::endl;
+                STREAM << *rit << std::endl;
+                STREAM << rit->first << std::endl;
+
+                map_type::const_reverse_iterator crit = m.rbegin();
+
+                STREAM << *crit << std::endl;
+                STREAM << *++crit << std::endl;
+                STREAM << *crit++ << std::endl;
+                STREAM << *crit << std::endl;
+                STREAM << *--crit << std::endl;
+                STREAM << *crit-- << std::endl;
+                STREAM << *crit << std::endl;
+                STREAM << crit->first << std::endl;
+
+                const_map_type cm( m );
+
+                STREAM << *cm.begin() << std::endl;
+                STREAM << *--cm.end() << std::endl;
+                STREAM << *cm.rbegin() << std::endl;
+                STREAM << *--cm.rend() << std::endl;
+            }
+            {
+                map_type::iterator               it( ft::next( m.begin() ) );
+                map_type::const_iterator         cit( it );
+                map_type::reverse_iterator       rit( ft::next( m.rbegin() ) );
+                map_type::const_reverse_iterator crit( rit );
+
+                STREAM << ( it == it ) << std::endl;
+                STREAM << ( it == cit ) << std::endl;
+                STREAM << ( cit == it ) << std::endl;
+                STREAM << ( it == ft::next( it ) ) << std::endl;
+                STREAM << ( it == ft::next( cit ) ) << std::endl;
+                STREAM << ( cit == ft::next( it ) ) << std::endl;
+                STREAM << ( rit == rit ) << std::endl;
+                STREAM << ( rit == crit ) << std::endl;
+                STREAM << ( crit == rit ) << std::endl;
+                STREAM << ( rit == ft::next( rit ) ) << std::endl;
+                STREAM << ( rit == ft::next( crit ) ) << std::endl;
+                STREAM << ( crit == ft::next( rit ) ) << std::endl;
+
+                STREAM << ( it != it ) << std::endl;
+                STREAM << ( it != cit ) << std::endl;
+                STREAM << ( cit != it ) << std::endl;
+                STREAM << ( it != ft::next( it ) ) << std::endl;
+                STREAM << ( it != ft::next( cit ) ) << std::endl;
+                STREAM << ( cit != ft::next( it ) ) << std::endl;
+                STREAM << ( rit != rit ) << std::endl;
+                STREAM << ( rit != crit ) << std::endl;
+                STREAM << ( crit != rit ) << std::endl;
+                STREAM << ( rit != ft::next( rit ) ) << std::endl;
+                STREAM << ( rit != ft::next( crit ) ) << std::endl;
+                STREAM << ( crit != ft::next( rit ) ) << std::endl;
+            }
         }
         /* -------------------------------- Capacity -------------------------------- */
         {
@@ -783,9 +945,7 @@ int main() {
 
         }
         /* -------------------------------- Allocator ------------------------------- */
-        {
-
-        }
+        {}
         /* -------------------------------------------------------------------------- */
     }
     /* ----------------------------------- Set ---------------------------------- */
@@ -815,10 +975,14 @@ int main() {
 
         }
         /* -------------------------------- Allocator ------------------------------- */
-        {
-
-        }
+        {}
         /* -------------------------------------------------------------------------- */
     }
+
+    /* ---------------------------------- Leaks --------------------------------- */
+
+    STREAM << key_type::get_global_count() << std::endl;
+    STREAM << mapped_type::get_global_count() << std::endl;
+
     /* -------------------------------------------------------------------------- */
 }
