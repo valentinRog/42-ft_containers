@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 #include <sstream>
+#include <stack>
 #include <typeinfo>
 #include <vector>
 
@@ -143,6 +144,27 @@ bool operator!=( Vallocator< T > const &x, Vallocator< U > const &y ) {
     return !( x == y );
 }
 
+/* ------------------------------ Mutant stack ------------------------------ */
+
+template < typename T, typename C > struct S : public NS::stack< T, C > {
+    typedef typename NS::stack< T, C >::container_type::const_iterator
+        const_iterator;
+    typedef typename NS::stack< T, C >::container_type::const_reverse_iterator
+        const_reverse_iterator;
+
+    S< T, C >() {}
+    S< T, C >( const S< T, C > &other ) : NS::stack< T, C >( other ) {}
+    S< T, C >( const NS::stack< T, C > &other ) : NS::stack< T, C >( other ) {}
+    S< T, C > &operator=( const S< T, C > &other ) {
+        NS::stack< T, C >::operator=( other );
+    }
+
+    const_iterator         begin() const { return this->c.begin(); }
+    const_reverse_iterator rbegin() const { return this->c.rbegin(); }
+    const_iterator         end() const { return this->c.end(); }
+    const_reverse_iterator rend() const { return this->c.rend(); }
+};
+
 /* ------------------------ ostream operator overload ----------------------- */
 
 template < typename T, typename A >
@@ -156,6 +178,19 @@ std::ostream &operator<<( std::ostream &os, const NS::vector< T, A > &v ) {
         os << *it;
     }
     os << "]}";
+    return os;
+}
+
+template < typename T, typename C >
+std::ostream &operator<<( std::ostream &os, const NS::stack< T, C > &s ) {
+    S< T, C > ms( s );
+    os << "[";
+    for ( typename S< T, C >::const_iterator cit = ms.begin(); cit != ms.end();
+          cit++ ) {
+        if ( cit != ms.begin() ) { os << ", "; }
+        os << *cit;
+    }
+    os << "]";
     return os;
 }
 
@@ -750,7 +785,58 @@ int main() {
 
     /* ---------------------------------- Stack --------------------------------- */
     {
+        typedef NS::stack<
+            mapped_type,
+            NS::vector< mapped_type, Vallocator< mapped_type > > >
+            stack_type;
 
+        stack_type s;
+
+        STREAM << s << std::endl;
+        STREAM << s.empty() << std::endl;
+
+        s.push( f() );
+
+        STREAM << s.top() << std::endl;
+        STREAM << s << std::endl;
+
+        s.pop();
+
+        STREAM << s << std::endl;
+
+        s.push( f() );
+        s.push( f() );
+        s.push( f() );
+        s.top() = f();
+
+        STREAM << s << std::endl;
+
+        s.pop();
+        s.pop();
+
+        STREAM << s << std::endl;
+
+        stack_type s2;
+        s2.push( f() );
+
+        STREAM << ( s == s ) << std::endl;
+        STREAM << ( s == s2 ) << std::endl;
+        STREAM << ( s2 == s ) << std::endl;
+        STREAM << ( s != s ) << std::endl;
+        STREAM << ( s != s2 ) << std::endl;
+        STREAM << ( s2 != s ) << std::endl;
+        STREAM << ( s < s ) << std::endl;
+        STREAM << ( s < s2 ) << std::endl;
+        STREAM << ( s2 < s ) << std::endl;
+        STREAM << ( s > s ) << std::endl;
+        STREAM << ( s > s2 ) << std::endl;
+        STREAM << ( s2 > s ) << std::endl;
+        STREAM << ( s <= s ) << std::endl;
+        STREAM << ( s <= s2 ) << std::endl;
+        STREAM << ( s2 <= s ) << std::endl;
+        STREAM << ( s >= s ) << std::endl;
+        STREAM << ( s >= s2 ) << std::endl;
+        STREAM << ( s2 >= s ) << std::endl;
     }
     /* ----------------------------------- Map ---------------------------------- */
     {
