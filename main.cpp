@@ -1,3 +1,9 @@
+#ifndef NS
+#define NS std
+#endif
+
+#ifdef NS
+
 #include "src/map.hpp"
 #include "src/set.hpp"
 #include "src/stack.hpp"
@@ -12,10 +18,6 @@
 #include <stack>
 #include <typeinfo>
 #include <vector>
-
-#ifndef NS
-#define NS std
-#endif
 
 #define STREAM std::cout << "#" << __LINE__ << "  "
 
@@ -49,6 +51,7 @@ public:
 /* --------------------------------- Functor -------------------------------- */
 
 template < typename T > struct F {
+    F() : _n( 0 ) {}
     typename T::value_type operator()() {
         _n++;
         std::stringstream ss;
@@ -854,6 +857,11 @@ int main() {
                                        value_type( g(), f() ),
                                        value_type( g(), f() ) };
 
+            std::cout << arr[0] << std::endl;
+            std::cout << arr[1] << std::endl;
+            std::cout << arr[2] << std::endl;
+            std::cout << arr[3] << std::endl;
+
             map_type m1;
             map_type m2( arr, arr + sizeof( arr ) / sizeof( value_type ) );
             map_type m3( m2 );
@@ -1564,3 +1572,5 @@ int main() {
 
     /* -------------------------------------------------------------------------- */
 }
+
+#endif

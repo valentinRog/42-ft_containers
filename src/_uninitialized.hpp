@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "iterator.hpp"
 
 namespace ft {
 
@@ -45,7 +46,7 @@ template < typename ForwardIterator >
 inline void _destroy( ForwardIterator first, ForwardIterator last ) {
 #ifdef __GNUG__
     _Destroy_aux< __has_trivial_destructor(
-        typename std::iterator_traits< ForwardIterator >::value_type ) >::
+        typename ft::iterator_traits< ForwardIterator >::value_type ) >::
         _destroy( first, last );
 #else
     _Destroy_aux< false >::_destroy( first, last );

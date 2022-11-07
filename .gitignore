@@ -1,5 +1,8 @@
 .vscode
 containers_test
 a.out
-1
-2
+*.o
+*.output
+*.diff
+std
+ft
