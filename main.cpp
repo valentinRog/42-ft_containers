@@ -20,27 +20,21 @@
 /* ---------------------------------- Data ---------------------------------- */
 
 template < typename T > class A {
-    static std::size_t global_count;
-    T *                _data;
+    T *_data;
 
 public:
     typedef T value_type;
 
-    A( T val = T() ) : _data( new T( val ) ) { global_count++; }
-    A( const A &other ) : _data( new T( *other._data ) ) { global_count++; }
+    A( T val = T() ) : _data( new T( val ) ) {}
+    A( const A &other ) : _data( new T( *other._data ) ) {}
     A &operator=( const A &other ) {
         *_data = *other._data;
         return *this;
     }
-    virtual ~A() {
-        delete _data;
-        global_count--;
-    }
+    virtual ~A() { delete _data; }
 
     T &      data() { return *_data; }
     const T &data() const { return *_data; }
-
-    static std::size_t get_global_count() { return global_count; }
 
     bool operator==( const A &other ) const { return *_data == *other._data; }
     bool operator!=( const A &other ) const { return *_data != *other._data; }
@@ -49,8 +43,6 @@ public:
     bool operator<=( const A &other ) const { return *_data <= *other._data; }
     bool operator>=( const A &other ) const { return *_data >= *other._data; }
 };
-
-template < typename T > std::size_t A< T >::global_count;
 
 /* --------------------------------- Functor -------------------------------- */
 
@@ -758,7 +750,7 @@ int main() {
                     map_type::value_type( g(), f() ) };
 
             map_type       m1;
-            map_type       m2( arr,
+            map_type m2( arr,
                          arr + sizeof( arr ) / sizeof( map_type::value_type ) );
             map_type       m3( m2 );
             const_map_type cm( m3 );
@@ -978,11 +970,6 @@ int main() {
         {}
         /* -------------------------------------------------------------------------- */
     }
-
-    /* ---------------------------------- Leaks --------------------------------- */
-
-    STREAM << key_type::get_global_count() << std::endl;
-    STREAM << mapped_type::get_global_count() << std::endl;
 
     /* -------------------------------------------------------------------------- */
 }
