@@ -38,6 +38,7 @@ public:
 
     class Iterator {
     public:
+        typedef value_type                                    value_type;
         typedef typename allocator_type::const_reference      reference;
         typedef typename allocator_type::const_reference      const_reference;
         typedef typename allocator_type::const_pointer        pointer;
