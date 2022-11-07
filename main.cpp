@@ -1056,7 +1056,54 @@ int main() {
         }
         /* ------------------------------- Operations ------------------------------- */
         {
+            const value_type arr[] = { value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ) };
 
+            map_type m( arr, arr + sizeof( arr ) / sizeof( value_type ) );
+
+            STREAM << ( m.find( g() ) == m.end() ) << std::endl;
+            STREAM << *m.find( arr[2].first ) << std::endl;
+
+            STREAM << m.count( g() ) << std::endl;
+            STREAM << m.count( arr[2].first ) << std::endl;
+
+            STREAM << *m.lower_bound( arr->first ) << std::endl;
+            STREAM << *m.lower_bound( arr[1].first ) << std::endl;
+            STREAM << ( m.lower_bound( g() ) == m.end() ) << std::endl;
+            STREAM
+                << ( m.lower_bound(
+                         arr[sizeof( arr ) / sizeof( value_type ) - 1].first )
+                     == m.end() )
+                << std::endl;
+
+            STREAM << *m.upper_bound( arr->first ) << std::endl;
+            STREAM << *m.upper_bound( arr[1].first ) << std::endl;
+            STREAM << ( m.upper_bound( g() ) == m.end() ) << std::endl;
+            STREAM
+                << ( m.upper_bound(
+                         arr[sizeof( arr ) / sizeof( value_type ) - 1].first )
+                     == m.end() )
+                << std::endl;
+
+            NS::pair< map_type::iterator, map_type::iterator > res;
+            res = m.equal_range( arr[2].first );
+
+            STREAM << *res.first << std::endl;
+            STREAM << std::distance( res.first, res.second ) << std::endl;
+
+            res = m.equal_range( g() );
+
+            STREAM << std::distance( res.first, res.second ) << std::endl;
+
+            const_map_type cm( m );
+
+            STREAM << *cm.find( arr->first ) << std::endl;
+            STREAM << cm.count( arr->first ) << std::endl;
+            STREAM << *cm.lower_bound( arr->first ) << std::endl;
+            STREAM << *cm.upper_bound( arr->first ) << std::endl;
+            STREAM << *cm.equal_range( arr[2].first ).first << std::endl;
         }
         /* -------------------------- Relational operators -------------------------- */
         {
@@ -1309,7 +1356,49 @@ int main() {
         }
         /* ------------------------------- Operations ------------------------------- */
         {
+            const mapped_type arr[] = { f(), f(), f(), f() };
 
+            set_type s( arr, arr + sizeof( arr ) / sizeof( mapped_type ) );
+
+            STREAM << ( s.find( f() ) == s.end() ) << std::endl;
+            STREAM << *s.find( arr[2] ) << std::endl;
+
+            STREAM << s.count( f() ) << std::endl;
+            STREAM << s.count( arr[2] ) << std::endl;
+
+            STREAM << *s.lower_bound( *arr ) << std::endl;
+            STREAM << *s.lower_bound( arr[1] ) << std::endl;
+            STREAM << ( s.lower_bound( f() ) == s.end() ) << std::endl;
+            STREAM << ( s.lower_bound(
+                            arr[sizeof( arr ) / sizeof( mapped_type ) - 1] )
+                        == s.end() )
+                   << std::endl;
+
+            STREAM << *s.upper_bound( *arr ) << std::endl;
+            STREAM << *s.upper_bound( arr[1] ) << std::endl;
+            STREAM << ( s.upper_bound( f() ) == s.end() ) << std::endl;
+            STREAM << ( s.upper_bound(
+                            arr[sizeof( arr ) / sizeof( mapped_type ) - 1] )
+                        == s.end() )
+                   << std::endl;
+
+            NS::pair< set_type::iterator, set_type::iterator > res;
+            res = s.equal_range( arr[2] );
+
+            STREAM << *res.first << std::endl;
+            STREAM << std::distance( res.first, res.second ) << std::endl;
+
+            res = s.equal_range( f() );
+
+            STREAM << std::distance( res.first, res.second ) << std::endl;
+
+            const_set_type cs( s );
+
+            STREAM << *cs.find( *arr ) << std::endl;
+            STREAM << cs.count( *arr ) << std::endl;
+            STREAM << *cs.lower_bound( *arr ) << std::endl;
+            STREAM << *cs.upper_bound( *arr ) << std::endl;
+            STREAM << *cs.equal_range( arr[2] ).first << std::endl;
         }
         /* -------------------------- Relational operators -------------------------- */
         {
