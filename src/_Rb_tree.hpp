@@ -245,7 +245,7 @@ public:
         return _insert( data, _root );
     }
     ft::pair< iterator, bool > insert( iterator hint, const value_type &data ) {
-        iterator right = ++iterator( hint );
+        (void)hint;
         return insert( data );
     }
     template < class InputIterator >
