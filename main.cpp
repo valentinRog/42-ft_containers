@@ -107,9 +107,13 @@ template < typename T > struct Vallocator {
         ::operator delete( p );
     }
     void construct( pointer p, value_type const &val ) {
+        _n_construction++;
         ::new ( p ) value_type( val );
     }
-    void destroy( pointer p ) { p->~value_type(); }
+    void destroy( pointer p ) {
+        _n_construction--;
+        p->~value_type();
+    }
 
     size_type max_size() const throw() {
         return std::numeric_limits< size_type >::max() / sizeof( value_type );
@@ -118,13 +122,17 @@ template < typename T > struct Vallocator {
     const_pointer address( const_reference x ) const { return &x; }
 
     static size_type get_n_allocation() { return _n_allocation; }
+    static size_type get_n_construction() { return _n_construction; }
 
 private:
     static size_type _n_allocation;
+    static size_type _n_construction;
 };
 
 template < typename T >
 typename Vallocator< T >::size_type Vallocator< T >::_n_allocation;
+template < typename T >
+typename Vallocator< T >::size_type Vallocator< T >::_n_construction;
 
 template < typename T, typename U >
 bool operator==( Vallocator< T > const &, Vallocator< U > const & ) {
@@ -587,151 +595,137 @@ int main() {
         }
         /* -------------------------------- Modifiers ------------------------------- */
         {
-            vector_type v1;
-            vector_type v2;
+            const mapped_type arr[] = { f(), f(), f(), f(), f() };
+            vector_type       v;
 
-            v1.assign( 5, f() );
-            v2.assign( v1.begin(), v1.end() - 1 );
+            v.assign( 5, f() );
 
-            STREAM << v1 << std::endl;
-            STREAM << v2 << std::endl;
+            STREAM << v << std::endl;
 
-            v1.assign( 4, f() );
-            v2.assign( v1.rbegin(), v1.rend() - 2 );
+            v.assign( arr, arr + 3 );
 
-            STREAM << v1 << std::endl;
-            STREAM << v2 << std::endl;
+            STREAM << v << std::endl;
 
-            v1.push_back( f() );
+            v.push_back( f() );
 
-            STREAM << v1 << std::endl;
+            STREAM << v << std::endl;
 
-            v1.push_back( f() );
-            v1.push_back( f() );
+            v.push_back( f() );
+            v.push_back( f() );
 
-            STREAM << v1 << std::endl;
+            STREAM << v << std::endl;
 
-            for ( vector_type::size_type i( 0 ); v1.size(); i++ ) {
-                v1.pop_back();
+            for ( vector_type::size_type i( 0 ); v.size(); i++ ) {
+                v.pop_back();
 
-                STREAM << v1 << std::endl;
+                STREAM << v << std::endl;
             }
 
-            v2 = vector_type( 3 );
+            v = vector_type( 3 );
+            v.insert( v.begin(), 10, f() );
+
+            STREAM << v << std::endl;
+
+            v.insert( v.begin(), f() );
+            v.insert( v.begin() + 3, f() );
+            v.insert( v.end(), f() );
+
+            STREAM << v << std::endl;
+
+            v.insert( v.begin(), 2, f() );
+            v.insert( v.begin() + 3, 2, f() );
+            v.insert( v.end(), 2, f() );
+
+            STREAM << v << std::endl;
+
+            v.insert( v.begin(),
+                      arr,
+                      arr + sizeof( arr ) / sizeof( mapped_type ) );
+            v.insert( v.begin() + 2,
+                      arr,
+                      arr + sizeof( arr ) / sizeof( mapped_type ) );
+            v.insert( v.end(),
+                      arr,
+                      arr + sizeof( arr ) / sizeof( mapped_type ) );
+
+            STREAM << v << std::endl;
+
+            v.erase( v.begin() );
+            v.erase( v.begin() + 5 );
+            v.erase( v.end() );
+
+            STREAM << v << std::endl;
+
+            v.erase( v.begin(), v.begin() + 4 );
+            v.erase( v.begin() + 3, v.begin() + 4 );
+            v.erase( v.end() - 2, v.end() );
+
+            STREAM << v << std::endl;
+
+            vector_type v2( 3 );
             std::generate( v2.begin(), v2.end(), f );
-            v1.insert( v1.begin(), 10, f() );
 
-            STREAM << v1 << std::endl;
+            v.swap( v2 );
 
-            v1.insert( v1.begin(), f() );
-            v1.insert( v1.begin() + 3, f() );
-            v1.insert( v1.end(), f() );
-
-            STREAM << v1 << std::endl;
-
-            v1.insert( v1.begin(), 2, f() );
-            v1.insert( v1.begin() + 3, 2, f() );
-            v1.insert( v1.end(), 2, f() );
-
-            STREAM << v1 << std::endl;
-
-            v1.insert( v1.begin(), v2.begin(), v2.end() );
-            v1.insert( v1.begin() + 2, v2.begin(), v2.end() );
-            v1.insert( v1.end(), v2.begin(), v2.end() );
-
-            STREAM << v1 << std::endl;
-
-            v1.erase( v1.begin() );
-            v1.erase( v1.begin() + 5 );
-            v1.erase( v1.end() );
-
-            STREAM << v1 << std::endl;
-
-            v1.erase( v1.begin(), v1.begin() + 4 );
-            v1.erase( v1.begin() + 3, v1.begin() + 4 );
-            v1.erase( v1.end() - 2, v1.end() );
-
-            STREAM << v1 << std::endl;
-
-            v1.swap( v2 );
-
-            STREAM << v1 << std::endl;
+            STREAM << v << std::endl;
             STREAM << v2 << std::endl;
 
-            vector_type( v1 ).swap( v1 );
+            vector_type( v ).swap( v );
             vector_type( v2 ).swap( v2 );
 
-            STREAM << v1 << std::endl;
+            STREAM << v << std::endl;
             STREAM << v2 << std::endl;
 
-            v1.clear();
+            v.clear();
             v2.clear();
 
-            STREAM << v1 << std::endl;
+            STREAM << v << std::endl;
             STREAM << v2 << std::endl;
-        }
-        /* -------------------------------- Allocator ------------------------------- */
-        {
-            vector_type               v1;
-            vector_type               v2( ( vector_type::allocator_type() ) );
-            NS::vector< mapped_type > v3;
-
-            STREAM << ( v1.get_allocator() == Vallocator< mapped_type >() )
-                   << std::endl;
-            STREAM << ( v1.get_allocator() == v2.get_allocator() ) << std::endl;
-            STREAM << ( v3.get_allocator() == std::allocator< mapped_type >() )
-                   << std::endl;
         }
         /* -------------------------- Relational operators -------------------------- */
         {
-            vector_type v( 10 );
-            std::generate( v.begin(), v.end(), f );
-            const_vector_type v1( v );
-            vector_type       v2( v1 );
-            vector_type       v3( v1 );
-            vector_type       v4( v1 );
-            vector_type       v5( v1 );
+            const mapped_type arr[] = { f(), f(), f(), f(), f() };
+            const_vector_type v( arr,
+                                 arr + sizeof( arr ) / sizeof( mapped_type ) );
+            vector_type       v1( v );
+            vector_type       v2( v );
+            vector_type       v3( v );
+            vector_type       v4( v );
 
-            v2.back().data()--;
-            v3.back().data()++;
-            v4.pop_back();
-            v5.push_back( f() );
+            v1.back().data()--;
+            v2.back().data()++;
+            v3.pop_back();
+            v4.push_back( f() );
 
             STREAM << ( v == v1 ) << std::endl;
             STREAM << ( v == v2 ) << std::endl;
             STREAM << ( v == v3 ) << std::endl;
             STREAM << ( v == v4 ) << std::endl;
-            STREAM << ( v == v5 ) << std::endl;
 
             STREAM << ( v != v1 ) << std::endl;
             STREAM << ( v != v2 ) << std::endl;
             STREAM << ( v != v3 ) << std::endl;
             STREAM << ( v != v4 ) << std::endl;
-            STREAM << ( v != v5 ) << std::endl;
 
             STREAM << ( v < v1 ) << std::endl;
             STREAM << ( v < v2 ) << std::endl;
             STREAM << ( v < v3 ) << std::endl;
             STREAM << ( v < v4 ) << std::endl;
-            STREAM << ( v < v5 ) << std::endl;
 
             STREAM << ( v > v1 ) << std::endl;
             STREAM << ( v > v2 ) << std::endl;
             STREAM << ( v > v3 ) << std::endl;
             STREAM << ( v > v4 ) << std::endl;
-            STREAM << ( v > v5 ) << std::endl;
 
             STREAM << ( v <= v1 ) << std::endl;
             STREAM << ( v <= v2 ) << std::endl;
             STREAM << ( v <= v3 ) << std::endl;
             STREAM << ( v <= v4 ) << std::endl;
-            STREAM << ( v <= v5 ) << std::endl;
 
             STREAM << ( v >= v1 ) << std::endl;
             STREAM << ( v >= v2 ) << std::endl;
             STREAM << ( v >= v3 ) << std::endl;
             STREAM << ( v >= v4 ) << std::endl;
-            STREAM << ( v >= v5 ) << std::endl;
         }
         /* ---------------------------------- Swap ---------------------------------- */
         {
@@ -743,6 +737,13 @@ int main() {
 
             STREAM << v1 << std::endl;
             STREAM << v2 << std::endl;
+        }
+        /* -------------------------------- Allocator ------------------------------- */
+        {
+            STREAM << vector_type().get_allocator().get_n_allocation()
+                   << std::endl;
+            STREAM << vector_type().get_allocator().get_n_construction()
+                   << std::endl;
         }
         /* -------------------------------------------------------------------------- */
     }
@@ -945,7 +946,17 @@ int main() {
         }
         /* -------------------------------- Capacity -------------------------------- */
         {
+            map_type m;
 
+            STREAM << m.empty() << std::endl;
+
+            m[g()] = f();
+
+            STREAM << m.empty() << std::endl;
+
+            m.clear();
+
+            STREAM << m.empty() << std::endl;
         }
         /* ----------------------------- Element access ----------------------------- */
         {
@@ -1047,8 +1058,66 @@ int main() {
         {
 
         }
+        /* -------------------------- Relational operators -------------------------- */
+        {
+            value_type       x     = value_type( g(), f() );
+            value_type       y     = value_type( g(), f() );
+            value_type       z     = value_type( g(), f() );
+            const value_type arr[] = { value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       value_type( g(), f() ),
+                                       y };
+            const_map_type m( arr, arr + sizeof( arr ) / sizeof( value_type ) );
+            map_type       m1( m );
+            map_type       m2( m );
+            map_type       m3( m );
+            map_type       m4( m );
+
+            m1.erase( y.first );
+            m1.insert( x );
+            m1.erase( y.first );
+            m2.insert( z );
+            m3.erase( y.first );
+            m4[g()] = f();
+
+            STREAM << ( m == m1 ) << std::endl;
+            STREAM << ( m == m2 ) << std::endl;
+            STREAM << ( m == m3 ) << std::endl;
+            STREAM << ( m == m4 ) << std::endl;
+
+            STREAM << ( m != m1 ) << std::endl;
+            STREAM << ( m != m2 ) << std::endl;
+            STREAM << ( m != m3 ) << std::endl;
+            STREAM << ( m != m4 ) << std::endl;
+
+            STREAM << ( m < m1 ) << std::endl;
+            STREAM << ( m < m2 ) << std::endl;
+            STREAM << ( m < m3 ) << std::endl;
+            STREAM << ( m < m4 ) << std::endl;
+
+            STREAM << ( m > m1 ) << std::endl;
+            STREAM << ( m > m2 ) << std::endl;
+            STREAM << ( m > m3 ) << std::endl;
+            STREAM << ( m > m4 ) << std::endl;
+
+            STREAM << ( m <= m1 ) << std::endl;
+            STREAM << ( m <= m2 ) << std::endl;
+            STREAM << ( m <= m3 ) << std::endl;
+            STREAM << ( m <= m4 ) << std::endl;
+
+            STREAM << ( m >= m1 ) << std::endl;
+            STREAM << ( m >= m2 ) << std::endl;
+            STREAM << ( m >= m3 ) << std::endl;
+            STREAM << ( m >= m4 ) << std::endl;
+        }
         /* -------------------------------- Allocator ------------------------------- */
-        {}
+        {
+            STREAM << map_type().get_allocator().get_n_allocation()
+                   << std::endl;
+            STREAM << map_type().get_allocator().get_n_construction()
+                   << std::endl;
+        }
         /* -------------------------------------------------------------------------- */
     }
     /* ----------------------------------- Set ---------------------------------- */
@@ -1164,7 +1233,17 @@ int main() {
         }
         /* -------------------------------- Capacity -------------------------------- */
         {
+            set_type s;
 
+            STREAM << s.empty() << std::endl;
+
+            s.insert( f() );
+
+            STREAM << s.empty() << std::endl;
+
+            s.clear();
+
+            STREAM << s.empty() << std::endl;
         }
         /* -------------------------------- Modifiers ------------------------------- */
         {
@@ -1232,8 +1311,63 @@ int main() {
         {
 
         }
+        /* -------------------------- Relational operators -------------------------- */
+        {
+            mapped_type       x     = f();
+            mapped_type       y     = f();
+            mapped_type       z     = f();
+            const mapped_type arr[] = { f(), f(), f(), f(), y };
+            const_set_type    s( arr,
+                              arr + sizeof( arr ) / sizeof( mapped_type ) );
+            set_type          s1( s );
+            set_type          s2( s );
+            set_type          s3( s );
+            set_type          s4( s );
+
+            s1.erase( y );
+            s1.insert( x );
+            s1.erase( y );
+            s2.insert( z );
+            s3.erase( y );
+            s4.insert( f() );
+
+            STREAM << ( s == s1 ) << std::endl;
+            STREAM << ( s == s2 ) << std::endl;
+            STREAM << ( s == s3 ) << std::endl;
+            STREAM << ( s == s4 ) << std::endl;
+
+            STREAM << ( s != s1 ) << std::endl;
+            STREAM << ( s != s2 ) << std::endl;
+            STREAM << ( s != s3 ) << std::endl;
+            STREAM << ( s != s4 ) << std::endl;
+
+            STREAM << ( s < s1 ) << std::endl;
+            STREAM << ( s < s2 ) << std::endl;
+            STREAM << ( s < s3 ) << std::endl;
+            STREAM << ( s < s4 ) << std::endl;
+
+            STREAM << ( s > s1 ) << std::endl;
+            STREAM << ( s > s2 ) << std::endl;
+            STREAM << ( s > s3 ) << std::endl;
+            STREAM << ( s > s4 ) << std::endl;
+
+            STREAM << ( s <= s1 ) << std::endl;
+            STREAM << ( s <= s2 ) << std::endl;
+            STREAM << ( s <= s3 ) << std::endl;
+            STREAM << ( s <= s4 ) << std::endl;
+
+            STREAM << ( s >= s1 ) << std::endl;
+            STREAM << ( s >= s2 ) << std::endl;
+            STREAM << ( s >= s3 ) << std::endl;
+            STREAM << ( s >= s4 ) << std::endl;
+        }
         /* -------------------------------- Allocator ------------------------------- */
-        {}
+        {
+            STREAM << set_type().get_allocator().get_n_allocation()
+                   << std::endl;
+            STREAM << set_type().get_allocator().get_n_construction()
+                   << std::endl;
+        }
         /* -------------------------------------------------------------------------- */
     }
 

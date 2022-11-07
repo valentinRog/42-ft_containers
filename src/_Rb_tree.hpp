@@ -289,15 +289,15 @@ public:
 
     /* -------------------------------- Allocator ------------------------------- */
 
-    allocator_type get_allocator() { return _allocator; }
+    allocator_type get_allocator() const { return _allocator; }
 
     /* -------------------------- Relational operators -------------------------- */
 
     bool operator==( const _Rb_tree &other ) const {
-        return size() == other.size() && equal( begin(), end(), other.begin() );
+        return size() == other.size() && ft::equal( begin(), end(), other.begin() );
     }
     bool operator<( const _Rb_tree &other ) const {
-        return lexicographical_compare( begin(),
+        return ft::lexicographical_compare( begin(),
                                         end(),
                                         other.begin(),
                                         other.end() );
