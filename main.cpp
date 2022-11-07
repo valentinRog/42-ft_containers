@@ -1052,7 +1052,17 @@ int main() {
         }
         /* -------------------------------- Observers ------------------------------- */
         {
+            key_type x = g();
+            key_type y = g();
 
+            STREAM << const_map_type().key_comp()( x, y ) << std::endl;
+            STREAM << const_map_type().key_comp()( y, x ) << std::endl;
+
+            value_type a( g(), f() );
+            value_type b( g(), a.second );
+
+            STREAM << const_map_type().value_comp()( a, b ) << std::endl;
+            STREAM << const_map_type().value_comp()( b, a ) << std::endl;
         }
         /* ------------------------------- Operations ------------------------------- */
         {
@@ -1352,7 +1362,13 @@ int main() {
         }
         /* -------------------------------- Observers ------------------------------- */
         {
+            mapped_type x = f();
+            mapped_type y = f();
 
+            STREAM << const_set_type().key_comp()( x, y ) << std::endl;
+            STREAM << const_set_type().key_comp()( y, x ) << std::endl;
+            STREAM << const_set_type().value_comp()( x, y ) << std::endl;
+            STREAM << const_set_type().value_comp()( y, x ) << std::endl;
         }
         /* ------------------------------- Operations ------------------------------- */
         {
