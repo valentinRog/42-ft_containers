@@ -511,9 +511,7 @@ private:
     ft::pair< node_pointer, bool > _insert( const value_type &data,
                                             node_pointer      ancestor ) {
         node_pointer p( 0 );
-        int          count = 0;
         while ( ancestor != &_nil ) {
-            count++;
             p = ancestor;
             if ( _key_compare( data.first, ancestor->data.first ) ) {
                 ancestor = ancestor->left;

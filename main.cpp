@@ -38,7 +38,7 @@ public:
     }
     virtual ~A() { delete _data; }
 
-    T &      data() { return *_data; }
+    T       &data() { return *_data; }
     const T &data() const { return *_data; }
 
     bool operator==( const A &other ) const { return *_data == *other._data; }
@@ -79,24 +79,28 @@ template < typename T > struct Vallocator;
 
 template <> struct Vallocator< void > {
     typedef void              value_type;
-    typedef value_type *      pointer;
+    typedef value_type       *pointer;
     typedef const value_type *const_pointer;
     typedef std::size_t       size_type;
     typedef std::ptrdiff_t    difference_type;
 
-    template < class U > struct rebind { typedef Vallocator< U > other; };
+    template < class U > struct rebind {
+        typedef Vallocator< U > other;
+    };
 };
 
 template < typename T > struct Vallocator {
     typedef T                 value_type;
-    typedef value_type &      reference;
+    typedef value_type       &reference;
     typedef const value_type &const_reference;
-    typedef value_type *      pointer;
+    typedef value_type       *pointer;
     typedef const value_type *const_pointer;
     typedef std::size_t       size_type;
     typedef std::ptrdiff_t    difference_type;
 
-    template < typename U > struct rebind { typedef Vallocator< U > other; };
+    template < typename U > struct rebind {
+        typedef Vallocator< U > other;
+    };
 
     Vallocator() throw() {}
     template < typename U > Vallocator( Vallocator< U > const & ) throw() {}
@@ -658,7 +662,7 @@ int main() {
 
             STREAM << v << std::endl;
 
-            for ( vector_type::size_type i( 0 ); v.size(); i++ ) {
+            while ( v.size() ) {
                 v.pop_back();
 
                 STREAM << v << std::endl;
@@ -695,7 +699,6 @@ int main() {
 
             v.erase( v.begin() );
             v.erase( v.begin() + 5 );
-            v.erase( v.end() );
 
             STREAM << v << std::endl;
 
