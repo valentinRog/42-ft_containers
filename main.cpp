@@ -120,7 +120,7 @@ template < typename T > struct Vallocator {
         ::new ( p ) value_type( val );
     }
     void destroy( pointer p ) {
-        _n_construction--;
+        if ( _n_construction ) { _n_construction--; }
         p->~value_type();
     }
 
@@ -177,7 +177,7 @@ template < typename T, typename C > struct S : public NS::stack< T, C > {
 
 template < typename T, typename A >
 std::ostream &operator<<( std::ostream &os, const NS::vector< T, A > &v ) {
-    os << "{size: " << v.size() << ", capacity: " << v.capacity() << ", data: "
+    os << "{size: " << v.size() << ", data: "
        << "[";
     for ( typename NS::vector< T, A >::const_iterator it = v.begin();
           it != v.end();
