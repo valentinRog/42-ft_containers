@@ -595,12 +595,6 @@ int main() {
             v.reserve( 20 );
 
             STREAM << v << std::endl;
-
-            try {
-                v.reserve( v.max_size() + 1 );
-            } catch ( const std::length_error & ) {
-                STREAM << "caught \"length_error\" exception" << std::endl;
-            }
         }
         /* ----------------------------- Element access ----------------------------- */
         {
