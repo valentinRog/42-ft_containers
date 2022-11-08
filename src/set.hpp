@@ -38,11 +38,9 @@ public:
 
     class Iterator {
     public:
-        typedef typename tree_type::key_type                  value_type;
-        typedef typename allocator_type::const_reference      reference;
-        typedef typename allocator_type::const_reference      const_reference;
-        typedef typename allocator_type::const_pointer        pointer;
-        typedef typename allocator_type::const_pointer        const_pointer;
+        typedef set::value_type                               value_type;
+        typedef set::const_reference                          reference;
+        typedef set::const_pointer                            pointer;
         typedef typename tree_const_iterator::difference_type difference_type;
         typedef
             typename tree_const_iterator::iterator_category iterator_category;
@@ -71,8 +69,8 @@ public:
         }
         Iterator operator--( int ) { return _it--; }
 
-        const_reference operator*() const { return _it->second; }
-        const_pointer   operator->() const { return &_it->second; }
+        reference operator*() const { return _it->second; }
+        pointer   operator->() const { return &_it->second; }
 
         bool operator==( const Iterator &other ) const {
             return _it == other._it;
