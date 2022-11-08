@@ -298,7 +298,10 @@ public:
         std::copy_backward( _data + i,
                             _data + _size - x,
                             _data + _size - x + n );
-        std::uninitialized_fill( _data + _size, _data + _size - x + n, val );
+        ft::_uninitialized_fill_a( _data + _size,
+                                   _data + _size - x + n,
+                                   val,
+                                   _allocator );
         std::fill( _data + i, _data + i + x, val );
         _size += n;
     }

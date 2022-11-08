@@ -1,8 +1,9 @@
-#ifndef NS
-#define NS std
-#endif
-
 #ifdef NS
+
+#define VECTOR_TEST true
+#define STACK_TEST true
+#define MAP_TEST true
+#define SET_TEST true
 
 #include "src/map.hpp"
 #include "src/set.hpp"
@@ -246,6 +247,7 @@ int main() {
     F< mapped_type > f;
     F< key_type >    g;
 
+    #if VECTOR_TEST
     /* --------------------------------- Vector --------------------------------- */
     {
         typedef NS::vector< mapped_type, Vallocator< mapped_type > >
@@ -785,7 +787,8 @@ int main() {
         }
         /* -------------------------------------------------------------------------- */
     }
-
+    #endif
+    #if STACK_TEST
     /* ---------------------------------- Stack --------------------------------- */
     {
         typedef NS::stack<
@@ -841,6 +844,8 @@ int main() {
         STREAM << ( s >= s2 ) << std::endl;
         STREAM << ( s2 >= s ) << std::endl;
     }
+    #endif
+    #if MAP_TEST
     /* ----------------------------------- Map ---------------------------------- */
     {
         typedef NS::map< key_type,
@@ -1271,6 +1276,8 @@ int main() {
         }
         /* -------------------------------------------------------------------------- */
     }
+    #endif
+    #if SET_TEST
     /* ----------------------------------- Set ---------------------------------- */
     {
         typedef NS::set< mapped_type,
@@ -1569,6 +1576,7 @@ int main() {
         }
         /* -------------------------------------------------------------------------- */
     }
+    #endif
 
     /* -------------------------------------------------------------------------- */
 }

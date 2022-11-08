@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
 #include "iterator.hpp"
+#include <memory>
 
 namespace ft {
 
@@ -24,6 +24,24 @@ inline ForwardIterator _uninitialized_copy_a( InputIterator   first,
                                               ForwardIterator dst,
                                               std::allocator< T > & ) {
     return std::uninitialized_copy( first, last, dst );
+}
+
+/* ---------------------------------- Fill ---------------------------------- */
+
+template < typename ForwardIterator, typename T, typename A >
+void _uninitialized_fill_a( ForwardIterator first,
+                            ForwardIterator last,
+                            const T &       x,
+                            A &             allocator ) {
+    for ( ; first != last; first++ ) { allocator.construct( &( *first ), x ); }
+}
+
+template < typename ForwardIterator, typename T, typename U >
+void _uninitialized_fill_a( ForwardIterator first,
+                            ForwardIterator last,
+                            const T &       x,
+                            std::allocator< U > & ) {
+    return std::uninitialized_fill( first, last, x );
 }
 
 /* --------------------------------- Destroy -------------------------------- */
