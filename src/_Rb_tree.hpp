@@ -102,7 +102,6 @@ private:
     public:
         typedef T                               value_type;
         typedef T &                             reference;
-        typedef const T &                       const_reference;
         typedef T *                             pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
@@ -166,9 +165,15 @@ private:
             return !( *this == other );
         }
 
-        reference       operator*() { return _node->data; }
-        const_reference operator*() const { return _node->data; }
-        pointer         operator->() const { return &_node->data; }
+        reference operator*() { return _node->data; }
+        typename Iterator< const T >::reference operator*() const {
+            return _node->data;
+        }
+
+        pointer operator->() { return &_node->data; }
+        typename Iterator< const T >::pointer operator->() const {
+            return &_node->data;
+        }
 
         operator Iterator< const T >() const {
             return Iterator< const T >( _node );
@@ -245,7 +250,7 @@ public:
         return _insert( data, _root );
     }
     ft::pair< iterator, bool > insert( iterator hint, const value_type &data ) {
-        (void)hint;
+        ( void ) hint;
         return insert( data );
     }
     template < class InputIterator >
@@ -294,13 +299,14 @@ public:
     /* -------------------------- Relational operators -------------------------- */
 
     bool operator==( const _Rb_tree &other ) const {
-        return size() == other.size() && ft::equal( begin(), end(), other.begin() );
+        return size() == other.size()
+               && ft::equal( begin(), end(), other.begin() );
     }
     bool operator<( const _Rb_tree &other ) const {
         return ft::lexicographical_compare( begin(),
-                                        end(),
-                                        other.begin(),
-                                        other.end() );
+                                            end(),
+                                            other.begin(),
+                                            other.end() );
     }
     bool operator!=( const _Rb_tree &other ) const {
         return !( *this == other );

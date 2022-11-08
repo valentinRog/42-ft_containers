@@ -42,7 +42,6 @@ public:
     public:
         typedef typename T::value_type        value_type;
         typedef typename T::reference         reference;
-        typedef typename T::const_reference   const_reference;
         typedef typename T::pointer           pointer;
         typedef typename T::difference_type   difference_type;
         typedef typename T::iterator_category iterator_category;
@@ -70,9 +69,15 @@ public:
         }
         Iterator operator--( int ) { return _it--; }
 
-        reference       operator*() { return *_it; }
-        const_reference operator*() const { return *_it; }
-        pointer         operator->() const { return _it.operator->(); }
+        reference operator*() { return *_it; }
+        typename Iterator< tree_const_iterator >::reference operator*() const {
+            return *_it;
+        }
+
+        pointer operator->() { return _it.operator->(); }
+        typename Iterator< tree_const_iterator >::pointer operator->() const {
+            return _it.operator->();
+        }
 
         template < typename U >
         bool operator==( const Iterator< U > &other ) const {

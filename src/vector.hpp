@@ -20,7 +20,6 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
         typedef U                               value_type;
         typedef value_type &                    reference;
         typedef value_type *                    pointer;
-        typedef const pointer                   const_pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::random_access_iterator_tag iterator_category;
 
@@ -30,7 +29,7 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
     public:
         Iterator() : _p( 0 ) {}
         Iterator( pointer p ) : _p( p ) {}
-        Iterator( const Iterator &other ) : _p( other.operator->() ) {}
+        Iterator( const Iterator &other ) : _p( other._p ) {}
 
         Iterator &operator=( const Iterator &other ) {
             _p = other._p;
@@ -99,10 +98,21 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
             return ( _p <= other.operator->() );
         };
 
-        reference operator*() { return *_p; }
+        reference                               operator*() { return *_p; }
+        typename Iterator< const U >::reference operator*() const {
+            return *_p;
+        }
+
         reference operator[]( difference_type i ) { return _p[i]; }
-        pointer   operator->() { return ( _p ); };
-        pointer   operator->() const { return ( _p ); };
+        typename Iterator< const U >::reference
+        operator[]( difference_type i ) const {
+            return _p[i];
+        }
+
+        pointer                               operator->() { return ( _p ); };
+        typename Iterator< const U >::pointer operator->() const {
+            return ( _p );
+        };
 
         operator Iterator< const U >() const {
             return ( Iterator< const U >( _p ) );
