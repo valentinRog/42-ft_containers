@@ -781,6 +781,15 @@ int main() {
             STREAM << v1 << std::endl;
             STREAM << v2 << std::endl;
         }
+        /* -------------------------------- Benchmark ------------------------------- */
+        {
+            vector_type v;
+            mapped_type x = f();
+
+            for ( vector_type::size_type i( 0 ); i < 10000000; i++ ) {
+                v.push_back( x );
+            }
+        }
         /* -------------------------------- Allocator ------------------------------- */
         {
             STREAM << vector_type().get_allocator().get_n_allocation()
@@ -1270,6 +1279,14 @@ int main() {
             STREAM << ( m >= m3 ) << std::endl;
             STREAM << ( m >= m4 ) << std::endl;
         }
+        /* -------------------------------- Benchmark ------------------------------- */
+        {
+            map_type      m;
+            mapped_type   x = f();
+            F< key_type > h;
+
+            for ( map_type::size_type i( 0 ); i < 1000000; i++ ) { m[h()] = x; }
+        }
         /* -------------------------------- Allocator ------------------------------- */
         {
             STREAM << map_type().get_allocator().get_n_allocation()
@@ -1569,6 +1586,15 @@ int main() {
             STREAM << ( s >= s2 ) << std::endl;
             STREAM << ( s >= s3 ) << std::endl;
             STREAM << ( s >= s4 ) << std::endl;
+        }
+        /* -------------------------------- Benchmark ------------------------------- */
+        {
+            set_type         m;
+            F< mapped_type > h;
+
+            for ( set_type::size_type i( 0 ); i < 1000000; i++ ) {
+                m.insert( h() );
+            }
         }
         /* -------------------------------- Allocator ------------------------------- */
         {
