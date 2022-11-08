@@ -188,45 +188,48 @@ std::ostream &operator<<( std::ostream &os, const NS::vector< T, A > &v ) {
 template < typename T, typename C >
 std::ostream &operator<<( std::ostream &os, const NS::stack< T, C > &s ) {
     S< T, C > ms( s );
-    os << "[";
+    os << "{size: " << ms.size() << ", data: "
+       << "[";
     for ( typename S< T, C >::const_iterator cit = ms.begin(); cit != ms.end();
           cit++ ) {
         if ( cit != ms.begin() ) { os << ", "; }
         os << *cit;
     }
-    os << "]";
+    os << "]}";
     return os;
 }
 
 template < typename T1, typename T2 >
 std::ostream &operator<<( std::ostream &os, const NS::pair< T1, T2 > &p ) {
-    os << p.first << ": " << p.second;
+    os << "{" << p.first << ", " << p.second << "}";
     return os;
 }
 
 template < typename K, typename V, typename C, typename A >
 std::ostream &operator<<( std::ostream &os, const NS::map< K, V, C, A > &m ) {
-    os << "{";
+    os << "{size: " << m.size() << ", data: "
+       << "{";
     for ( typename NS::map< K, V, C, A >::const_iterator it = m.begin();
           it != m.end();
           it++ ) {
         if ( it != m.begin() ) { os << ", "; }
         os << *it;
     }
-    os << "}";
+    os << "}}";
     return os;
 }
 
 template < typename T, typename C, typename A >
 std::ostream &operator<<( std::ostream &os, const NS::set< T, C, A > s ) {
-    os << "{";
+    os << "{size: " << s.size() << ", data: "
+       << "{";
     for ( typename NS::set< T, C, A >::const_iterator it = s.begin();
           it != s.end();
           it++ ) {
         if ( it != s.begin() ) { os << ", "; }
         os << *it;
     }
-    os << "}";
+    os << "}}";
     return os;
 }
 
@@ -247,7 +250,7 @@ int main() {
     F< mapped_type > f;
     F< key_type >    g;
 
-    #if VECTOR_TEST
+#if VECTOR_TEST
     /* --------------------------------- Vector --------------------------------- */
     {
         typedef NS::vector< mapped_type, Vallocator< mapped_type > >
@@ -787,8 +790,8 @@ int main() {
         }
         /* -------------------------------------------------------------------------- */
     }
-    #endif
-    #if STACK_TEST
+#endif
+#if STACK_TEST
     /* ---------------------------------- Stack --------------------------------- */
     {
         typedef NS::stack<
@@ -844,8 +847,8 @@ int main() {
         STREAM << ( s >= s2 ) << std::endl;
         STREAM << ( s2 >= s ) << std::endl;
     }
-    #endif
-    #if MAP_TEST
+#endif
+#if MAP_TEST
     /* ----------------------------------- Map ---------------------------------- */
     {
         typedef NS::map< key_type,
@@ -1276,8 +1279,8 @@ int main() {
         }
         /* -------------------------------------------------------------------------- */
     }
-    #endif
-    #if SET_TEST
+#endif
+#if SET_TEST
     /* ----------------------------------- Set ---------------------------------- */
     {
         typedef NS::set< mapped_type,
@@ -1576,7 +1579,7 @@ int main() {
         }
         /* -------------------------------------------------------------------------- */
     }
-    #endif
+#endif
 
     /* -------------------------------------------------------------------------- */
 }
