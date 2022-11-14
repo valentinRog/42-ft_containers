@@ -63,7 +63,7 @@ template <> struct _Destroy_aux< true > {
 template < typename ForwardIterator >
 inline void _destroy( ForwardIterator first, ForwardIterator last ) {
 #ifdef __GNUG__
-    _Destroy_aux< __is_trivially_destructible(
+    _Destroy_aux< __has_trivial_destructor(
         typename ft::iterator_traits< ForwardIterator >::value_type ) >::
         _destroy( first, last );
 #else
