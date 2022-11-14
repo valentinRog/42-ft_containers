@@ -1,6 +1,6 @@
 CXX = clang++
 
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -stdlib=libstdc++
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRC = main.cpp
 
