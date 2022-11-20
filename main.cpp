@@ -11,6 +11,7 @@
 #include "src/vector.hpp"
 
 #include <algorithm>
+#include <ciso646>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -38,7 +39,7 @@ public:
     }
     virtual ~A() { delete _data; }
 
-    T &      data() { return *_data; }
+    T       &data() { return *_data; }
     const T &data() const { return *_data; }
 
     bool operator==( const A &other ) const { return *_data == *other._data; }
@@ -79,24 +80,28 @@ template < typename T > struct Vallocator;
 
 template <> struct Vallocator< void > {
     typedef void              value_type;
-    typedef value_type *      pointer;
+    typedef value_type       *pointer;
     typedef const value_type *const_pointer;
     typedef std::size_t       size_type;
     typedef std::ptrdiff_t    difference_type;
 
-    template < class U > struct rebind { typedef Vallocator< U > other; };
+    template < class U > struct rebind {
+        typedef Vallocator< U > other;
+    };
 };
 
 template < typename T > struct Vallocator {
     typedef T                 value_type;
-    typedef value_type &      reference;
+    typedef value_type       &reference;
     typedef const value_type &const_reference;
-    typedef value_type *      pointer;
+    typedef value_type       *pointer;
     typedef const value_type *const_pointer;
     typedef std::size_t       size_type;
     typedef std::ptrdiff_t    difference_type;
 
-    template < typename U > struct rebind { typedef Vallocator< U > other; };
+    template < typename U > struct rebind {
+        typedef Vallocator< U > other;
+    };
 
     Vallocator() throw() {}
     template < typename U > Vallocator( Vallocator< U > const & ) throw() {}
@@ -173,7 +178,11 @@ template < typename T, typename C > struct S : public NS::stack< T, C > {
 
 template < typename T, typename A >
 std::ostream &operator<<( std::ostream &os, const NS::vector< T, A > &v ) {
-    os << "{size: " << v.size() << ", capacity: " << v.capacity() << ", data: "
+    os << "{size: " << v.size() <<
+#ifdef __GLIBCXX__
+        os << ", capacity: " << v.capacity();
+#endif
+    os << ", data: "
        << "[";
     for ( typename NS::vector< T, A >::const_iterator it = v.begin();
           it != v.end();
