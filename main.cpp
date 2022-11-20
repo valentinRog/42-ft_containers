@@ -178,9 +178,9 @@ template < typename T, typename C > struct S : public NS::stack< T, C > {
 
 template < typename T, typename A >
 std::ostream &operator<<( std::ostream &os, const NS::vector< T, A > &v ) {
-    os << "{size: " << v.size() <<
+    os << "{size: " << v.size();
 #ifdef __GLIBCXX__
-        os << ", capacity: " << v.capacity();
+    os << ", capacity: " << v.capacity();
 #endif
     os << ", data: "
        << "[";
