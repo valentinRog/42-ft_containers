@@ -1,1 +1,1 @@
-At least as fast as STL
+Faster than light
