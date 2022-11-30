@@ -139,10 +139,6 @@ public:
     const_reverse_iterator rbegin() const { return _tree.rbegin(); }
     reverse_iterator       rend() { return _tree.rend(); }
     const_reverse_iterator rend() const { return _tree.rend(); }
-    const_iterator         cbegin() const { return _tree.cbegin(); }
-    const_iterator         cend() const { return _tree.cend(); }
-    const_reverse_iterator crbegin() const { return _tree.crbegin(); }
-    const_reverse_iterator crend() const { return _tree.crend(); }
 
     /* -------------------------------- Capacity -------------------------------- */
 

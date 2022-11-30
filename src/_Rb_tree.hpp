@@ -206,11 +206,11 @@ public:
           _key_compare(
               extended_key_compare( _end, other._key_compare.key_comp() ) ),
           _size( 0 ) {
-        insert( other.cbegin(), other.cend() );
+        insert( other.begin(), other.end() );
     }
     _Rb_tree &operator=( const _Rb_tree &other ) {
         clear();
-        insert( other.cbegin(), other.cend() );
+        insert( other.begin(), other.end() );
         return *this;
     }
     ~_Rb_tree() {
@@ -234,11 +234,6 @@ public:
     const_reverse_iterator rbegin() const { return end(); };
     reverse_iterator       rend() { return begin(); }
     const_reverse_iterator rend() const { return begin(); }
-    const_iterator         cbegin() const { return begin(); }
-    const_iterator         cend() const { return end(); }
-    const_reverse_iterator crbegin() const { return rbegin(); }
-    const_reverse_iterator crend() const { return rend(); };
-
     /* -------------------------------- Capacity -------------------------------- */
 
     size_type size() const { return _size; }
@@ -249,7 +244,14 @@ public:
     ft::pair< iterator, bool > insert( const value_type &data ) {
         return _insert( data, _root );
     }
-    ft::pair< iterator, bool > insert( iterator, const value_type &data ) {
+    ft::pair< iterator, bool > insert( iterator hint, const value_type &data ) {
+        node_pointer node( hint.get_node() );
+        if ( _is_lower_bound( node, data.first ) ) {
+            while ( node != _root && node == node->p->right ) {
+                node = node->p;
+            }
+            return _insert( data, node );
+        }
         return insert( data );
     }
     template < class InputIterator >
@@ -422,7 +424,7 @@ private:
     }
 
     void _remove_fixup( node_pointer x ) {
-        while ( x != _root and x->red == false ) {
+        while ( x != _root && x->red == false ) {
             if ( x == x->p->left ) {
                 node_pointer w = x->p->right;
                 if ( w->red ) {
@@ -431,7 +433,7 @@ private:
                     _rotate_left( x->p );
                     w = x->p->right;
                 }
-                if ( w->left->red == false and w->right->red == false ) {
+                if ( w->left->red == false && w->right->red == false ) {
                     w->red = true;
                     x      = x->p;
                 } else {
@@ -455,7 +457,7 @@ private:
                     _rotate_right( x->p );
                     w = x->p->left;
                 }
-                if ( w->right->red == false and w->left->red == false ) {
+                if ( w->right->red == false && w->left->red == false ) {
                     w->red = true;
                     x      = x->p;
                 } else {
