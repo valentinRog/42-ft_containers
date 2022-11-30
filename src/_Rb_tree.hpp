@@ -4,6 +4,7 @@
 #include "iterator.hpp"
 #include "utility.hpp"
 #include <cstddef>
+#include <cstdlib>
 #include <functional>
 #include <iostream>
 
@@ -79,18 +80,23 @@ private:
 
     class extended_key_compare {
         node_pointer _end;
+        node_pointer _rend;
         key_compare  _comp;
 
     public:
         /* --------------------------------- Compare -------------------------------- */
 
-        extended_key_compare( node_pointer       end  = 0,
+        extended_key_compare( node_pointer       end,
+                              node_pointer       rend,
                               const key_compare &comp = key_compare() )
             : _end( end ),
+              _rend( rend ),
               _comp( comp ) {}
         bool operator()( const key_type &a, const key_type &b ) const {
             if ( &a == &_end->data.first ) { return false; }
             if ( &b == &_end->data.first ) { return true; }
+            if ( &a == &_rend->data.first ) { return true; }
+            if ( &b == &_rend->data.first ) { return false; }
             return _comp( a, b );
         }
         const key_compare &key_comp() const { return _comp; }
@@ -185,6 +191,7 @@ private:
     static node_type     _nil;
     node_allocator_type  _allocator;
     node_pointer         _end;
+    node_pointer         _rend;
     node_pointer         _root;
     extended_key_compare _key_compare;
     size_type            _size;
@@ -196,16 +203,26 @@ public:
               const allocator_type &alloc = node_allocator_type() )
         : _allocator( alloc ),
           _end( _node_dup( node_type( &_nil, &_nil ) ) ),
+          _rend( _node_dup( node_type( &_nil, &_nil ) ) ),
           _root( _end ),
-          _key_compare( extended_key_compare( _end, comp ) ),
-          _size( 0 ) {}
+          _key_compare( extended_key_compare( _end, _rend, comp ) ),
+          _size( 0 ) {
+        _root->left = _rend;
+        _rend->red  = true;
+        _rend->p    = _root;
+    }
     _Rb_tree( const _Rb_tree &other )
         : _allocator( other._allocator ),
           _end( _node_dup( node_type( &_nil, &_nil ) ) ),
+          _rend( _node_dup( node_type( &_nil, &_nil ) ) ),
           _root( _end ),
-          _key_compare(
-              extended_key_compare( _end, other._key_compare.key_comp() ) ),
+          _key_compare( extended_key_compare( _end,
+                                              _rend,
+                                              other._key_compare.key_comp() ) ),
           _size( 0 ) {
+        _root->left = _rend;
+        _rend->red  = true;
+        _rend->p    = _root;
         insert( other.begin(), other.end() );
     }
     _Rb_tree &operator=( const _Rb_tree &other ) {
@@ -217,6 +234,8 @@ public:
         clear();
         _allocator.destroy( _end );
         _allocator.deallocate( _end, 1 );
+        _allocator.destroy( _rend );
+        _allocator.deallocate( _rend, 1 );
     }
 
     /* -------------------------------- Iterators ------------------------------- */
@@ -226,8 +245,8 @@ public:
     typedef ft::reverse_iterator< iterator >       reverse_iterator;
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 
-    iterator               begin() { return _root->min_child(); }
-    const_iterator         begin() const { return _root->min_child(); }
+    iterator               begin() { return ++iterator( _rend ); }
+    const_iterator         begin() const { return ++iterator( _rend ); }
     iterator               end() { return _end; }
     const_iterator         end() const { return _end; }
     reverse_iterator       rbegin() { return end(); }
@@ -245,11 +264,8 @@ public:
         return _insert( data, _root );
     }
     ft::pair< iterator, bool > insert( iterator hint, const value_type &data ) {
-        node_pointer node( hint.get_node() );
-        if ( _is_lower_bound( node, data.first ) ) {
-            while ( node != _root && node == node->p->right ) {
-                node = node->p;
-            }
+        if ( _is_upper_bound( hint.get_node(), data.first ) ) {
+            node_pointer node( hint.get_node() );
             return _insert( data, node );
         }
         return insert( data );
@@ -271,6 +287,7 @@ public:
 
     void swap( _Rb_tree &other ) {
         ft::swap( _end, other._end );
+        ft::swap( _rend, other._rend );
         ft::swap( _root, other._root );
         ft::swap( _key_compare, other._key_compare );
         ft::swap( _allocator, other._allocator );
