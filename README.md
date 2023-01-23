@@ -1,1 +1,1 @@
-Faster than light
+Blazingly fast

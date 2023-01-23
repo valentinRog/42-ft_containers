@@ -2,6 +2,7 @@
 
 #include "algorithm.hpp"
 #include "iterator.hpp"
+#include "stack.hpp"
 #include "utility.hpp"
 #include <cstddef>
 #include <cstdlib>
@@ -16,9 +17,9 @@ template < typename K,
            typename Allocator = std::allocator< ft::pair< const K, V > > >
 class _Rb_tree {
 
-public:
     /* ------------------------------ Member types ------------------------------ */
 
+public:
     typedef K                                        key_type;
     typedef V                                        mapped_type;
     typedef ft::pair< const key_type, mapped_type >  value_type;
@@ -31,52 +32,65 @@ public:
     typedef std::ptrdiff_t                           difference_type;
     typedef std::size_t                              size_type;
 
-private:
     /* ---------------------------------- Node ---------------------------------- */
 
-    struct Node {
+private:
+    struct _Node {
+        typedef
+            typename Allocator::template rebind< _Node >::other allocator_type;
+        typedef typename allocator_type::pointer                pointer;
 
         value_type data;
         bool       red;
-        Node *     p;
-        Node *     left;
-        Node *     right;
+        pointer    p;
+        pointer    left;
+        pointer    right;
 
-        Node( const value_type &val = value_type() )
+        _Node( const value_type &val = value_type() )
             : data( val ),
               red( false ),
               p( 0 ),
               left( 0 ),
               right( 0 ) {}
-        Node( Node *left, Node *right, const value_type &val = value_type() )
+        _Node( pointer           left,
+               pointer           right,
+               const value_type &val = value_type() )
             : data( val ),
               red( false ),
               p( 0 ),
               left( left ),
               right( right ) {}
-        Node( const Node &other )
-            : data( other.data ),
-              red( other.red ),
-              p( other.p ),
-              left( other.left ),
-              right( other.right ) {}
 
-        Node *min_child() {
-            Node *tmp( this );
-            while ( tmp->left && tmp->left != &_nil ) { tmp = tmp->left; }
-            return tmp;
+        pointer clone( allocator_type &allocator ) {
+            pointer node = allocator.allocate( 1 );
+            allocator.construct( node, *this );
+            return node;
         }
-        Node *max_child() {
-            Node *tmp( this );
-            while ( tmp->right && tmp->right != &_nil ) { tmp = tmp->right; }
-            return tmp;
+
+        static void destroy( pointer node, allocator_type &allocator ) {
+            allocator.destroy( node );
+            allocator.deallocate( node, 1 );
+        }
+
+        pointer min_child() {
+            pointer node( this );
+            while ( node->left && node->left != &_nil ) { node = node->left; }
+            return node;
+        }
+        pointer max_child() {
+            pointer node( this );
+            while ( node->right && node->right != &_nil ) {
+                node = node->right;
+            }
+            return node;
         }
     };
 
-    typedef Node node_type;
-    typedef
-        typename Allocator::template rebind< Node >::other node_allocator_type;
-    typedef typename node_allocator_type::pointer          node_pointer;
+    typedef _Node                          node_type;
+    typedef typename _Node::allocator_type node_allocator_type;
+    typedef typename _Node::pointer        node_pointer;
+
+    /* --------------------------------- Compare -------------------------------- */
 
     class extended_key_compare {
         node_pointer _end;
@@ -84,8 +98,6 @@ private:
         key_compare  _comp;
 
     public:
-        /* --------------------------------- Compare -------------------------------- */
-
         extended_key_compare( node_pointer       end,
                               node_pointer       rend,
                               const key_compare &comp = key_compare() )
@@ -140,7 +152,7 @@ private:
 
         Iterator operator++( int ) {
             Iterator tmp( *this );
-            ++( *this );
+            ++*this;
             return tmp;
         }
 
@@ -158,7 +170,7 @@ private:
 
         Iterator operator--( int ) {
             Iterator tmp( *this );
-            --( *this );
+            --*this;
             return tmp;
         }
 
@@ -196,14 +208,14 @@ private:
     extended_key_compare _key_compare;
     size_type            _size;
 
-public:
     /* ------------------------------ Construction ------------------------------ */
 
+public:
     _Rb_tree( const key_compare &   comp  = key_compare(),
               const allocator_type &alloc = node_allocator_type() )
         : _allocator( alloc ),
-          _end( _node_dup( node_type( &_nil, &_nil ) ) ),
-          _rend( _node_dup( node_type( &_nil, &_nil ) ) ),
+          _end( node_type( &_nil, &_nil ).clone( _allocator ) ),
+          _rend( node_type( &_nil, &_nil ).clone( _allocator ) ),
           _root( _end ),
           _key_compare( extended_key_compare( _end, _rend, comp ) ),
           _size( 0 ) {
@@ -213,8 +225,8 @@ public:
     }
     _Rb_tree( const _Rb_tree &other )
         : _allocator( other._allocator ),
-          _end( _node_dup( node_type( &_nil, &_nil ) ) ),
-          _rend( _node_dup( node_type( &_nil, &_nil ) ) ),
+          _end( node_type( &_nil, &_nil ).clone( _allocator ) ),
+          _rend( node_type( &_nil, &_nil ).clone( _allocator ) ),
           _root( _end ),
           _key_compare( extended_key_compare( _end,
                                               _rend,
@@ -232,10 +244,8 @@ public:
     }
     ~_Rb_tree() {
         clear();
-        _allocator.destroy( _end );
-        _allocator.deallocate( _end, 1 );
-        _allocator.destroy( _rend );
-        _allocator.deallocate( _rend, 1 );
+        _Node::destroy( _end, _allocator );
+        _Node::destroy( _rend, _allocator );
     }
 
     /* -------------------------------- Iterators ------------------------------- */
@@ -253,6 +263,7 @@ public:
     const_reverse_iterator rbegin() const { return end(); };
     reverse_iterator       rend() { return begin(); }
     const_reverse_iterator rend() const { return begin(); }
+
     /* -------------------------------- Capacity -------------------------------- */
 
     size_type size() const { return _size; }
@@ -340,14 +351,8 @@ public:
     /* --------------------------------- Helper --------------------------------- */
 
 private:
-    node_pointer _node_dup( const node_type &other ) {
-        node_pointer new_node = _allocator.allocate( 1 );
-        _allocator.construct( new_node, other );
-        return new_node;
-    }
-
     node_pointer _find_node( const key_type &k ) const {
-        node_pointer current = _root;
+        node_pointer current( _root );
         while ( current != &_nil ) {
             if ( _key_compare( k, current->data.first ) ) {
                 current = current->left;
@@ -408,9 +413,9 @@ private:
 
     size_type _remove( node_pointer z ) {
         if ( z == _end ) { return 0; }
-        node_pointer y = z;
+        node_pointer y( z );
         node_pointer x;
-        bool         y_orig_color = y->red;
+        bool         y_red_0( y->red );
         if ( z->left == &_nil ) {
             x = z->right;
             _transplant( z, x );
@@ -418,9 +423,9 @@ private:
             x = z->left;
             _transplant( z, x );
         } else {
-            y            = z->right->min_child();
-            y_orig_color = y->red;
-            x            = y->right;
+            y       = z->right->min_child();
+            y_red_0 = y->red;
+            x       = y->right;
             if ( y->p == z ) {
                 x->p = y;
             } else {
@@ -433,9 +438,8 @@ private:
             y->left->p = y;
             y->red     = z->red;
         }
-        if ( !y_orig_color ) { _remove_fixup( x ); }
-        _allocator.destroy( z );
-        _allocator.deallocate( z, 1 );
+        if ( !y_red_0 ) { _remove_fixup( x ); }
+        _Node::destroy( z, _allocator );
         _size--;
         return 1;
     }
@@ -443,7 +447,7 @@ private:
     void _remove_fixup( node_pointer x ) {
         while ( x != _root && x->red == false ) {
             if ( x == x->p->left ) {
-                node_pointer w = x->p->right;
+                node_pointer w( x->p->right );
                 if ( w->red ) {
                     w->red    = false;
                     x->p->red = true;
@@ -467,7 +471,7 @@ private:
                     x = _root;
                 }
             } else {
-                node_pointer w = x->p->left;
+                node_pointer w( x->p->left );
                 if ( w->red ) {
                     w->red    = false;
                     x->p->red = true;
@@ -496,8 +500,8 @@ private:
     }
 
     void _rotate_left( node_pointer x ) {
-        node_pointer y = x->right;
-        x->right       = y->left;
+        node_pointer y( x->right );
+        x->right = y->left;
         if ( y->left != &_nil ) { y->left->p = x; }
         y->p = x->p;
         if ( !x->p ) {
@@ -512,8 +516,8 @@ private:
     }
 
     void _rotate_right( node_pointer x ) {
-        node_pointer y = x->left;
-        x->left        = y->right;
+        node_pointer y( x->left );
+        x->left = y->right;
         if ( y->right != &_nil ) { y->right->p = x; }
         y->p = x->p;
         if ( !x->p ) {
@@ -540,19 +544,19 @@ private:
                 return ft::make_pair( ancestor, false );
             }
         }
-        node_pointer new_node = _node_dup( Node( &_nil, &_nil, data ) );
-        new_node->red         = true;
-        new_node->p           = p;
+        node_pointer node( _Node( &_nil, &_nil, data ).clone( _allocator ) );
+        node->red = true;
+        node->p   = p;
         if ( !p ) {
-            _root = new_node;
-        } else if ( _key_compare( new_node->data.first, p->data.first ) ) {
-            p->left = new_node;
+            _root = node;
+        } else if ( _key_compare( node->data.first, p->data.first ) ) {
+            p->left = node;
         } else {
-            p->right = new_node;
+            p->right = node;
         }
-        _insert_fixup( new_node );
+        _insert_fixup( node );
         _size++;
-        return ft::make_pair( new_node, true );
+        return ft::make_pair( node, true );
     }
 
     void _insert_fixup( node_pointer z ) {

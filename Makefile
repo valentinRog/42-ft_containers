@@ -1,4 +1,4 @@
-CXX = clang++
+CXX = c++
 
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
@@ -28,8 +28,8 @@ $(NAME_FT): $(OBJ_FT)
 	$(CXX) $(CXXFLAGS) $(OBJ_FT) -o $@
 
 run: all
-	./$(NAME_STD) > $(STD_OUTPUT)
-	./$(NAME_FT) > $(FT_OUTPUT)
+	time --quiet ./$(NAME_STD) > $(STD_OUTPUT)
+	time --quiet ./$(NAME_FT) > $(FT_OUTPUT)
 	diff $(STD_OUTPUT) $(FT_OUTPUT) > $(OUTPUT_DIFF)
 
 clean:
