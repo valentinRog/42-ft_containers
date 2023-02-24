@@ -69,15 +69,8 @@ public:
         }
         Iterator operator--( int ) { return _it--; }
 
-        reference operator*() { return *_it; }
-        typename Iterator< tree_const_iterator >::reference operator*() const {
-            return *_it;
-        }
-
-        pointer operator->() { return _it.operator->(); }
-        typename Iterator< tree_const_iterator >::pointer operator->() const {
-            return _it.operator->();
-        }
+        reference operator*() const { return *_it; }
+        pointer   operator->() const { return _it.operator->(); }
 
         template < typename U >
         bool operator==( const Iterator< U > &other ) const {
@@ -109,14 +102,14 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    explicit map( const key_compare &   comp  = key_compare(),
+    explicit map( const key_compare    &comp  = key_compare(),
                   const allocator_type &alloc = allocator_type() )
         : _tree( tree_type( comp, alloc ) ) {}
 
     template < class InputIterator >
     map( InputIterator         first,
          InputIterator         last,
-         const key_compare &   comp  = key_compare(),
+         const key_compare    &comp  = key_compare(),
          const allocator_type &alloc = allocator_type() )
         : _tree( tree_type( comp, alloc ) ) {
         insert( first, last );

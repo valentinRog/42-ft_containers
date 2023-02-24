@@ -18,8 +18,8 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
     template < typename U > class Iterator {
     public:
         typedef U                               value_type;
-        typedef value_type &                    reference;
-        typedef value_type *                    pointer;
+        typedef value_type                     &reference;
+        typedef value_type                     *pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::random_access_iterator_tag iterator_category;
 
@@ -76,43 +76,31 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
         template < typename V >
         bool operator==( const Iterator< V > &other ) const {
             return ( _p == other.operator->() );
-        };
+        }
         template < typename V >
         bool operator!=( const Iterator< V > &other ) const {
             return ( _p != other.operator->() );
-        };
+        }
         template < typename V >
         bool operator>( const Iterator< V > &other ) const {
             return ( _p > other.operator->() );
-        };
+        }
         template < typename V >
         bool operator<( const Iterator< V > &other ) const {
             return ( _p < other.operator->() );
-        };
+        }
         template < typename V >
         bool operator>=( const Iterator< V > &other ) const {
             return ( _p >= other.operator->() );
-        };
+        }
         template < typename V >
         bool operator<=( const Iterator< V > &other ) const {
             return ( _p <= other.operator->() );
-        };
-
-        reference                               operator*() { return *_p; }
-        typename Iterator< const U >::reference operator*() const {
-            return *_p;
         }
 
-        reference operator[]( difference_type i ) { return _p[i]; }
-        typename Iterator< const U >::reference
-        operator[]( difference_type i ) const {
-            return _p[i];
-        }
-
-        pointer                               operator->() { return ( _p ); };
-        typename Iterator< const U >::pointer operator->() const {
-            return ( _p );
-        };
+        reference operator*() const { return *_p; }
+        reference operator[]( difference_type i ) const { return _p[i]; }
+        pointer   operator->() const { return ( _p ); };
 
         operator Iterator< const U >() const {
             return ( Iterator< const U >( _p ) );
@@ -153,7 +141,7 @@ public:
           _size( 0 ) {}
 
     explicit vector( size_type             n,
-                     const value_type &    val   = value_type(),
+                     const value_type     &val   = value_type(),
                      const allocator_type &alloc = allocator_type() )
         : _allocator( alloc ),
           _data( 0 ),

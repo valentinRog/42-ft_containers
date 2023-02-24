@@ -6,7 +6,9 @@ namespace ft {
 
 template < bool B, class T = void > struct enable_if {};
 
-template < class T > struct enable_if< true, T > { typedef T type; };
+template < class T > struct enable_if< true, T > {
+    typedef T type;
+};
 
 /* ---------------------------- integral_constant --------------------------- */
 
@@ -21,27 +23,28 @@ typedef integral_constant< bool, false > false_type;
 
 /* ------------------------------- is_integral ------------------------------ */
 
-template < typename > struct __is_integral_helper : public false_type {};
+template < typename > struct is_integral : public false_type {};
 
-template <> struct __is_integral_helper< bool > : public true_type {};
+template <> struct is_integral< bool > : public true_type {};
 
-template <> struct __is_integral_helper< char > : public true_type {};
+template <> struct is_integral< char > : public true_type {};
 
-template <> struct __is_integral_helper< signed char > : public true_type {};
+template <> struct is_integral< signed char > : public true_type {};
 
-template <> struct __is_integral_helper< unsigned char > : public true_type {};
+template <> struct is_integral< unsigned char > : public true_type {};
 
-template <> struct __is_integral_helper< short > : public true_type {};
+template <> struct is_integral< short > : public true_type {};
 
-template <> struct __is_integral_helper< unsigned short > : public true_type {};
+template <> struct is_integral< unsigned short > : public true_type {};
 
-template <> struct __is_integral_helper< int > : public true_type {};
+template <> struct is_integral< int > : public true_type {};
 
-template <> struct __is_integral_helper< unsigned int > : public true_type {};
+template <> struct is_integral< unsigned int > : public true_type {};
 
-template <> struct __is_integral_helper< long > : public true_type {};
+template <> struct is_integral< long > : public true_type {};
 
-template <> struct __is_integral_helper< unsigned long > : public true_type {};
+template <> struct is_integral< unsigned long > : public true_type {};
 
-template < class T > struct is_integral : public __is_integral_helper< T > {};
+/* -------------------------------------------------------------------------- */
+
 }

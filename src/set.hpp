@@ -107,14 +107,14 @@ private:
 public:
     /* ------------------------------ Construction ------------------------------ */
 
-    explicit set( const key_compare &   comp  = key_compare(),
+    explicit set( const key_compare    &comp  = key_compare(),
                   const allocator_type &alloc = allocator_type() )
         : _tree( comp, alloc ) {}
 
     template < class InputIterator >
     set( InputIterator         first,
          InputIterator         last,
-         const key_compare &   comp  = key_compare(),
+         const key_compare    &comp  = key_compare(),
          const allocator_type &alloc = allocator_type() )
         : _tree( comp, alloc ) {
         insert( first, last );

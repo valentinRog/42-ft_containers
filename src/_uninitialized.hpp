@@ -11,7 +11,7 @@ template < typename InputIterator, typename ForwardIterator, typename Alloc >
 ForwardIterator _uninitialized_copy_a( InputIterator   first,
                                        InputIterator   last,
                                        ForwardIterator dst,
-                                       Alloc &         allocator ) {
+                                       Alloc          &allocator ) {
     for ( ; first != last; first++, dst++ ) {
         allocator.construct( &( *dst ), *first );
     }
@@ -31,15 +31,15 @@ inline ForwardIterator _uninitialized_copy_a( InputIterator   first,
 template < typename ForwardIterator, typename T, typename A >
 void _uninitialized_fill_a( ForwardIterator first,
                             ForwardIterator last,
-                            const T &       x,
-                            A &             allocator ) {
+                            const T        &x,
+                            A              &allocator ) {
     for ( ; first != last; first++ ) { allocator.construct( &( *first ), x ); }
 }
 
 template < typename ForwardIterator, typename T, typename U >
 void _uninitialized_fill_a( ForwardIterator first,
                             ForwardIterator last,
-                            const T &       x,
+                            const T        &x,
                             std::allocator< U > & ) {
     return std::uninitialized_fill( first, last, x );
 }

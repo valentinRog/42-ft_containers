@@ -119,8 +119,8 @@ private:
     template < typename T > class Iterator {
     public:
         typedef T                               value_type;
-        typedef T &                             reference;
-        typedef T *                             pointer;
+        typedef T                              &reference;
+        typedef T                              *pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
 
@@ -183,15 +183,8 @@ private:
             return !( *this == other );
         }
 
-        reference operator*() { return _node->data; }
-        typename Iterator< const T >::reference operator*() const {
-            return _node->data;
-        }
-
-        pointer operator->() { return &_node->data; }
-        typename Iterator< const T >::pointer operator->() const {
-            return &_node->data;
-        }
+        reference operator*() const { return _node->data; }
+        pointer   operator->() const { return &_node->data; }
 
         operator Iterator< const T >() const {
             return Iterator< const T >( _node );
@@ -211,7 +204,7 @@ private:
     /* ------------------------------ Construction ------------------------------ */
 
 public:
-    _Rb_tree( const key_compare &   comp  = key_compare(),
+    _Rb_tree( const key_compare    &comp  = key_compare(),
               const allocator_type &alloc = node_allocator_type() )
         : _allocator( alloc ),
           _end( node_type( &_nil, &_nil ).clone( _allocator ) ),
