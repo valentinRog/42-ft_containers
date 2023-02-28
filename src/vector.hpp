@@ -15,7 +15,7 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
 
     /* -------------------------------- Iterator -------------------------------- */
 
-    template < typename U > class _Iterator {
+    template < typename U > class Iterator {
     public:
         typedef U                               value_type;
         typedef value_type                     &reference;
@@ -27,75 +27,75 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
         pointer _p;
 
     public:
-        _Iterator() : _p( 0 ) {}
-        _Iterator( pointer p ) : _p( p ) {}
-        _Iterator( const _Iterator &other ) : _p( other._p ) {}
+        Iterator() : _p( 0 ) {}
+        Iterator( pointer p ) : _p( p ) {}
+        Iterator( const Iterator &other ) : _p( other._p ) {}
 
-        _Iterator &operator=( const _Iterator &other ) {
+        Iterator &operator=( const Iterator &other ) {
             _p = other._p;
             return *this;
         }
 
-        _Iterator        operator+( difference_type n ) const { return _p + n; }
-        friend _Iterator operator+( difference_type  lhs,
-                                    const _Iterator &rhs ) {
+        Iterator        operator+( difference_type n ) const { return _p + n; }
+        friend Iterator operator+( difference_type  lhs,
+                                    const Iterator &rhs ) {
             return rhs + lhs;
         }
-        _Iterator       operator-( difference_type n ) const { return _p - n; }
-        difference_type operator-( const _Iterator &other ) const {
+        Iterator       operator-( difference_type n ) const { return _p - n; }
+        difference_type operator-( const Iterator &other ) const {
             return _p - other._p;
         }
 
-        _Iterator &operator++() {
+        Iterator &operator++() {
             _p++;
             return *this;
         }
-        _Iterator &operator--() {
+        Iterator &operator--() {
             _p--;
             return *this;
         }
-        _Iterator operator++( int ) {
-            _Iterator copy( *this );
+        Iterator operator++( int ) {
+            Iterator copy( *this );
             _p++;
             return copy;
         }
-        _Iterator operator--( int ) {
-            _Iterator copy( *this );
+        Iterator operator--( int ) {
+            Iterator copy( *this );
             _p--;
             return copy;
         }
 
-        _Iterator operator+=( difference_type n ) {
+        Iterator operator+=( difference_type n ) {
             _p += n;
             return *this;
         }
-        _Iterator operator-=( difference_type n ) {
+        Iterator operator-=( difference_type n ) {
             _p -= n;
             return *this;
         }
 
         template < typename V >
-        bool operator==( const _Iterator< V > &other ) const {
+        bool operator==( const Iterator< V > &other ) const {
             return ( _p == other.operator->() );
         }
         template < typename V >
-        bool operator!=( const _Iterator< V > &other ) const {
+        bool operator!=( const Iterator< V > &other ) const {
             return ( _p != other.operator->() );
         }
         template < typename V >
-        bool operator>( const _Iterator< V > &other ) const {
+        bool operator>( const Iterator< V > &other ) const {
             return ( _p > other.operator->() );
         }
         template < typename V >
-        bool operator<( const _Iterator< V > &other ) const {
+        bool operator<( const Iterator< V > &other ) const {
             return ( _p < other.operator->() );
         }
         template < typename V >
-        bool operator>=( const _Iterator< V > &other ) const {
+        bool operator>=( const Iterator< V > &other ) const {
             return ( _p >= other.operator->() );
         }
         template < typename V >
-        bool operator<=( const _Iterator< V > &other ) const {
+        bool operator<=( const Iterator< V > &other ) const {
             return ( _p <= other.operator->() );
         }
 
@@ -103,8 +103,8 @@ template < typename T, typename Allocator = std::allocator< T > > class vector {
         reference operator[]( difference_type i ) const { return _p[i]; }
         pointer   operator->() const { return ( _p ); };
 
-        operator _Iterator< const U >() const {
-            return ( _Iterator< const U >( _p ) );
+        operator Iterator< const U >() const {
+            return ( Iterator< const U >( _p ) );
         }
     };
 
@@ -117,8 +117,8 @@ public:
     typedef typename allocator_type::const_reference const_reference;
     typedef typename allocator_type::pointer         pointer;
     typedef typename allocator_type::const_pointer   const_pointer;
-    typedef _Iterator< value_type >                  iterator;
-    typedef _Iterator< const value_type >            const_iterator;
+    typedef Iterator< value_type >                  iterator;
+    typedef Iterator< const value_type >            const_iterator;
     typedef ft::reverse_iterator< iterator >         reverse_iterator;
     typedef ft::reverse_iterator< const_iterator >   const_reverse_iterator;
     typedef std::ptrdiff_t                           difference_type;
