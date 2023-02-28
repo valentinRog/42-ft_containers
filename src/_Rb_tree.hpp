@@ -370,7 +370,6 @@ private:
         return current;
     }
     node_pointer _upper_bound( const key_type &k ) const {
-
         node_pointer current( _root );
         while ( !_is_upper_bound( current, k ) ) {
             if ( _key_compare( k, current->data.first ) ) {
@@ -431,65 +430,63 @@ private:
             y->left->p = y;
             y->red     = z->red;
         }
-        if ( !y_red_0 ) { _remove_fixup( x ); }
+        if ( !y_red_0 ) {
+            while ( x != _root && !x->red ) {
+                if ( x == x->p->left ) {
+                    node_pointer w( x->p->right );
+                    if ( w->red ) {
+                        w->red    = false;
+                        x->p->red = true;
+                        _rotate_left( x->p );
+                        w = x->p->right;
+                    }
+                    if ( !w->left->red && !w->right->red ) {
+                        w->red = true;
+                        x      = x->p;
+                    } else {
+                        if ( !w->right->red ) {
+                            w->left->red = false;
+                            w->red       = true;
+                            _rotate_right( w );
+                            w = x->p->right;
+                        }
+                        w->red        = x->p->red;
+                        x->p->red     = false;
+                        w->right->red = false;
+                        _rotate_left( x->p );
+                        x = _root;
+                    }
+                } else {
+                    node_pointer w( x->p->left );
+                    if ( w->red ) {
+                        w->red    = false;
+                        x->p->red = true;
+                        _rotate_right( x->p );
+                        w = x->p->left;
+                    }
+                    if ( !w->right->red && !w->left->red ) {
+                        w->red = true;
+                        x      = x->p;
+                    } else {
+                        if ( !w->left->red ) {
+                            w->right->red = false;
+                            w->red        = true;
+                            _rotate_left( w );
+                            w = x->p->left;
+                        }
+                        w->red       = x->p->red;
+                        x->p->red    = false;
+                        w->left->red = false;
+                        _rotate_right( x->p );
+                        x = _root;
+                    }
+                }
+            }
+            x->red = false;
+        }
         _Node::destroy( z, _allocator );
         _size--;
         return 1;
-    }
-
-    void _remove_fixup( node_pointer x ) {
-        while ( x != _root && x->red == false ) {
-            if ( x == x->p->left ) {
-                node_pointer w( x->p->right );
-                if ( w->red ) {
-                    w->red    = false;
-                    x->p->red = true;
-                    _rotate_left( x->p );
-                    w = x->p->right;
-                }
-                if ( w->left->red == false && w->right->red == false ) {
-                    w->red = true;
-                    x      = x->p;
-                } else {
-                    if ( w->right->red == false ) {
-                        w->left->red = false;
-                        w->red       = true;
-                        _rotate_right( w );
-                        w = x->p->right;
-                    }
-                    w->red        = x->p->red;
-                    x->p->red     = false;
-                    w->right->red = false;
-                    _rotate_left( x->p );
-                    x = _root;
-                }
-            } else {
-                node_pointer w( x->p->left );
-                if ( w->red ) {
-                    w->red    = false;
-                    x->p->red = true;
-                    _rotate_right( x->p );
-                    w = x->p->left;
-                }
-                if ( w->right->red == false && w->left->red == false ) {
-                    w->red = true;
-                    x      = x->p;
-                } else {
-                    if ( w->left->red == false ) {
-                        w->right->red = false;
-                        w->red        = true;
-                        _rotate_left( w );
-                        w = x->p->left;
-                    }
-                    w->red       = x->p->red;
-                    x->p->red    = false;
-                    w->left->red = false;
-                    _rotate_right( x->p );
-                    x = _root;
-                }
-            }
-        }
-        x->red = false;
     }
 
     void _rotate_left( node_pointer x ) {
@@ -547,12 +544,7 @@ private:
         } else {
             p->right = node;
         }
-        _insert_fixup( node );
-        _size++;
-        return ft::make_pair( node, true );
-    }
-
-    void _insert_fixup( node_pointer z ) {
+        node_pointer z( node );
         while ( z != _root && z->p->red ) {
             if ( z->p == z->p->p->right ) {
                 if ( z->p->p->left->red ) {
@@ -587,6 +579,8 @@ private:
             }
         }
         _root->red = false;
+        _size++;
+        return ft::make_pair( node, true );
     }
 };
 

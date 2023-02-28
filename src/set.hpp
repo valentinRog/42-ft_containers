@@ -36,7 +36,7 @@ public:
 
     /* -------------------------------- Iterator -------------------------------- */
 
-    class Iterator {
+    class _Iterator {
     public:
         typedef set::value_type                               value_type;
         typedef set::const_reference                          reference;
@@ -49,30 +49,30 @@ public:
         tree_const_iterator _it;
 
     public:
-        Iterator() : _it( tree_const_iterator() ) {}
-        Iterator( const Iterator &other ) : _it( other._it ) {}
-        Iterator( const tree_const_iterator &other ) : _it( other ) {}
-        Iterator( const tree_iterator &other ) : _it( other ) {}
-        Iterator &operator=( const Iterator &other ) {
+        _Iterator() : _it( tree_const_iterator() ) {}
+        _Iterator( const _Iterator &other ) : _it( other._it ) {}
+        _Iterator( const tree_const_iterator &other ) : _it( other ) {}
+        _Iterator( const tree_iterator &other ) : _it( other ) {}
+        _Iterator &operator=( const _Iterator &other ) {
             _it = other._it;
             return *this;
         }
 
-        Iterator &operator++() {
+        _Iterator &operator++() {
             _it++;
             return *this;
         }
-        Iterator  operator++( int ) { return _it++; }
-        Iterator &operator--() {
+        _Iterator  operator++( int ) { return _it++; }
+        _Iterator &operator--() {
             _it--;
             return *this;
         }
-        Iterator operator--( int ) { return _it--; }
+        _Iterator operator--( int ) { return _it--; }
 
         reference operator*() const { return _it->second; }
         pointer   operator->() const { return &_it->second; }
 
-        bool operator==( const Iterator &other ) const {
+        bool operator==( const _Iterator &other ) const {
             return _it == other._it;
         }
         bool operator==( const tree_const_iterator &other ) const {
@@ -81,7 +81,7 @@ public:
         bool operator==( const tree_iterator &other ) const {
             return _it == other;
         }
-        bool operator!=( const Iterator &other ) const {
+        bool operator!=( const _Iterator &other ) const {
             return _it != other._it;
         }
         bool operator!=( const tree_const_iterator &other ) const {
@@ -94,8 +94,8 @@ public:
         operator tree_const_iterator() const { return _it; }
     };
 
-    typedef Iterator                               iterator;
-    typedef Iterator                               const_iterator;
+    typedef _Iterator                              iterator;
+    typedef _Iterator                              const_iterator;
     typedef ft::reverse_iterator< iterator >       reverse_iterator;
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 

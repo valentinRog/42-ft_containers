@@ -38,7 +38,7 @@ public:
 
     /* -------------------------------- Iterator -------------------------------- */
 
-    template < typename T > class Iterator {
+    template < typename T > class _Iterator {
     public:
         typedef typename T::value_type        value_type;
         typedef typename T::reference         reference;
@@ -50,47 +50,47 @@ public:
         T _it;
 
     public:
-        Iterator() : _it( T() ) {}
-        Iterator( const Iterator &other ) : _it( other._it ) {}
-        Iterator( const T &other ) : _it( other ) {}
-        Iterator &operator=( const Iterator &other ) {
+        _Iterator() : _it( T() ) {}
+        _Iterator( const _Iterator &other ) : _it( other._it ) {}
+        _Iterator( const T &other ) : _it( other ) {}
+        _Iterator &operator=( const _Iterator &other ) {
             _it = other._it;
             return *this;
         }
 
-        Iterator &operator++() {
+        _Iterator &operator++() {
             _it++;
             return *this;
         }
-        Iterator  operator++( int ) { return _it++; }
-        Iterator &operator--() {
+        _Iterator  operator++( int ) { return _it++; }
+        _Iterator &operator--() {
             _it--;
             return *this;
         }
-        Iterator operator--( int ) { return _it--; }
+        _Iterator operator--( int ) { return _it--; }
 
         reference operator*() const { return *_it; }
         pointer   operator->() const { return _it.operator->(); }
 
         template < typename U >
-        bool operator==( const Iterator< U > &other ) const {
+        bool operator==( const _Iterator< U > &other ) const {
             return T( *this ) == U( other );
         }
         bool operator==( const T &other ) const { return T( *this ) == other; }
         template < typename U >
-        bool operator!=( const Iterator< U > &other ) const {
+        bool operator!=( const _Iterator< U > &other ) const {
             return !( *this == other );
         }
         bool operator!=( const T &other ) const { return !( *this == other ); }
 
         operator T() const { return T( _it ); }
-        operator Iterator< tree_const_iterator >() const {
-            return Iterator< tree_const_iterator >( _it );
+        operator _Iterator< tree_const_iterator >() const {
+            return _Iterator< tree_const_iterator >( _it );
         }
     };
 
-    typedef Iterator< tree_iterator >              iterator;
-    typedef Iterator< tree_const_iterator >        const_iterator;
+    typedef _Iterator< tree_iterator >             iterator;
+    typedef _Iterator< tree_const_iterator >       const_iterator;
     typedef ft::reverse_iterator< iterator >       reverse_iterator;
     typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
 
