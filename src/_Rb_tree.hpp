@@ -408,16 +408,13 @@ private:
     }
 
     bool _is_lower_bound( node_pointer current, const key_type &k ) const {
-        return ( current == begin().get_node()
-                 || _key_compare( ( --const_iterator( current ) ).get_node(),
-                                  k ) )
+        node_pointer prev = ( --const_iterator( current ) ).get_node();
+        return ( current == begin().get_node() || _key_compare( prev, k ) )
                && !_key_compare( current, k );
     }
     bool _is_upper_bound( node_pointer current, const key_type &k ) const {
-        return ( current == begin().get_node()
-                 || !_key_compare(
-                     k,
-                     ( --const_iterator( current ) ).get_node() ) )
+        node_pointer prev = ( --const_iterator( current ) ).get_node();
+        return ( current == begin().get_node() || !_key_compare( k, prev ) )
                && _key_compare( k, current );
     }
 
@@ -522,14 +519,7 @@ private:
         node_pointer y( x->right );
         x->right = y->left;
         if ( !y->left->is_nil() ) { y->left->p = x; }
-        y->p = x->p;
-        if ( !x->p ) {
-            _root = y;
-        } else if ( x == x->p->left ) {
-            x->p->left = y;
-        } else {
-            x->p->right = y;
-        }
+        _transplant( x, y );
         y->left = x;
         x->p    = y;
     }
@@ -538,14 +528,7 @@ private:
         node_pointer y( x->left );
         x->left = y->right;
         if ( !y->right->is_nil() ) { y->right->p = x; }
-        y->p = x->p;
-        if ( !x->p ) {
-            _root = y;
-        } else if ( x == x->p->right ) {
-            x->p->right = y;
-        } else {
-            x->p->left = y;
-        }
+        _transplant( x, y );
         y->right = x;
         x->p     = y;
     }
