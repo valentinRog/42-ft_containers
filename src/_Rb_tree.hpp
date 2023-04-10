@@ -81,7 +81,7 @@ private:
 
         static void destroy( node_pointer         node,
                              node_allocator_type &allocator,
-                             allocator_type &     data_allocator ) {
+                             allocator_type      &data_allocator ) {
             if ( node->data ) {
                 data_allocator.destroy( node->data );
                 data_allocator.deallocate( node->data, 1 );
@@ -143,8 +143,8 @@ private:
     template < typename T > class Iterator {
     public:
         typedef T                               value_type;
-        typedef T &                             reference;
-        typedef T *                             pointer;
+        typedef T                              &reference;
+        typedef T                              *pointer;
         typedef std::ptrdiff_t                  difference_type;
         typedef std::bidirectional_iterator_tag iterator_category;
 
@@ -224,7 +224,7 @@ private:
     /* ------------------------------ Construction ------------------------------ */
 
 public:
-    _Rb_tree( const key_compare &   comp  = key_compare(),
+    _Rb_tree( const key_compare    &comp  = key_compare(),
               const allocator_type &alloc = allocator_type() )
         : _node_allocator( alloc ),
           _data_allocator( alloc ),
@@ -293,7 +293,7 @@ public:
         return _insert( data, _root );
     }
     ft::pair< iterator, bool > insert( iterator hint, const value_type &data ) {
-        if ( _is_upper_bound( hint.get_node(), data.first ) ) {
+        if ( _is_upper_bound( data.first, hint.get_node() ) ) {
             node_pointer node( hint.get_node() );
             return _insert( data, node );
         }
@@ -416,6 +416,13 @@ private:
         node_pointer prev = ( --const_iterator( current ) ).get_node();
         return ( current == begin().get_node() || !_key_compare( k, prev ) )
                && _key_compare( k, current );
+    }
+
+    bool _is_upper_bound( const key_type &k, node_pointer current ) const {
+        if ( current == end().get_node() || _key_compare( k, current ) ) {
+            return false;
+        }
+        return _key_compare( k, ( ++const_iterator( current ) ).get_node() );
     }
 
     void _transplant( node_pointer u, node_pointer v ) {
